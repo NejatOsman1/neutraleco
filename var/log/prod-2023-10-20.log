@@ -1,2 +1,0 @@
-[2023-10-20T08:54:21.433851+02:00] php.CRITICAL: Uncaught Error: Division by zero {"exception":"[object] (DivisionByZeroError(code: 0): Division by zero at /var/www/vhosts/neutral.eco/httpdocs/src/Trinity/NeutralBundle/Controller/UsersController.php:101)"} []
-[2023-10-20T09:23:31.473728+02:00] php.CRITICAL: Uncaught Error: Division by zero {"exception":"[object] (DivisionByZeroError(code: 0): Division by zero at /var/www/vhosts/neutral.eco/httpdocs/src/Trinity/NeutralBundle/Controller/UsersController.php:101)"} []

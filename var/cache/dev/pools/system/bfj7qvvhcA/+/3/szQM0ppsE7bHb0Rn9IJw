@@ -1,3 +1,0 @@
-<?php //FOS%255COAuthServerBundle%255CModel%255CToken%2524expiresAt
-
-return [PHP_INT_MAX, []];

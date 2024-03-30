@@ -1,8 +1,0 @@
-{# Feestveiling\AdminBundle\Resources\views\Form\datetimepicker.html.twig #}
-{% block dateTimePicker_widget %}
-    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' ff-datepicker')|trim}) %}
-        {{ form_errors(form.date) }}
-        {{ form_errors(form.time) }}
-        {{ form_widget(form.date, {'id' : id ~ '_date', attr: attr}) }}
-        {{ form_widget(form.time, {'id' : id ~ '_time'}) }}
-{% endblock %}

@@ -1,3 +1,0 @@
-<?php //Scheb%255CTwoFactorBundle%255CModel%255CTotp%255CTwoFactorInterface%2523isTotpAuthenticationEnabled
-
-return [PHP_INT_MAX, []];

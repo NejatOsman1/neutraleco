@@ -1,3 +1,0 @@
-<?php //App%255CCmsBundle%255CEntity%255CSettings%2523setPayEnabled
-
-return [PHP_INT_MAX, []];

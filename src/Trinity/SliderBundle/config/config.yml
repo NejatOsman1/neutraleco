@@ -1,3 +1,0 @@
-twig:
-    globals:
-        trinitysliderbundle_show: "@qinoxsliderbundle_show"

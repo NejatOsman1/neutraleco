@@ -1,4 +1,0 @@
-# Trinity\FaqBundle\Entity\Faq:
-#     properties:
-#         batch_size:
-#             - Min: { limit: 2, message: De batch grootte moet minimaal 2 zijn. }

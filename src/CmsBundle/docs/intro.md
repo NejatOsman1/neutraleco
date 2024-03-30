@@ -1,3 +1,0 @@
-# Trinity CMS
-
-Welkom

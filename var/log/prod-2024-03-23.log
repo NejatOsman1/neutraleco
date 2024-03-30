@@ -1,1 +1,0 @@
-[2024-03-23T17:05:05.648282+00:00] php.CRITICAL: Uncaught Error: Call to undefined function App\CmsBundle\Entity\imagewebp() {"exception":"[object] (Error(code: 0): Call to undefined function App\\CmsBundle\\Entity\\imagewebp() at /var/www/html/src/CmsBundle/Entity/Media.php:481)"} []

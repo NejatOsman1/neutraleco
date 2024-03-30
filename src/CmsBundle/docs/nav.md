@@ -1,7 +1,0 @@
-- [Pagina beheer](#pages)
-  - [Blokken systeem](#pages_blocks)
-  - [Metadata](#pages_meta)
-- [Media bibliotheek](#media)
-  - [Bestanden uploaden](#media_upload)
-  - [Foto's wijzigen](#media_edit)
-- [Extensies](#bundles)

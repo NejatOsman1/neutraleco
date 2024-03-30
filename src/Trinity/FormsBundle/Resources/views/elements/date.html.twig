@@ -1,9 +1,0 @@
-{% trans_default_domain 'forms' %}
-{% extends [':forms_elements:row.html.twig', '@TrinityForms/elements/row.html.twig'] %}
-
-{% block field %}
-	{% set getval = app.request.get('field' ~ Question.id) %}
-	<input class="form-control" {% if Question.required and Question.hidden == false %}required="true"{% endif %} name="form[{% if Form is not null %}{{Form.id}}{% endif %}][{% if Question is not null %}{{Question.id}}{% endif %}]" type="date" {% if edit is defined %}disabled="disabled"{% elseif Question.placeholder is not empty %}placeholder="{{Question.placeholder|raw}}"{% endif %} value="{{getval is not empty ? getval : '' }}" />
-
-	{# {% if edit is defined %}<div class="block-id">Datum #{{Question.id}}</div>{% endif %} #}
-{% endblock %}

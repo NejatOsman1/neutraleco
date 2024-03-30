@@ -1,8 +1,0 @@
-{% trans_default_domain 'forms' %}
-{% extends [':forms_elements:row.html.twig', '@TrinityForms/elements/row.html.twig'] %}
-
-{% block field %}
-	<input class="form-control" name="form[{% if Form is not null %}{{Form.id}}{% endif %}][{% if Question is defined %}{{Question.id}}{% endif %}]" type="file" name="files[{{Question.id}}]" {% if edit is defined %}disabled="disabled"{% endif %} />
-
-	{# {% if edit is defined %}<div class="block-id">Upload #{{Question.id}}</div>{% endif %} #}
-{% endblock %}

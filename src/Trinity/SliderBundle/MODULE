@@ -1,3 +1,0 @@
-name: Slider
-icon: slideshow
-quickmenu: {"add":[{"route": "admin_mod_slider_edit", "label": "Nieuwe slider", "arguments": {}}]}

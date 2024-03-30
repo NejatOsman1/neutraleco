@@ -1,7 +1,0 @@
-*~
-*old
-Resources/translations/*.db
-.DS_Store
-/Resources/public/ckeditor_tmp_flat_template
-/Resources/public/ckeditor_prev
-.sass-cache

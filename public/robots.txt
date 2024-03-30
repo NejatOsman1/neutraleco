@@ -1,0 +1,15 @@
+# www.robotstxt.org/
+# www.google.com/support/webmasters/bin/answer.py?hl=en&answer=156449
+
+User-agent: *
+Disallow: /admin
+
+User-Agent: MJ12bot
+Crawl-Delay: 10
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: dotbot
+Crawl-Delay: 10
+

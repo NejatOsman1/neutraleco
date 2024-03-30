@@ -1,0 +1,29 @@
+{% trans_default_domain 'forms' %}
+{% extends [':forms_elements:row.html.twig', '@TrinityForms/elements/row.html.twig'] %}
+
+{% block field %}
+	<div class="options" data-type="checkbox">
+		{% if Question.getValues is not empty %}
+			{% for n,value in Question.getValues %}
+				{% set checked = (Question.default[n] is defined ? 'checked="checked"' : '') %}
+				{% set disabled = (Question.disabled[n] is defined ? 'disabled="disabled"' : '') %}
+				{# {% set required = (Question.required and Question.hidden == false ? 'required="true"' : '') %} #}
+				{% set required = '' %}
+				{% set name = 'form[' ~ (Form is not null ? Form.id : '') ~ '][' ~ (Question is defined ? Question.id : '') ~ '][]' %}
+				{% set name_tmp = 'tmp[' ~ (Form is not null ? Form.id : '') ~ '][' ~ (Question is defined ? Question.id : '') ~ '][]' %}
+
+				<div class="form-check">
+				{% if edit is not defined %}
+					<input class="form-check-input" {{checked}} {{disabled}} {{required}} type="checkbox" name="{{name}}" value="{{value}}" id="chk_{{Question.id}}{{n}}" />
+					<label class="form-check-label" for="chk_{{Question.id}}{{n}}">{{value|raw}}</label>
+				{% else %}
+					<input class="form-check-input" {{checked}} {{disabled}} type="checkbox" name="{{name_tmp}}" id="chk_{{Question.id}}_{{n}}" />
+					<label class="form-check-label" id="chk_{{Question.id}}{{n}}" for="chk_{{Question.id}}_{{n}}">{{value|raw}}</label>
+				{% endif %}
+				</div>
+			{% endfor %}
+		{% endif %}
+	</div>
+
+	{# {% if edit is defined %}<div class="block-id">Meerkeuze #{{Question.id}}</div>{% endif %} #}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% trans_default_domain 'forms' %}
+{% extends [':forms_elements:row.html.twig', '@TrinityForms/elements/row.html.twig'] %}
+
+{% block field %}
+	{% set getval = app.request.get('field' ~ Question.id) %}
+		{% if edit is defined or Question.placeholder is not empty %}
+			{% if Form.floatingLabels %}<div class="form-floating">{% endif %}
+		{% endif %}
+			<input class="form-control" id="frm-lbl-{{Question.id}}" name="form[{% if Form is not null %}{{Form.id}}{% endif %}][{% if Question is not null %}{{Question.id}}{% endif %}]" type="text" {% if edit is defined %} disabled="disabled" {% endif %} placeholder="{% if edit is defined %}{{(Question.placeholder ? Question.placeholder : ('Tekst veld' | trans))}}{% elseif Question.placeholder is not empty %}{{Question.placeholder|raw}}{% endif %}" {% if Question.required and Question.hidden == false %}required="true"{% endif %} value="{{getval is not empty ? getval : '' }}" />
+			{% if Form.floatingLabels and not Question.hiddenLabel %}
+				<label for="frm-lbl-{{Question.id}}">
+					{% if edit is defined %}
+						{{(Question.placeholder ? Question.placeholder : ('Tekst veld' | trans))}}
+					{% elseif Question.placeholder is not empty %}
+						{{Question.placeholder|raw}}
+					{% endif %}
+				</label>
+			{% endif %}
+	{% if edit is defined or Question.placeholder is not empty %}
+		{% if Form.floatingLabels %}</div>{% endif %}
+	{% endif %}
+{% endblock %}

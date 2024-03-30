@@ -1,0 +1,25 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Maak blog met EasifyGPT'|trans}}{% endblock %}
+
+{% block body %}
+
+<div class="card">
+    <div class="card-content">
+        <div class="card-title">
+            <h6>{{'Maak blogposts met EasifyGPT'|trans}}</h6>
+        </div>
+        <div class="col-12 row">
+            <div class="col-12">
+                {# <label class="mb-2" for="titles">{{'Blog Titels'|trans}}</label> #}
+                <textarea class="form-control" name="titles" id="titles" rows="20" placeholder="Voer hier blog titels in (gescheiden met een enter)"></textarea>
+            </div>
+            <div class="col-12 mt-3">
+                <a class="btn w-100 text-center" style="padding-top: 10px; display: block;" id="gpt-btn"><i class="fas fa-microchip"></i> {{'Genereer content'|trans}}</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

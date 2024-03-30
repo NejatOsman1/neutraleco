@@ -1,0 +1,91 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'layout.title.metadata'|trans}} <small class="pull-right"><a class="btn btn-primary" href="{{ path('admin_metadata_edit') }}?id=0"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> {{ 'btn.add.metatag'|trans }}</a></small>{% endblock %}
+
+{% block body %}
+    <div class="card">
+		<div class="card-content">
+			<div class="card-titles">
+				<h6 class="card-title">{{'Pagina specifiek'|trans}}</h6>
+			</div>
+      <div class="table-responsive">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th></th>
+						<th style="width:200px;">{{'Sleutel'|trans}}</th>
+						<th style="width:140px;">{{'Soort'|trans}}</th>
+						<th class="right-align" style="width:100px;"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% if pageMetatags is not empty %}
+						{% for Metatag in pageMetatags %}
+							<tr>
+								<td>{{Metatag.label|e}}</td>
+								<td>{{Metatag.key|e}}</td>
+								<td>{{Metatag.valueType == 'image' ? ('Afbeelding' | trans) : ''}}</td>
+								<td class="right-align actions">
+									<a href="{{ path('admin_metadata_edit', {'id':Metatag.id}) }}" title="{{'Wijzigen'|trans}}"><i class="fa fa-edit"></i></a>
+									<a href="{{ path('admin_metadata_delete', {'id':Metatag.id}) }}" onclick="cpop.confirm('{{'Wilt u de metatag <b>%metatagkey%</b> verwijderen?' | trans({'%metatagkey%': Metatag.key}) }}', function(){
+										window.location = '{{ path('admin_metadata_delete', {'id':Metatag.id}) }}';
+									} ); return false;" title="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>
+								</td>
+							</tr>
+						{% endfor %}
+					{% else %}
+						<tr>
+							<td colspan="3" style="text-align:center;">{{'Geen gegevens beschikbaar.'|trans}}</td>
+						</tr>
+					{% endif %}
+				</tbody>
+			</table>
+      </div>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-content">
+			<div class="card-titles">
+				<h6 class="card-title">{{'Globaal'|trans}}</h6>
+			</div>
+      <div class="table-responsive">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th></th>
+						<th style="width:200px;">{{'Sleutel'|trans}}</th>
+						<th style="width:140px;">{{'Soort'|trans}}</th>
+						<th class="right-align" style="width:100px;"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% if systemMetatags is not empty %}
+						{% for Metatag in systemMetatags %}
+							<tr>
+								<td>{{Metatag.label|e}}</td>
+								<td>{{Metatag.key|e}}</td>
+								<td>{{Metatag.valueType == 'image' ? 'Afbeelding' : ''}}</td>
+								<td class="right-align actions">
+									<a href="{{ path('admin_metadata_edit', {'id':Metatag.id}) }}" title="{{'Wijzigen'|trans}}"><i class="fa fa-edit"></i></a>
+									<a href="{{ path('admin_metadata_delete', {'id':Metatag.id}) }}" onclick="cpop.confirm('{{'Wilt u de metatag <b>%metatagkey%</b> verwijderen?' | trans({'%metatagkey%': Metatag.key}) }}', function(){
+										window.location = '{{ path('admin_metadata_delete', {'id':Metatag.id}) }}';
+									} ); return false;" title="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>
+								</td>
+							</tr>
+						{% endfor %}
+					{% else %}
+						<tr>
+							<td colspan="3" style="text-align:center;">{{'Geen gegevens beschikbaar.'|trans}}</td>
+						</tr>
+					{% endif %}
+				</tbody>
+			</table>
+      </div>
+	    </div>
+    </div>
+
+	<div class="btn-bar">
+		<div class="right"><a href="{{path('admin_metadata_edit', {id: 0})}}" class="btn"><i class="fa fa-plus left"></i>{{'Nieuwe metatag toevoegen'|trans}}</a></div>
+	</div>
+{% endblock %}

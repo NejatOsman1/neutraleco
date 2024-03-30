@@ -1,0 +1,76 @@
+{#
+    {
+        "key": "framework_banner_text_right",
+        "category": "Framework",
+        "label": "Banner (tekst rechts)",
+        "description": "...",
+        "allowMove": true,
+        "blocks": [
+          {
+            "key": "block-0",
+            "size": 12,
+            "required": "media",
+            "fields": [
+              {
+                "key": "content",
+                "type": "textarea",
+                "label": "Content"
+              }
+            ]
+          }
+        ]
+    }
+#}
+
+  <section
+  class="text-blocks-background {{wrapper.classList}}"
+  id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+  style="{{wrapper.styleList}}"
+  data-id="{{wrapper.id}}">
+
+    {% if wrapper.blocks[0].media is not empty %}
+      <div class="lcp">
+        {% if wrapper.blocks[0].media.hasBlurred %}
+          <picture>
+            {% if wrapper.blocks[0].media.hasWebp() %}
+              <source srcset="/{{wrapper.blocks[0].media.getBlurredWebpPath('large')}}" type="image/webp">
+            {% endif %}
+            <source srcset="/{{wrapper.blocks[0].media.getBlurredWebPath('large')}}" type="{{wrapper.blocks[0].media.mime}}">
+            <img class="lq" alt="{{wrapper.blocks[0].media.description_alt}}" src="/{{wrapper.blocks[0].media.getBlurredWebPath('large')}}" type="{{wrapper.blocks[0].media.mime}}" loading="lazy" width="{{wrapper.blocks[0].media.width}}" height="{{wrapper.blocks[0].media.height}}">
+          </picture>
+        {% endif %}
+        <picture>
+          {% if wrapper.blocks[0].media.hasWebp() %}
+            <source srcset="/{{wrapper.blocks[0].media.getWebpPath('full')}}" type="image/webp">
+          {% endif %}
+          <source srcset="/{{wrapper.blocks[0].media.getWebPath('full')}}" type="{{ wrapper.blocks[0].media.mime }}">
+        <img class="hq" alt="{{wrapper.blocks[0].media.description_alt}}" src="/{{wrapper.blocks[0].media.getWebPath('full')}}" type="{{wrapper.blocks[0].media.mime}}" loading="lazy" width="{{wrapper.blocks[0].media.width}}" height="{{wrapper.blocks[0].media.height}}" onload="this.style.opacity=1{% if wrapper.blocks[0].media.hasBlurred %};this.closest('.lcp').getElementsByClassName('lq')[0].style.opacity=0;{% endif %}" style="opacity: 0;">
+        </picture>
+      </div>
+    {% endif %}
+
+    <div class="container {{ firstBlock.class }}">
+      {% if wrapper.label or wrapper.intro is not empty %}
+        <div class="introblock">
+          {% if wrapper.label is not empty %}
+            <div class="introtitle">
+              {{wrapper.label|raw}}
+            </div>
+          {% endif %}
+          {% if wrapper.intro is not empty %}
+            <div class="introtext">
+              {{wrapper.intro|raw}}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="row blocks">
+        <div class="col-sm-12 col-md-6 col-lg-4 offset-md-6 offset-lg-8">
+          {% if wrapper.blocks[0].config.content is not empty %}
+            {{wrapper.blocks[0].config.content|raw}}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>

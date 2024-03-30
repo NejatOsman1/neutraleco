@@ -1,0 +1,73 @@
+{% set rand = random() %}
+<div class="breadcrumbs">
+    {% for url,label in asset_crumbs %}
+        <a class="popup breadcrumb" href="{{url}}" itemprop="item">{{label}}</a>
+    {% endfor %}
+</div>
+
+{# FIXME laat directories van huidige slider niet zien! #}
+<div class="row">
+    {# <div class="col s12 m12 l9"> #}
+        <div class="library cards-responsive{{rand}}" id="cr{{rand}}">
+            {% if folders %}
+                <h3>{{ 'Mappen' | trans }} ({{folders|length}})</h3>
+                <div class="row">
+                {% for Folder in folders %}
+                    <div class="grid-element folder" data-id="{{Folder.id}}">
+                    <a href="{{path('admin_slider_entry_media_popup') ~ '/' ~ Folder.id ~ gString|raw }}" class="popup card hoverables" style="cursor:pointer;">
+                        <span class="card-title" title="{{Folder.getLabel}}">
+                            <i class="material-icons">folder</i>
+                            {{Folder.getLabel}}
+                        </span>
+
+                        {% if Folder.tags is not empty %}
+                            <div class="card-content">
+                                {% for Tag in Folder.tags %}
+                                    <div class="chip">{{Tag.label}}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    </a>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% if files %}
+                <h3>{{ 'Bestanden' | trans }} ({{files|length}})</h3>
+                <div class="row">
+                {% for Media in files %}
+                    <div class="grid-element file" data-id="{{Media.id}}">
+                        <div class="card hoverables" style="cursor:pointer;" onclick="loadLibraryMedia('{{Media.id}}', '/{{Media.getWebPath}}', '{{Media.getLabel}}', '{{Media.width}}');" data-url="/{{Media.getWebPath}}">
+                            <div class="card-image {{Media.type == 'images' ? 'images' : 'other'}}">
+                                {% if Media.type == 'images' %}
+                                    <div class="imagebox" style="background: url(/{{Media.getWebPath('small')}}) center; background-size: cover;">
+                                        <img src="{{asset('bundles/cms/images/transparent_square.gif')}}" />
+                                    </div>
+                                {% else %}
+                                    <div class="imagebox" style="background: url({{asset('bundles/cms/images/filetypes/' ~ Media.getFileImage)}}) center; background-size: 50%;background-repeat:no-repeat;">
+                                        <img src="{{asset('bundles/cms/images/transparent_square.gif')}}" />
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <span class="card-title" title="{{Media.getLabel}}">
+                                <i class="material-icons">insert_drive_file</i>
+                                {{Media.getLabel}}
+                            </span>
+
+                            {% if Media.getDescription is not empty %}
+                                <div class="card-content">
+                                    {{Media.getDescription}}
+                                    {# {% for Tag in Media.tags %}
+                                            <div class="chip">{{Tag.label}}</div>
+                                    {% endfor %} #}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {# </div> #}
+</div>

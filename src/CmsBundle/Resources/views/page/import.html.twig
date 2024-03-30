@@ -1,0 +1,14 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	<div class="card">
+		<div class="card-content">
+			<span class="card-title">{{'Importeren'|trans}}</span>
+
+			<form method="post" enctype="multipart/form-data">
+				<input type="file" name="file" /> <button type="submit">{{ 'Importeren' | trans }}</button>
+			</form>
+		</div>
+	</div>
+{% endblock %}

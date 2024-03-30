@@ -1,0 +1,22 @@
+<?php //App%255CTrinity%255CNeutralBundle%255CController%255CNeutralController%2523showAction
+
+return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\Internal\Hydrator::hydrate(
+    $o = [
+        clone (\Symfony\Component\VarExporter\Internal\Registry::$prototypes['Sensio\\Bundle\\FrameworkExtraBundle\\Configuration\\Route'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('Sensio\\Bundle\\FrameworkExtraBundle\\Configuration\\Route')),
+    ],
+    null,
+    [
+        'Symfony\\Component\\Routing\\Annotation\\Route' => [
+            'path' => [
+                '/mijn-account/profiel',
+            ],
+            'name' => [
+                'mod_my_account_profile',
+            ],
+        ],
+    ],
+    [
+        $o[0],
+    ],
+    []
+); }];

@@ -1,0 +1,107 @@
+{#
+    {
+        "key": "framework_hero_video",
+        "category": "Framework",
+        "label": "Hero (Video)",
+        "description": "...",
+        "allowMove": false,
+        "blocks": [
+            {
+                "key": "block-0",
+                "size": 12,
+                "required": "none",
+                "buttons": true,
+                "fields": [
+                    {
+                        "key": "title",
+                        "type": "text",
+                        "label": "Titel"
+                    },
+                    {
+                        "key": "content",
+                        "type": "textarea",
+                        "label": "Content"
+                    },
+                    {
+                        "key": "video",
+                        "type": "text",
+                        "label": "Video URL (link naar bestand vanuit media-bibliotheek)"
+                    }
+                ]
+            },
+            {
+                "key": "block-1",
+                "size": 12,
+                "required": "media",
+                "fields": []
+            }
+        ]
+    }
+#}
+
+<section
+class="hero video {{wrapper.classList}}"
+id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+style="{{wrapper.styleList}}"
+data-id="{{wrapper.id}}">
+
+  <div class="videowrapper">
+    <div class="videocontainer">
+      {% if wrapper.blocks[1].media is not empty %}
+        <div class="lcp lcp-bg">
+          {% if wrapper.blocks[1].media.hasBlurred %}
+            <picture>
+              {% if wrapper.blocks[1].media.hasWebp() %}
+                <source srcset="/{{wrapper.blocks[1].media.getBlurredWebpPath('large')}}" type="image/webp">
+              {% endif %}
+              <source srcset="/{{wrapper.blocks[1].media.getBlurredWebPath('large')}}" type="{{wrapper.blocks[1].media.mime}}">
+              <img class="lq" alt="{{wrapper.blocks[1].media.description_alt}}" src="/{{wrapper.blocks[1].media.getBlurredWebPath('large')}}" type="{{wrapper.blocks[1].media.mime}}" loading="lazy" width="{{wrapper.blocks[1].media.width}}" height="{{wrapper.blocks[1].media.height}}">
+            </picture>
+          {% endif %}
+          <picture>
+            {% if wrapper.blocks[1].media.hasWebp() %}
+              <source srcset="/{{wrapper.blocks[1].media.getWebpPath('full')}}" type="image/webp">
+            {% endif %}
+            <source srcset="/{{wrapper.blocks[1].media.getWebPath('full')}}" type="{{ wrapper.blocks[1].media.mime }}">
+          <img class="hq" alt="{{wrapper.blocks[1].media.description_alt}}" src="/{{wrapper.blocks[1].media.getWebPath('full')}}" type="{{wrapper.blocks[1].media.mime}}" loading="lazy" width="{{wrapper.blocks[1].media.width}}" height="{{wrapper.blocks[1].media.height}}" onload="this.style.opacity=1{% if wrapper.blocks[1].media.hasBlurred %};this.closest('.lcp').getElementsByClassName('lq')[0].style.opacity=0;{% endif %}" style="opacity: 0;">
+          </picture>
+        </div>
+      {% endif %}
+
+      {% if firstBlock.config.video is not empty %}
+        <video playsinline="playsinline" muted="muted" loop="" autoplay="true" type="video/mp4" data-radium="true" {% if wrapper.blocks[1].media %} poster="" {% endif %}>
+          <source src="{{firstBlock.config.video}}" type="video/mp4">
+        </video>
+      {% endif %}
+    </div>
+
+    <div class="titles">
+      <div class="vwrapper">
+        <div class="valign">
+          <div class="container {{ firstBlock.class }}">
+            <h1>{{firstBlock.config.title}}</h1>
+
+            {% if firstBlock.config.content is not empty %}
+              <div class="text">
+                {{firstBlock.config.content|raw}}
+              </div>
+            {% endif %}
+
+            {% for b in wrapper.blocks %}
+              {% if b.config.buttons is defined %}
+                <div class="btns">
+                {% for button in b.config.buttons %}
+                  <a href="{{button.url}}" {% if button.target is defined and button.target != 'null' and button.target is not empty %} target="{{button.target}}" {% endif %} class="btn {{button.class}}">
+                    {{button.label}}
+                    <i class="fa fa-arrow-right"></i>
+                  </a>
+                {% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

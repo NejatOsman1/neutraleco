@@ -1,0 +1,25 @@
+# This file is auto-generated during the composer install
+parameters:
+    locale: nl
+    database_host: localhost
+    database_port: null
+    database_name: neutraleco_web01
+    database_user: neutraleco_web01
+    database_password: 3_5Xlc1y1
+    database_socket: null
+    trinity_title: Easify
+    trinity_url: 'https://www.beyonit.nl'
+    trinity_support_email: info@beyonit.nl
+    trinity_support_phone: '058 289 68 27'
+    trinity_company: 'Béyonit B.V.'
+    trinity_company_url: 'https://www.beyonit.nl'
+    trinity_cc_server: 'https://trinitycms.nl'
+    trinity_disable_antibot: false
+    trinity_useragent_log: false
+    trinity_cache: true
+    trinity_webp: true
+    mailer_transport: sendmail
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
+    cache_max_age: 3600

@@ -1,0 +1,128 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	<div class="system-row">
+		<div class="system-sidebar d-none d-lg-flex" data-simplebar>
+			<div class="system-sidebar-inner">
+				<div class="card">
+					<div class="card-body">
+						<div class="card-title">
+							<div class="card-titles">{{'Categorieën'|trans}}</div>
+						</div>
+					</div>
+
+					<ul class="nav nav-tabs content-tabs" role="tablist">
+						{% for group,combined in transGroups %}
+							<li class="nav-item" role="presentation">
+								<button class="nav-link {{loop.index0 == 0 ? 'active' : ''}}" id="tab_{{loop.index0}}" aria-controls="content_{{loop.index0}}" data-bs-target="#content_{{loop.index0}}" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-flag"></i> {{group}}
+								</button>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="system-content">
+			<div class="card" style="text-align: center;">
+				<div class="card-content">
+					<span><i class="fas fa-exclamation-triangle" style="color:red; padding-right: 5px;"></i>{{ 'De opslaan knop slaat maar 1 pagina met vertalingen op.' | trans({}) }}</span>
+				</div>
+			</div>
+			<div class="tab-content">
+				{% for group, combined in transGroups %}
+					<div class="tab-pane show {{loop.index0 == 0 ? 'active' : ''}}" id="content_{{loop.index0}}" role="tabpanel" aria-labelledby="tab_{{loop.index0}}">
+						<div id="basic" class="t-content">
+							<form method="post">
+							{% for lbl, sub_group in combined %}
+								<div class="card">
+									<div class="card-body">
+										<div class="card-title">
+											<div class="card-titles">
+												<h6>{{transCats[sub_group] is defined ? (transCats[sub_group]|capitalize) : (sub_group | capitalize)}}</h6>
+											</div>
+										</div>
+										<table class="bordered highlight responsive-table">
+											<thead>
+												<tr>
+													<th style="width:50%;">{{'Originele zin'|trans}}</th>
+													<th>{{'Vertaalde zin'|trans}}</th>
+												</tr>
+											</thead>
+											<tbody class="tbody-{{sub_group}}">
+													{% if translationList[sub_group] is defined %}
+														{% set translations = translationList[sub_group] %}
+														{% for option in translations %}
+															{% if option.languageToken.token is defined and option.languageToken.token != '' %}
+																<tr>
+																	<td style="white-space: initial;">
+																		{{option.languageToken.token}}
+																	</td>
+																	<td>
+																		<textarea class="form-control" name="trans[{{option.id}}]">{{(option.languageToken.token == option.translation ? '' : option.translation)}}</textarea>
+																	</td>
+																</tr>
+															{% endif %}
+														{% endfor %}
+													{% endif %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							{% endfor %}
+
+							<div class="btn-bar">
+								<div class="right">
+									{% for sub_group in combined %}
+										<a href="{{path('admin_settings_languages_dl', {id: id, group: sub_group})}}" class="dl-lang btn-flat"><i class="fa fa-download"></i> {{transCats[sub_group] is defined ? (transCats[sub_group]|capitalize) : (sub_group | capitalize)}}</a>
+									{% endfor %}
+									{# <a onclick="addrow(null, this);" class="btn-flat"><i class="material-icons left">add</i>{{'Nieuwe optie'|trans}}</a> #}
+									<div class="dropdown">
+										<a class="btn btn-flat dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+											<i class="material-icons left">add</i>{{'Nieuwe optie'|trans}}
+										</a>
+
+										<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+											{% for sub_group in combined %}
+												<li onclick="addrow('{{sub_group}}', this);" data-group="{{sub_group}}"><a class="dropdown-item" href="#">{{transCats[sub_group] is defined ? (transCats[sub_group]|capitalize) : (sub_group | capitalize)}}</a></li>
+											{% endfor %}
+										</ul>
+									</div>
+
+									<button type="submit" class="btn"><i class="material-icons left">save</i>{{'Opslaan'|trans}}</button>
+								</div>
+							</div>
+							</form>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<script>
+	function addrow(group, el){
+		if(group){
+			var tbody = $('.tbody-' + group);
+			tbody.append('<tr>\
+				<td>\
+					<textarea class="form-control" name="keys[' + group + '][]" placeholder="{{ 'Van ...' | trans }}"></textarea>\
+				</td>\
+				<td>\
+					<textarea class="form-control" name="trans[' + group + '][]" placeholder="{{ 'Naar ...' | trans }}"></textarea>\
+				</td>\
+			</tr>');
+
+			// window.scrollTo(0,document.body.scrollHeight);
+		}else{
+			// $(el).closest('.t-content').find('.new-option-list').show();
+		}
+	}
+	</script>
+
+	<script>
+			$( "body" ).addClass( "page-overview" );
+	</script>
+{% endblock %}

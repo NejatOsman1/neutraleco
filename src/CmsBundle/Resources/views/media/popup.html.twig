@@ -1,0 +1,238 @@
+{% extends '@Cms/interface_' ~ (app.request.xmlHttpRequest == false ? 'clear' : 'empty') ~ '.html.twig' %}
+{# {% extends '@Cms/interface_clear.html.twig' %} #}
+{% trans_default_domain 'cms' %}
+{% block pagetitle %}{{'Media'|trans}}{% endblock %}
+
+{% block body %}
+	{% set ck = '' %}
+	{% if app.request.get('CKEditor') %}
+		{% set ck = ('&CKEditor=' ~ app.request.get('CKEditor') ~ '&CKEditorFuncNum=' ~ app.request.get('CKEditorFuncNum') ~ '&langCode=' ~ app.request.get('langCode')) %}
+	{% endif %}
+
+	{% set rand = random() %}
+	<div class="breadcrumbs">
+		{% for url,label in asset_crumbs %}
+			<a class="popup breadcrumb" href="{{url}}" itemprop="item">{{label}}</a>
+		{% endfor %}
+    </div>
+
+	<div style="display:none;" id="cpop-dropzone"><span class="message"></span></div>
+	<form method="post" enctype="multipart/form-data">
+		<input type="hidden" id="cpop_mediadirid" name="mediadirid" value="{{mediaDirId}}" />
+		<input type="hidden" name="manual_upload" value="1" />
+		<input type="file" style="display:none;" name="media[]" id="cpop_upload_button" />
+		<button type="submit" class="ignore" style="display:none;">{{'Uploaden'|trans}}</button>
+	</form>
+
+	<div class="row">
+		{# <div class="col s12 m12 l9"> #}
+			<div class="library cards-responsive{{rand}}" id="cr{{rand}}">
+				{% if folders %}
+					<h3>{{ 'Mappen' | trans }} ({{folders|length}})</h3>
+					<div class="row">
+					{% for Folder in folders %}
+						<div class="grid-element folder" data-id="{{Folder.id}}">
+						<a href="{{path('admin_media_popup') ~ '/' ~ Folder.id ~ gString|raw ~ ck|raw}}" class="popup card hoverables" style="cursor:pointer;">
+							<span class="card-title" title="{{Folder.getLabel}}">
+								<i class="material-icons">folder</i>
+								{{Folder.getLabel}}
+							</span>
+
+							{% if Folder.tags is not empty %}
+								<div class="card-content">
+									{% for Tag in Folder.tags %}
+										<div class="chip">{{Tag.label}}</div>
+									{% endfor %}
+								</div>
+							{% endif %}
+						</div>
+						</a>
+					{% endfor %}
+					</div>
+				{% endif %}
+				{% if files %}
+					<h3>{{ 'Bestanden' | trans }} ({{files|length}})</h3>
+					<div class="row">
+					{% for Media in files %}
+						<div class="grid-element file" data-id="{{Media.id}}">
+						<div class="card hoverables" style="cursor:pointer;" onclick="loadMedia('{{Media.id}}', '/{{Media.getWebPath}}', '{{Media.getLabel}}', '{{Media.width}}');" data-url="/{{Media.getWebPath}}">
+
+							<div class="card-image {{Media.type == 'images' ? 'images' : 'other'}}">
+								{% if Media.type == 'images' %}
+									<div class="imagebox" style="background: url(/{{Media.getWebPath('small')}}) center; background-size: cover;">
+										<img src="{{asset('bundles/cms/images/transparent_square.gif')}}" />
+									</div>
+								{% else %}
+									<div class="imagebox" style="background: url({{asset('bundles/cms/images/filetypes/' ~ Media.getFileImage)}}) center; background-size: 50%;background-repeat:no-repeat;">
+										<img src="{{asset('bundles/cms/images/transparent_square.gif')}}" />
+									</div>
+								{% endif %}
+							</div>
+
+							<span class="card-title" title="{{Media.getLabel}}">
+								<i class="material-icons">insert_drive_file</i>
+								{{Media.getLabel}}
+							</span>
+
+							{% if Media.getDescription is not empty %}
+								<div class="card-content">
+									{{Media.getDescription}}
+									{# {% for Tag in Media.tags %}
+										<div class="chip">{{Tag.label}}</div>
+									{% endfor %} #}
+								</div>
+							{% endif %}
+						</div>
+						</div>
+					{% endfor %}
+					</div>
+				{% endif %}
+			</div>
+		{# </div> #}
+	</div>
+
+
+
+	<div class="page-action-overlay">
+		<div class="vtable">
+			<div class="valign">
+				<div class="loading"></div>
+				<span>{{ 'Bezig met uploaden...' | trans }}</span>
+			</div>
+		</div>
+	</div>
+
+
+	<script type="text/javascript" src="{{asset('bundles/cms/js/jquery.filedrop.js')}}"></script>
+	<script type="text/javascript">
+
+	var totalUploadSize = 0;
+	var fileDrop;
+	var dropped = 0;
+
+    var allowedDocTypes = ['application/csv', 'application/doc', 'application/excel', 'application/ms-doc', 'application/mspowerpoint', 'application/msword', 'application/octet-stream', 'application/pdf', 'application/powerpoint', 'application/rtf', 'application/vnd.apple.keynote', 'application/vnd.apple.numbers', 'application/vnd.apple.pages', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/x-excel', 'application/x-iwork-keynote-sffkey', 'application/x-iwork-numbers-sffnumbers', 'application/x-msexcel', 'application/x-mspowerpoint', 'application/x-rar-compressed', 'application/zip', 'audio/basic', 'audio/mpeg', 'audio/ogg', 'audio/vnd.rn-realaudio', 'audio/vorbis', 'audio/wav', 'audio/x-midi', 'audio/x-pn-realaudio', 'audio/x-wav', 'text/asp', 'text/css', 'text/csv', 'text/html', 'text/pascal', 'text/php', 'text/plain', 'text/richtext', 'text/sgml', 'text/uri-list', 'text/webviewhtml', 'text/x-asm', 'text/x-c', 'text/x-java-source', 'text/x-pascal', 'text/x-script.csh', 'text/x-script.elisp', 'text/x-script.perl', 'text/x-script.perl-module', 'text/x-script.phyton', 'text/x-script.sh', 'text/x-server-parsed-html', 'text/x-setext', 'text/x-sgml', 'text/x-uuencode', 'video/avi', 'video/mp4', 'video/mpeg', 'video/msvideo', 'video/quicktime', 'video/x-msvideo'];
+        var allowedMediaTypes = ['image/bmp', 'image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/tiff'];
+
+        var allowedTypes = $.merge( $.merge([], allowedMediaTypes), allowedDocTypes)
+
+	$().ready(function(){
+		var msg_idle = '{{"Sleep hier bestanden naar toe om deze toe te voegen."|trans}}';
+		var msg_hover = '{{"Laat het bestand los om toe te uploaden."|trans}}';
+		var msg_uploading = '{{"Bezig met uploaden..."|trans}}';
+		var msg_done_idle = '{{"Uploaden voltooid!"|trans}}';
+
+		fileDrop = $('#cpop-dropzone').filedrop({
+		    fallback_id: 'cpop_upload_button',
+		    url: '{{path('admin_media')}}',
+		    paramname: 'media[]',
+		    withCredentials: true,
+		    data: {
+		        mediadirid: '{{mediaDirId}}',
+		    },
+		    error: function(err, file) {
+		        switch(err) {
+		            case 'BrowserNotSupported':
+		                alert('{{ 'browser does not support HTML5 drag and drop' | trans }}')
+		                break;
+		            case 'TooManyFiles':
+		                break;
+		            case 'FileTooLarge':
+		                cpop.loadHtml("{{ 'Bestand is te groot. Maximaal toegestaan:<br />Media bestanden: %maxMediaFileSize% KB<br />Alle overige bestanden: %maxFileSize% MB' | trans({'%mediafilesize%': maxMediaFileSize, '%filesize%': maxFileSize}) | raw }}");
+		                break;
+		            case 'FileTypeNotAllowed':
+			            cpop.loadHtml("{{'Bestandstype' |trans({}) | raw ~  '\''}}" + file.type + "{{'\'' ~ "is niet toegestaan.<br/><br/><strong>Toegestane bestanden:</strong><ul><li>" | trans({}) | raw }}" + allowedTypes.join('</li><li>') + '</li></ul>');
+		                break;
+		            case 'FileExtensionNotAllowed':
+		                break;
+		            default:
+		                break;
+		        }
+		    },
+		    allowedfiletypes: allowedTypes,
+                    allowedmediafiletypes: allowedMediaTypes,
+		    allowedfileextensions: [],
+		    maxfiles: 20,
+		    maxfilesize: {{maxFileSize}},
+                    maxmediafilesize: {{maxMediaFileSize}},
+		    dragOver: function() {
+		    	console.info('Entering dropzone');
+		        $('#cpop-dropzone').addClass('hover').find('.message').html(msg_hover);
+		    },
+		    dragLeave: function() {
+		    	console.info('Leaving dropzone');
+		        $('#cpop-dropzone').removeClass('hover').find('.message').html(msg_idle)
+		    },
+		    docOver: function() { },
+		    docLeave: function() { },
+		    drop: function() {
+		    	$('.page-action-overlay').show();
+		        totalUploadSize = 0;
+		        dropped = 0;
+		    },
+		    uploadStarted: function(i, file, len){
+		    	console.log('count', len);
+		        console.info('Start upload.');
+		    },
+		    uploadFinished: function(i, file, response, time) {
+		        console.info('Start finished.', file);
+		    },
+		    progressUpdated: function(i, file, progress) {
+		        console.info('File progress:', progress, file);
+		    },
+		    globalProgressUpdated: function(progress) { },
+		    speedUpdated: function(i, file, speed) { },
+		    rename: function(name) { },
+		    beforeEach: function(file) {
+		        console.info('Before file', file);
+		        dropped++;
+		    },
+		    beforeSend: function(file, i, done) {
+		        console.info('Before send', file);
+		        done(); // Start upload
+		        $('#cpop-dropzone').removeClass('hover').find('.message').html(msg_uploading)
+		    },
+		    afterAll: function() {
+		    	$('.page-action-overlay').hide();
+		        console.info('After all');
+		        $('#cpop-dropzone').removeClass('hover').find('.message').html(msg_done_idle)
+
+		        cpop.reset().loadAjax('{{app.request.uri}}');
+		    }
+		}).find('.message').html(msg_idle);
+	});
+
+	function humanFileSize(size, dec = 2) {
+	    var i = Math.floor( Math.log(size) / Math.log(1024) );
+	    return ( size / Math.pow(1024, i) ).toFixed(dec) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+	};
+
+	function loadMedia(mediaid, filepath, label, width){
+		{% if app.request.get('CKEditor') %}
+			// window.opener.CKEDITOR.tools.callFunction({{app.request.query.get("CKEditorFuncNum")}}, filepath);
+			// window.close();
+			window.CKEDITOR.tools.callFunction( {{app.request.query.get("ref")}}, filepath );
+            cpop.close();
+		{% else %}
+
+			{% if app.request.get('composer') %}
+				cpop.reset().loadAjax('{{path('admin_page_selector')}}?composer=1&mediaid=' + mediaid + '&file=' + encodeURIComponent(filepath) + '&label=' + encodeURIComponent(label));
+			{% elseif(app.request.xmlHttpRequest == false) %}
+				opener.clickedPopupMedia(mediaid, filepath, label, width);
+				window.close();
+			{% else %}
+				clickedPopupMedia(mediaid, filepath, label, width);
+			{% endif %}
+
+			/*if(typeof clickedPopupMedia === 'function'){
+				clickedPopupMedia(mediaid, filepath, label);
+			}else{
+				console.warn("Media popup: No function 'clickedPopupMedia(mediaid, filepath, label)' found for file click handling...");
+			}*/
+			// var url = '{{path('admin_page_selector')}}?x=1{{ck}}&mediaid=' + mediaid + '&file=' + encodeURIComponent(filepath) + '&label=' + encodeURIComponent(label);
+			// console.log(url);
+			// console.log(url.replace(/&amp;/g, '&'));
+			// window.location = url.replace('&amp;', '&');
+		{% endif %}
+	}
+	</script>
+{% endblock %}

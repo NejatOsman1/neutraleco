@@ -1,0 +1,4 @@
+name: Formulieren
+icon: check_box
+_nav: {"admin_mod_forms_edit": "<i class='material-icons'>add</i>Toevoegen"}
+quickmenu: {"add":[{"route": "admin_mod_forms_edit", "label": "Formulier toevoegen", "arguments": {}}]}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{% block title %}Legacy CMS{% endblock %}</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+	    {# Add to homescreen for Chrome on Android #}
+	    <meta name="mobile-web-app-capable" content="yes">
+	    <link rel="icon" sizes="192x192" href="{{ asset('bundles/cms/images/android-desktop') }}.png">
+	    <link rel="stylesheet" type="text/css" href="{{ asset('bundles/cms/css/hamburgers.min.css') }}" />
+
+	    {# Add to homescreen for Safari on iOS #}
+	    <meta name="apple-mobile-web-app-capable" content="yes">
+	    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+	    <meta name="apple-mobile-web-app-title" content="Material Design Lite">
+	    <link rel="apple-touch-icon-precomposed" href="{{ asset('bundles/cms/images/ios-desktop') }}.png">
+
+	    {# Tile icon for Win8 (144x144 + tile color) #}
+	    <meta name="msapplication-TileImage" content="{{ asset('bundles/cms/images/touch/ms') }}-touch-icon-144x144-precomposed.png">
+	    <meta name="msapplication-TileColor" content="#3372DF">
+
+		<link rel="stylesheet" type="text/css" href="{{asset('bundles/cms/select2/dist/css/select2.min.css')}}">
+		<link rel="stylesheet" type="text/css" href="{{asset('bundles/cms/css/layout.css')}}">
+
+		{# GLOBAL #}
+		<script type="text/javascript">
+		var jsonUrl = '{{path('_adminjson')}}/';
+		</script>
+
+		<link rel="stylesheet" href="{{asset('bundles/cms/css/jquery.cpop.css')}}">
+		<link rel="stylesheet" type="text/css" href="{{asset('bundles/cms/css/mobile.css')}}">
+
+		{% block stylesheets %}{% endblock %}
+
+		<script type="text/javascript" src="{{asset('bundles/cms/js/jquery-1.11.3.min.js')}}"></script>
+		<script src="{{asset('bundles/cms/js/jquery.cpop.js')}}"></script>
+	</head>
+	<body style="{% block bgimage %}{% endblock %}">
+		{% block body %}{% endblock %}
+
+		{# JQUERY (UI) #}
+		<script type="text/javascript" src="{{asset('bundles/cms/jquery-ui-1.11.4.custom/jquery-ui.js')}}"></script>
+
+		{# NESTED SORTABLES #}
+		{# <script type="text/javascript" src="{{asset('bundles/cms/nestedSortable/jquery.mjs.nestedSortable.js')}}"></script> #}
+
+		{# SELECT2 #}
+		<script type="text/javascript" src="{{asset('bundles/cms/select2/dist/js/select2.min.js')}}"></script>
+
+		<script type="text/javascript" src="{{asset('bundles/cms/js/script.js')}}"></script>
+		<script type="text/javascript" src="{{asset('bundles/cms/responsive_waterfall/responsive_waterfall.js')}}"></script>
+
+		{% block scripts %}{% endblock %}
+	</body>
+</html>

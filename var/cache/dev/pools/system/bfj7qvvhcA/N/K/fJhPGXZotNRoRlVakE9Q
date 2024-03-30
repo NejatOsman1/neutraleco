@@ -1,0 +1,3 @@
+<?php //App%255CCmsBundle%255CEntity%255CPageBlockWrapper%2523setPos
+
+return [PHP_INT_MAX, []];

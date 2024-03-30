@@ -1,0 +1,28 @@
+	<div class="card">
+		<div class="card-content">
+			<table style="width:100%;" class="striped">
+				<thead>
+					<tr>
+						<th style="width:150px;text-align:center;">{{ 'Type' | trans }}</th>
+						<th style="width:150px;text-align:center;">{{ 'TTL' | trans }}</th>
+						<th>{{ 'Regel' | trans }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for record in Client.dns %}
+                                            {% if record.type != 'SOA' %}
+						<tr>
+							<td>{{record.type}}</td>
+							<td>{{record.ttl}}</td>
+							<td>{{(record.type == 'MX' ? record.pri ~ ' ' : '') ~ record.rule}}</td>
+						</tr>
+                                            {% endif %}
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div id="popup_footer">
+		<button class="btn" onclick="cpop.close()">{{ 'Sluiten' | trans }}</button>
+	</div>

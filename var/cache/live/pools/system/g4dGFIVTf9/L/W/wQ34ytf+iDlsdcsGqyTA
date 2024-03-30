@@ -1,0 +1,22 @@
+<?php //App%255CTrinity%255CBlogBundle%255CController%255CBlogController%2523likeAction
+
+return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\Internal\Hydrator::hydrate(
+    $o = [
+        clone (\Symfony\Component\VarExporter\Internal\Registry::$prototypes['Symfony\\Component\\Routing\\Annotation\\Route'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('Symfony\\Component\\Routing\\Annotation\\Route')),
+    ],
+    null,
+    [
+        'Symfony\\Component\\Routing\\Annotation\\Route' => [
+            'path' => [
+                '/ajax/blog/{id}/like/{entryid}/{action}',
+            ],
+            'name' => [
+                'mod_like_dislike_ajax',
+            ],
+        ],
+    ],
+    [
+        $o[0],
+    ],
+    []
+); }];

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="nl">
+	<head>
+		<title>Nieuwe installatie</title>
+		<style type="text/css" media="screen">
+			*{
+				font-size: 14px;
+				font-family: arial;
+			}
+
+			h1{
+				font-size: 24px;
+				margin: 30px 0;
+				color: #1e88e5;
+			}
+
+			.card{
+				max-width: 500px;
+				margin: 0 auto;
+				margin-top: 200px;
+				text-align: center;
+				padding: 45px 30px 30px 30px;
+				border: solid 1px #ddd;
+				border-radius: 10px;
+			}
+
+			.card > img{
+				width: 250px;
+				display: block;
+				margin: 0 auto;
+				margin-bottom: 50px;
+			}
+
+			.btn {
+				background: #1e88e5;
+				border: none;
+				border-radius: 4px;
+				padding: 10px 20px;
+				color: white;
+				text-decoration: none;
+				display: block;
+				margin: 0 auto;
+				width: 200px;
+			}
+		</style>
+	</head>
+    <body class="default">
+    	<div class="card">
+    		<img src="/bundles/cms/images/logo.svg" alt="Trinity logo">
+
+    		<h1>Installatie voltooid!</h1>
+    		<p>De installatie is succesvol afgerond.</p>
+	    	<p>Klik op de onderstaande knop om direct je eerste pagina te maken.</p>
+	    	<p style="margin-top: 20px;"><a class="btn" href="{{path('admin_page_edit',{id: 0})}}">Nieuwe pagina aanmaken</a></p>
+    	</div>
+    </body>
+</html>

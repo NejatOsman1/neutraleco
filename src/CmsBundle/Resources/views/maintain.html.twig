@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="nl">
+    <head>
+        <title>{{Settings.label}} - {% block title %}{{ 'Welkom' | trans }}{% endblock %}</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="robots" content="noindex,nofollow" />
+
+        <style>
+            body {
+                text-align: center;
+                padding: 150px;
+                color: white;
+                font: 20px Helvetica, sans-serif;
+                background-image: url({{Settings.hasServiceBackground ? Settings.getServiceBackground : '/uploads/images/ecf3e41f52860abac1acb7a6174b4068d7e043e7.jpeg'}});
+                background-size: cover;
+                background-repeat: no-repeat;
+                text-shadow: 1px 1px 5px rgba(19, 86, 106, 0.4);
+            }
+            h1 { font-size: 50px; }
+            article { display: block; text-align: left; width: 650px; margin: 0 auto; }
+            a { color: #dc8100; text-decoration: none; }
+            a:hover { color: #333; text-decoration: none; }
+
+            img.logo {
+                max-width: 175px;
+                max-height: 175px;
+                position: absolute;
+                bottom: 50px;
+                right: 75px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <article>
+            {% if Settings.getMaintenanceMessage is not empty %}<div class="message"><p>{{Settings.getMaintenanceMessage|raw}}</p></div>{% endif %}
+            <img class="logo" src="{{Settings.logoAlt}}" alt="{{Settings.label}}" />
+        </article>
+    </body>
+</html>

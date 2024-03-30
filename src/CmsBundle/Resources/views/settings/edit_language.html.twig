@@ -1,0 +1,40 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	{{form_start(form)}}
+
+	<div class="card">
+		<div class="card-content">
+			<h6 class="card-title">{{'Naamgeving'|trans}}</h6>
+			{{form_row(form.label)}}
+			{{form_row(form.locale)}}
+			{{form_row(form.locale_full)}}
+			{{form_row(form.hide_baseuri)}}
+			{{form_row(form.notify_email)}}
+		</div>
+	</div>
+
+	<div class="card" style="{{(uniqueSites|length) == 1 ? 'display: none;' : ''}}">
+		<div class="card-content">
+			<h6 class="card-title">{{'Gekoppelde sites'|trans}}</h6>
+			{% for Site in uniqueSites %}
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="{{Site.id}}" name="sites[]" value="{{Site.id ~ '_' ~ Site.siteKey}}" {{(uniqueSites|length) == 1 ? 'checked' : ''}} />
+					<label class="form-check-label" for="{{Site.id}}">{{Site.label}} ({{Site.host}})</label>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<div class="btn-bar">
+		<div class="left">
+			{# <a href="{{path('admin_settings_languages')}}" class="btn-flat waves-effect waves-dark"><i class="material-icons left">arrow_back</i>{{'Terug'|trans}}</a> #}
+		</div>
+		<div class="right">
+			<button type="submit" class="btn right waves-effect waves-light"><i class="material-icons left">save</i>{{'Opslaan'|trans}}</button>
+		</div>
+	</div>
+
+	{{form_end(form)}}
+{% endblock %}

@@ -1,0 +1,86 @@
+{% trans_default_domain 'cms' %}
+
+<input type="hidden" id="formlabel" name="formlabel" value="" />
+
+<div class="mb-3">
+    <label for="action" class="form-label">{{'Formulier'|trans}}</label>
+    <select class="form-select" name="id" id="config_id" onchange="$('.form-pre-select').hide();$('#ps-' + this.value).show();$('#formlabel').val($('#config_id option:selected').text());">
+        {% set activeFormId = (app.request.get('id') is not empty ? app.request.get('id') : null) %}
+        {% for i,Form in linkdata.forms %}
+            {% if activeFormId is null and i == 0 %}
+                {% set activeFormId = Form.id %}
+            {% endif %}
+            <option {{Form.id == app.request.get('id') ? 'selected="selected"' : ''}} value="{{Form.id}}">{{Form.label}}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="mb-3">
+    <label for="config_redirect" class="form-label">{{'Bedankt pagina'|trans}}</label>
+    <input type="text" class="form-control" placeholder="/uw/bedank/pagina" id="config_redirect" name="redirect" value="{{app.request.get('redirect') ?? ''}}">
+</div>
+
+<script>
+$('#formlabel').val($('#config_id option:selected').text());
+</script>
+
+
+<p>
+    <strong>{{ 'Opties' | trans }}</strong>
+    
+    <div class="form-check">
+        <input class="form-check-input" id="show_hidden" type="checkbox" name="show_hidden" {{app.request.get('show_hidden') ? 'checked="checked"' : ''}} value="1" />
+        <label class="form-check-label" for="show_hidden" class="required">{{'Verborgen velden tonen'|trans}}</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" id="show_clear" type="checkbox" name="show_clear" {{app.request.get('show_clear') ? 'checked="checked"' : ''}} value="1" />
+        <label class="form-check-label" for="show_clear" class="required">{{'"Leegmaken"-knop tonen'|trans}}</label>
+    </div>
+</p>
+
+{% set lefExtension = false %}
+{% for route in routes %}
+    {% if route.route == 'admin_mod_extensions' %}
+        {% set lefExtension = true %}
+    {% endif %}
+{% endfor %}
+
+{% if lefExtension %}
+<div class="control-group ">
+        <label for="config_extension" class="required">{{'Extensies'|trans}}</label>
+        <div class="controls">
+            <input type="checkbox" name="extension_lef" id="extension_lef" {{ app.request.get('extension_lef') == "on" ? 'checked="checked"' }}>
+            <label for="extension_lef" class="active">{{ 'Gebruik de LEF koppeling van de ExtensionsBundle' | trans }}</label>
+        </div>
+</div>
+{% endif %}
+
+{# <div class="card">
+    <div class="card-content">
+        {% for formid,questionset in linkdata.questions %}
+        	<div class="form-pre-select" style="display:{{activeFormId == formid ? 'block' : 'none'}};" id="ps-{{formid}}">
+        		{% set questions = {} %}
+        		{% for question in questionset %}
+        			{% if question.type == 'select' %}
+        				{% set questions = questions|merge([question]) %}
+        			{% endif %}
+        		{% endfor %}
+
+        		{% if questions is not empty %}
+        			{% for question in questions %}
+        				<div class="control-group ">
+        					<label for="q{{question.id}}" class="required">{{question.title}}</label>
+        					<div class="controls">
+        						<select id="q{{question.id}}" name="pre-{{question.id}}">
+        							{% for option in question.values %}
+        								<option {{option == app.request.get('pre-' ~ question.id) ? 'selected="selected"' : ''}} value="{{option}}">{{option}}</option>
+        							{% endfor %}
+        						</select>
+        					</div>
+        				</div>
+        			{% endfor %}
+        		{% endif %}
+        	</div>
+        {% endfor %}
+    </div>
+</div> #}

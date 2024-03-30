@@ -1,0 +1,417 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{ 'Blog'|trans }}{% endblock %}
+
+{% block catselect %}
+{% endblock %}
+
+{% block body %}
+
+	{% if blogDetailPage %}
+		{% set baseUrl = blogDetailPage %}
+	{% elseif config.uri is defined and config.uri is not empty %}
+		{% set baseUrl = path('homepage') ~ config.uri %}
+	{% else %}
+		{% set baseUrl = path(app.request.attributes.get('_route')) %}
+	{% endif %}
+
+	<ul class="nav nav-tabs" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="messages" data-bs-toggle="tab" data-bs-target="#tab-messages" type="button" role="tab" aria-controls="tab-messages" aria-selected="true">{{'Berichten'|trans}}</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="categories" data-bs-toggle="tab" data-bs-target="#tab-categories" type="button" role="tab" aria-controls="tab-categories" aria-selected="false">{{'Categorieën'|trans}}</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="configs" data-bs-toggle="tab" data-bs-target="#tab-configs" type="button" role="tab" aria-controls="tab-configs" aria-selected="false">{{'Configuraties'|trans}}</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="replies" data-bs-toggle="tab" data-bs-target="#tab-replies" type="button" role="tab" aria-controls="tab-replies" aria-selected="false">{{'Reacties'|trans}}</button>
+		</li>
+		{% if moderate_replies is not empty %}
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="moderation" data-bs-toggle="tab" data-bs-target="#tab-moderation" type="button" role="tab" aria-controls="tab-moderation" aria-selected="false">
+					{{'Reacties goedkeuren'|trans}}
+					<span class="badge new" data-badge-caption="">{{moderate_replies|length}}</span></a>
+				</button>
+			</li>
+		{% else %}
+			<li class="nav-item" role="presentation">
+				<button class="nav-link disabled" id="moderation" data-bs-toggle="tab" data-bs-target="#tab-moderation" type="button" role="tab" aria-controls="tab-moderation" aria-selected="false">
+					{{'Reacties goedkeuren'|trans}}
+				</button>
+			</li>
+		{% endif %}
+	</ul>
+
+	<div class="tab-content" id="myTabContent">
+		<div class="tab-pane fade show active" id="tab-messages" role="tabpanel" aria-labelledby="tab-messages">
+			<div id="basic" class="t-content">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">
+							<div class="card-titles">
+								<h6>{{'Berichten'| trans }}</h6>
+							</div>
+
+							<div class="card-actions card-fields">
+								<form method="get" id="filter-form" onsubmit="filterList(1); return false;">
+									<input type="hidden" id="filter_sort" name="filter[sort]" value="p.datePublish" />
+									<input type="hidden" id="filter_order" name="filter[order]" value="desc" />
+
+									<button style="display:none;" type="submit">{{ 'Zoeken' | trans }}</button>
+
+									<div class="row">
+										<div class="col-12 col-lg-3">
+											<input class="form-control" placeholder="{{ 'Zoeken in berichten' | trans({}) | raw }}" type="text" name="filter[q]" value="{{q is defined ? q : ''}}" />
+										</div>
+											<div class="col-12 col-lg-3">
+											<select class="form-select" name="filter[concept]" onchange="$('#filter-form').submit();">
+												<option selected value="">{{ 'Alle statussen' | trans }}</option>
+												<option value="0">{{ 'Gepubliceerd' | trans }}</option>
+												<option value="1">{{ 'Concept' | trans }}</option>
+											</select>
+										</div>
+											<div class="col-12 col-lg-3">
+											<select class="form-select" name="filter[category]" onchange="$('#filter-form').submit();">
+												<option value="">{{ 'Alle categorieën' | trans }}</option>
+												{% for Category in categories %}
+												<option value="{{Category.id}}">{{Category.category}}</option>
+												{% endfor %}
+											</select>
+										</div>
+										<div class="col-12 col-lg-3">
+											<select class="form-select" name="per_page" id="per_page" onchange="filterList(1);">
+												<option value="10">{{ '10 per pagina' | trans }}</option>
+												<option value="20" selected>{{ '20 per pagina' | trans }}</option>
+												<option value="50">{{ '50 per pagina' | trans }}</option>
+												<option value="100">{{ '100 per pagina'  | trans }}</option>
+											</select>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+
+
+						{# <span class="card-title">{{'Blog berichten'|trans}}</span> #}
+
+						<div class="table-responsive">
+							<table class="table table-hover" id="qsort">
+								<thead>
+									<tr>
+										<th>{{ 'Omschrijving & URL'|trans }}</th>
+										<th>{{ 'Categorie'|trans }}</th>
+										<th>{{ 'Status'|trans }}</th>
+										<th>{{ 'Datum'|trans}}</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody id="filter-results"></tbody>
+							</table>
+						</div>
+
+						<div id="filter-loader"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
+
+						<div class="pagination-wrapper">
+							<ul id="pagination" class="pagination left"></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane fade" id="tab-categories" role="tabpanel" aria-labelledby="tab-categories">
+			<div class="card">
+				<div class="card-content">
+					<div class="card-title">
+						<div class="card-titles">
+							<h6>{{ 'Categorieën' | trans }}</h6>
+							<p>{{ 'Categorieën zijn collecties van nieuwsberichten, een bericht kan aan meerdere categorieën gekoppeld worden.' | trans }}</p>
+						</div>
+
+						<div class="card-actions">
+							<a href="{{ path('admin_mod_blog_category_add', {id: Blog.id }) }}" class="btn"><i class="fa fa-plus"></i> {{ 'Nieuwe categorie' | trans({}) | raw }}</a>
+						</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col s12">
+						<div class="table-responsive">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>{{ 'Categorieën'|trans }}</th>
+										<th style="width: 100px;" class="text-center">{{ 'Berichten' | trans }}</th>
+										<th style="width: 100px;"></th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for Category in categories %}
+									<tr>
+										<td>{{ Category.category }}</td>
+										<td class="text-center">{{ Category.entry.count }}</td>
+										<td class="text-end actions">
+											<a href="{{ path('admin_mod_blog_category_add',{'id': Blog.id, 'catid': Category.id}) }}" class="tooltipped"  data-tooltip="{{ 'Wijzigen'|trans }}"><i class="fa fa-edit"></i></a>
+											<a href="#" onclick="cpop.confirm( ' {{ "Wilt u de categorie <b>%category%</b> verwijderen? <br />Er zijn <b>%count%</b> bericht(en) die deze categorie gebruiken." | trans({'%category%': Category.category|e, '%count%': Category.entry.count}) | raw }}', function(){ window.location = '{{ path("admin_mod_blog_category_delete",{'id': Blog.id, 'catid': Category.id}) }}'; } ); return false;" class="tooltipped" data-tooltip="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane fade" id="tab-configs" role="tabpanel" aria-labelledby="tab-configs">
+			<div class="card">
+				<div class="card-content">
+					<div class="card-title">
+						<div class="card-titles">
+							<h6>{{ 'Configuraties' | trans }}</h6>
+							<p>{{ 'Configuraties zijn collecties van één of meerdere categorieën, zo kunnen meerdere categorieën eenvoudig gekoppeld worden.' | trans }}</p>
+						</div>
+
+						<div class="card-actions">
+							<a href="{{ path('admin_mod_blog_edit', {id: Blog.id}) }}" class="btn-flat"><i class="fa fa-cog"></i> {{ 'Configuratie wijzigen' | trans }}</a>
+						</div>
+					</div>
+
+
+					<select onchange="changeConfig(this);" class="form-select">
+						{% for option in blogs %}
+						<option {% if Blog.id == option.id %}selected="selected"{% endif %} value="{{ option.id }}">{{ option.label }}</option>
+						{% endfor %}
+						{# <option value="">{{ 'Nieuwe configuratie' | trans }}</option> #}
+					</select>
+
+					<a data-msg="{{ "Weet u zeker dat u de configuratie '%label%' wilt verwijderen?" | trans({'%label%': Blog.label|e}) | raw }}" href="{{ path('admin_mod_blog_delete', {id: Blog.id}) }}" class="confirm btn red mt-3">
+						<i class="far fa-trash-alt"></i> {{ 'Huidige configuratie verwijderen' | trans }}
+					</a>
+					<a href="{{ path('admin_mod_blog_edit') }}" class="btn mt-3">
+						<i class="fa fa-plus"></i> {{ 'Configuratie toevoegen' | trans }}
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane fade" id="tab-replies" role="tabpanel" aria-labelledby="tab-replies">
+			<div id="recent" class="t-content">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">
+							<h6>{{ 'Reacties' | trans }}</h6>
+							<input type="text" placeholder="Zoeken in reacties" class="form-control" style="width: 250px;" id="q" />
+						</div>
+						<div class="table-responsive" id="replies-table">
+
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane fade" id="tab-moderation" role="tabpanel" aria-labelledby="tab-moderation">
+			<div id="moderation" class="t-content">
+				<div class="card">
+							<div class="card-content">
+							<div class="table-responsive">
+									<table class="table table-hover">
+											<thead>
+													<tr>
+															<th>{{ 'Naam' | trans }}</th>
+															<th>{{ 'Nieuwsbericht' | trans }}</th>
+															<th>{{ 'Reactie' | trans }}</th>
+															<th>&nbsp;</th>
+													</tr>
+											</thead>
+											<tbody>
+													{% for R in moderate_replies %}
+															{% set detailUrl = baseUrl ~ '/' ~ R.entry.id ~ '/' ~ R.entry.getDefaultSlug %}
+															{% if R.entry.slug %}
+																	{% set detailUrl = baseUrl ~ '/' ~ R.entry.getSlug %}
+															{% endif %}
+															<tr>
+																	<td>
+																			{{R.firstname ~ ' ' ~ R.lastname}}<br/>
+																			<small>{{R.email}}</small>
+																	</td>
+																			<td>{{R.entry.label}}<span><br/>({{R.entry.datePublish|date('d-m-Y H:i:s')}})</span></td>
+																	{# {% endif %} #}
+																	<td data-commentSmall="{{R.comment|u.truncate(100)}}" data-comment="{{R.comment|raw}}">
+																			{{(R.comment|length > 100 ? R.comment|u.truncate(100) ~ '<a href="#" onclick="$(this).closest(\'td\').html($(this).closest(\'td\').data(\'comment\')); return false;">' ~ ('Lees meer' | trans) ~ '</a>' : R.comment)|raw}}
+																	</td>
+																	<td class="right-align actions">
+																			<a class="tooltipped" data-tooltip="{{ 'Reactie goedkeuren' | trans }}" href="{{path('admin_mod_blog_approval', {blog: R.entry.blog.id, id: R.id, status: '1'})}}"><i class="fa fa-check"></i></a>
+																			<a class="tooltipped" data-tooltip="{{ 'Reactie verwijderen' | trans }}" href="{{path('admin_mod_blog_approval', {blog: R.entry.blog.id, id: R.id, status: '0'})}}"><i class="far fa-trash-alt"></i></a>
+																	</td>
+															</tr>
+													{% endfor %}
+											</tbody>
+									</table>
+								</div>
+							</div>
+					</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="btn-bar">
+		<div class="left"></div>
+		<div class="right">
+			{% if is_granted('ROLE_SUPER_ADMIN') %}
+			<a href="{{ path('admin_mod_blog_openai') }}" class="btn-flat"><i class="fas fa-microchip fa-fw"></i> Maak met EasifyGPT</a>
+			{% endif %}
+			<a href="{{ path('admin_mod_blog_entry_edit', {id: 0, blog: Blog.id}) }}" class="btn"><i class="fa fa-plus"></i> {{ 'Nieuw bericht' | trans }}</a>
+		</div>
+	</div>
+
+	<script>
+	var current_page = 1;
+	var filterUrl = '{{path('admin_mod_blog_entry_filter', {'blogid': Blog.id})}}';
+	function filterList(p){
+		current_page = p;
+		$('#filter-loader').show();
+		var query = '/' + current_page + '?' + $('#filter-form').serialize() + '&pp=' + $('#per_page').val();;
+		$.ajax(filterUrl + query).done(function(response){
+
+			$('#filter-results').html('');
+			if(response.count){
+					$.each(response.results, function(ind, p){
+							var tr = $('<tr>');
+							if(p.concept){
+									tr.css('opacity', 0.5);
+							}
+							// tr.append('<td class="center-align" data-url="{{ path('admin_mod_blog_entry_edit') }}/' + p.id + '">' + p.id + '</td>');
+
+							var description = $('<td data-url="{{ path('admin_mod_blog_entry_edit') }}/' + p.id + '">');
+							description.append('<div class="label">' + p.label + '</div>');
+
+							if(p.url){
+									description.append('<div class="url">' + p.url + '</div>');
+							}else{
+									description.append('<div><small>{{ 'Er is geen overzichtspagina gekoppeld.' | trans }}</small></div>');
+							}
+							description.append('</td>');
+							tr.append(description);
+							tr.append('<td data-url="{{ path('admin_mod_blog_entry_edit') }}/' + p.id + '">' + p.cat.join(', ') + '</td>');
+							tr.append('<td class="center-align" data-url="{{ path('admin_mod_blog_entry_edit') }}/' + p.id + '">' + (p.concept ? '{{ 'Concept' | trans}}' :  '{{ 'Gepubliceerd' | trans}}') + '</td>');
+							tr.append('<td class="center-align" data-url="{{ path('admin_mod_blog_entry_edit') }}/' + p.id + '">' + p.datum + (p.datum_eind != '' ? '<span>' + p.datum_eind + '</span>' : '') + '</td>');
+
+							var actions = $('<td class="actions">');
+							actions.append('<a href="{{ path('admin_mod_blog_entry_replies') }}/' + p.id + '" class="tooltipped"  data-tooltip="' + p.replies + ' {{ 'reacties bekijken' | trans }}">\
+									<div class="comment">\
+											<i class="far fa-comment"></i>\
+											<div class="number">' + p.replies + '</div>\
+											</div>\
+							</a>');
+							actions.append('<a class="popup-pad" href="{{ path('admin_mod_blog_entry_clone') }}/' + p.id + '?popup=1" title="{{ 'Dupliceren' | trans }}"><i class="far fa-clone"></i></a>');
+
+							if (p.url && !p.is_external) {
+									actions.append('<a target="_blank" href="' + p.url + '" title="{{ 'BEKIJKEN'|trans }}"><i class="fa fa-external-link-alt"></i></a>');
+							}
+
+							actions.append('<a href="#" onclick="cpop.confirm( \' {{ 'Wilt u het blog bericht' | trans }} <b>' + p.label + '</b>   {{ 'verwijderen?' |trans }}\', function(){ window.location = \'{{ path('admin_mod_blog_entry_delete') }}/' + p.id + '\'; } ); return false;"  class="tooltipped"  data-tooltip="{{ 'Verwijderen'|trans }}"><i class="far fa-trash-alt"></i></a>');
+
+							tr.append(actions);
+
+							$('#filter-results').append(tr);
+					});
+					$('#filter-results').find('.tooltipped').tooltip({delay: 50});
+			} else {
+					$('#filter-results').append('<tr><td colspan="99" class="center-align"><div class="alert alert-info my-3">{{ 'Geen resultaten gevonden.' | trans }}</div></td></tr>');
+			}
+
+			$('td[data-url]').css('cursor', 'pointer').click(function(){
+					window.location = $(this).data('url');
+			});
+
+			$('#pagination').html('');
+
+
+
+			if (response.page > 1) {
+				$('#pagination').append($('<li class="page-item"><a class="page-link" href="javascript:prevPage();"><i class="fa fa-chevron-left"></i></a></li>'));
+			}else{
+				$('#pagination').append($('<li class="page-item disabled"><a class="page-link" href="#!"><i class="fa fa-chevron-left"></i></a></li>'));
+			}
+
+				$.each(paginationParser(parseInt(response.page), parseInt(response.pages)), function(x, i){
+					if(i == '...'){
+						$('#pagination').append($('<span class="sep-dots">...</span>'));
+					}else{
+						$('#pagination').append($('<li class="page-item' + (response.page == i ? ' active' : '') + '"><a class="page-link" href="javascript:filterList(' + i + ');">' + i + '</a></li>'));
+					}
+				});
+
+			if (response.page < response.pages) {
+				$('#pagination').append($('<li class="page-item"><a class="page-link" href="javascript:nextPage();"><i class="fa fa-chevron-right"></i></a></li>'));
+			}else{
+				$('#pagination').append($('<li class="page-item disabled"><a class="page-link" href="#!"><i class="fa fa-chevron-right"></i></a></li>'));
+			}
+
+			$('#filter-loader').hide();
+			cpop.resetPopupHandlers();
+		});
+	}
+
+	function nextPage(){
+		filterList(current_page + 1);
+	}
+
+	function prevPage(){
+		filterList(current_page - 1);
+	}
+
+	// Replies AJAX pages
+	let replies_url = '{{path('admin_mod_blog_entry', {id: 1})}}';
+
+	function loadRepliesAjax(page, q){
+		$.ajax(replies_url + '/' + page + '?q=' + q).done(function(r){
+			$('#replies-table').html(r);
+			$('#tab-replies .page-link').off('click').on('click', function(e){
+				e.preventDefault();
+				let page = $(this).data('page');
+				let href = $(this).attr('href');
+				loadRepliesAjax(page, q);
+			});
+		});
+	}
+
+	$(function(){
+		filterList(1);
+
+		// Load replies via AJAX
+		loadRepliesAjax(1, '');
+
+		$('#q').keyup(function(e){
+			var code = e.key; // recommended to use e.key, it's normalized across devices and languages
+			if(code==="Enter") e.preventDefault();
+			if(code==="Enter"){
+				loadRepliesAjax(1, $(this).val());
+			} // missing closing if brace
+		});
+	});
+	</script>
+
+	<script type="text/javascript">
+	{# $(".tablesorter").tablesorter({
+		// sort on the first column and third column, order asc
+		sortList: [[4, 1]],
+		headers: {
+			4: {sorter: "dd-mm-yyyy hh:ii:ss"},
+			6: {sorter: false}
+		}
+	}); #}
+
+	function changeConfig(el) {
+		if (el.value == '') {
+			window.location = '{{ path('admin_mod_blog_edit') }}';
+		} else {
+			window.location = '{{ path('admin_mod_blog_entry') }}/' + el.value;
+		}
+	}
+	</script>
+{% endblock %}

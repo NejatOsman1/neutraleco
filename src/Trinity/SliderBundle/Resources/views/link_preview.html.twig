@@ -1,0 +1,8 @@
+{% trans_default_domain 'cms' %}
+
+<table>
+	<tr>
+		<td><strong>{{ 'Geselecteerde slider:' | trans }}</strong></td>
+		<td>{{config.slider is defined ? config.slider : 'Onbekend'}}</td>
+	</tr>
+</table>

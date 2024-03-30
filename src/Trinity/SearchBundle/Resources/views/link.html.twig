@@ -1,0 +1,17 @@
+{% trans_default_domain 'cms' %}
+
+<p>
+	<div class="mb-2"><b>{{'Limiet'|trans}}</b></div>
+	<input class="form-control" type="text" value="" name="tmp" />
+</p>
+
+<div class="control-group">
+  <div class="controls">
+    <select name="bundlefilter" id="view" class="form-select">
+      <option {{ '' == app.request.get('view') ? 'selected="selected"' : '' }} value="">Alle bundles</option>
+      {% for bundle in linkdata.bundles  %}
+          <option {{bundle == app.request.get('view') ? 'selected="selected"' : ''}} value="{{ bundle }}">{{ bundle }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>

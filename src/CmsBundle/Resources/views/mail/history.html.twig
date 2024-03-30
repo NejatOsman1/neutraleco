@@ -1,0 +1,44 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	<div class="card">
+		<div class="card-content">
+			<span class="card-title">{{ 'Verzonden e-mail berichten' | trans }}</span>
+			{% if emails %}
+				<table class="bordered striped highlight responsive-table">
+					<thead>
+						<tr>
+							<th style="width:160px;">{{ 'Datum' | trans }}</th>
+							<th style="width:120px;">{{ 'Soort' | trans }}</th>
+							<th style="width:200px;">{{ 'Ontvanger' | trans }}</th>
+							<th>E-mail</th>
+							<th class="right-align" style="width:100px;">&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for EmailHistory in emails %}
+							<tr>
+								<td>{{ EmailHistory.date|date('d-m-Y H:i:s') }}</td>
+								<td>
+									{% if EmailHistory.order %}
+										{{ 'Order status' | trans }}
+									{% elseif EmailHistory.user %}
+										{{ 'Klant contact' | trans }}
+									{% else %}
+										<em>{{ 'Onbekend' | trans }}</em>
+									{% endif %}
+								</td>
+								<td>{{ EmailHistory.receipient }}</td>
+								<td>{{ EmailHistory.subject }}</td>
+								<td class="right-align">
+									<a class="tooltipped popup" data-position="top" data-delay="300" data-tooltip="{{ 'Details' | trans }}" href="{{path('admin_mail_history', {id: EmailHistory.id})}}"><i class="material-icons">search</i></a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% endif %}
+		</div>
+    </div>
+{% endblock %}

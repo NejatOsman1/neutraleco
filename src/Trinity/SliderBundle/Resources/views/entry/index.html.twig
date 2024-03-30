@@ -1,0 +1,64 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'layout.title.slider'|trans}}{% endblock %}
+
+{% block body %}
+	<div class="card">
+		<div class="card-content">
+			<div class="card-title">
+				<div class="card-title"><h6>{{'Slides'|trans}}</h6></div>
+			</div>
+			
+			{% if entries %}
+			<table class="table table-responsive table-hover">
+				<thead>
+					<tr>
+						<th class="text-center" style="width:40px;">{{'ID'|trans}}</th>
+						<th>{{'Omschrijving'|trans}}</th>
+						<th style="width:100px;">{{'Zichtbaar'|trans}}</th>
+						<th style="width:300px;">{{'URL'|trans}}</th>
+						<th class="text-center" style="width:100px;">{{'Acties'|trans}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for Entry in entries %}
+						<tr>
+							<td class="text-center">{{ Entry.id|e }}</td>
+							<td>{{ Entry.label|e }}</td>
+							<td>{{ Entry.getEnabled ? 'Ja' : 'Nee' }}</td>
+							<td>{{ Entry.getParsedButtonUrl|e }}</td>
+							<td class="text-center">
+								<a href="{{ path('admin_mod_slider_entry_edit',{'id': Entry.id}) }}" title="{{'Wijzigen'|trans}}"><i class="material-icons">mode_edit</i></a>
+								<a href="#" onclick="cpop.confirm( 'Wilt u de slider post <b>{{ Entry.label|e }}</b> verwijderen?', function(){
+									window.location = '{{ path('admin_mod_slider_entry_delete',{'id': Entry.id}) }}';
+								} ); return false;" title="{{'Verwijderen'|trans}}"><i class="material-icons">delete</i></a>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% else %}
+				<div class="no-data">{{'Er zijn nog geen gegevens beschikbaar.'|trans}}</div>
+			{% endif %}
+	    </div>
+    </div>
+
+	<div class="card">
+		<div class="card-content center">
+			<a class="btn-large" href="{{path('admin_mod_slider_entry_add', {id: Slider.id})}}">{{'Nieuwe slide'|trans}}</a>
+			<a href="{{path('admin_mod_slider')}}" class="btn-large red darken-1"><i class="material-icons left">clear</i>{{'Annuleren'|trans}}</a>
+		</div>
+    </div>
+
+    <script type="text/javascript">
+    $(".tablesorter").tablesorter({
+        // sort on the first column and third column, order asc
+        sortList: [[4,1]],
+        headers: {
+        	4: {sorter:"dd-mm-yyyy hh:ii:ss"},
+            6: {sorter: false}
+        }
+    });
+    </script>
+{% endblock %}

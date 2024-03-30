@@ -1,0 +1,37 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+<div class="card">
+	<div class="card-content">
+		<table class="striped">
+			<thead>
+				<tr>
+					<th>{{usedMedia|length}} {{ 'afbeeldingen' | trans }}</th>
+					<th style="100px;">{{ 'Breedte (px)' | trans }}</th>
+					<th style="100px;">{{ 'Hoogte (px)' | trans }}</th>
+					<th style="250px;">{{ 'Datum' | trans }}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for m in usedMedia %}
+					<tr>
+						<td>
+							<a href="{{asset('uploads/images/' ~ m.path)}}" target="_blank">{{m.label}}</a><br/>
+							<span style="color:#888;font-size:12px;">{{m.getFolderPath()}}</span>
+						</td>
+						<td>{{m.width}}</td>
+						<td>{{m.height}}</td>
+						<td>{{m.dateAdd|date('d-m-Y H:i:s')}}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+<div class="card">
+	<div class="card-content">
+		<a href="{{path('admin_page_media_download', {'pageid':pageid})}}" class="btn">{{ 'Download' | trans }}</a>
+	</div>
+</div>
+{% endblock %}

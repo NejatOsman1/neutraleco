@@ -1,0 +1,59 @@
+{% extends app.request.xmlHttpRequest ? '@Cms/interface_empty.html.twig' : '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Blog'|trans}}{% endblock %}
+
+{% block body %}
+	<script src="/bundles/cms/js/lorem-ipsum.js"></script>
+	<script>
+	var lipsum = new LoremIpsum();
+	</script>
+	{% if saved %}
+		<div class="center-align"><i style="font-size: 100px;" class="green-text material-icons">check_circle</i></div>
+		<div class="card">
+			<div class="card-content center-align">
+				{{'Het blog bericht is succesvol toegevoegd.'|trans}}
+			</div>
+		</div>
+
+		<script>setTimeout(function(){ window.location = '{{path('admin_mod_blog_entry_edit', {'id': Entry.id})}}'; }, 1000);</script>
+	{% else %}
+		{{ form_start(form, {'multipart': true}) }}
+
+		<div class="card">
+			<div class="card-content">
+				<div class="card-title">
+					<h6>{{ 'Blog bericht toevoegen' | trans }}</h6>
+				</div>
+				{{form_widget(form)}}
+				<div class="input-field ">
+					<input type="text" id="date_date" name="date[date]" required="required" class="datepicker" value="{{'now'|date('d-m-Y')}}">
+					<label for="date_date" class="required active">{{ 'Publicatiedatum' | trans }}</label>
+				</div>
+				<div class="input-field ">
+					<input type="text" id="date_time" name="date[time]" required="required" class="timepicker" value="{{'now'|date('H:i')}}">
+					<label for="date_time" class="required active">{{ 'Publicatietijd' | trans }}</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="btn-bar">
+			<a href="{{path('admin_mod_blog_entry', {'id': Blog.id})}}" class="btn-flat">{{ 'Annuleren' | trans }}</a>
+			<button type="submit" class="btn"><i class="material-icons left">save</i>{{ 'Opslaan' | trans }}</button>
+		</div>
+
+
+		{# <div id="popup_footer">
+			<button type="submit" class="btn green darken-1"><i class="material-icons left">save</i>{{ 'Opslaan' | trans }}</button>
+			<button type="button" onclick="cpop.close()" class="btn red darken-1"><i class="material-icons left">clear</i>{{ 'Annuleren' | trans }}</button>
+		</div> #}
+		{{ form_end(form) }}
+
+		<script>
+
+		function generateLipsum(){
+			$('#form_label').val(lipsum.generate(10));
+		}
+		</script>
+	{% endif %}
+{% endblock %}

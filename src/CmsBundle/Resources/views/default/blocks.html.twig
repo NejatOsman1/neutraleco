@@ -1,0 +1,29 @@
+{% trans_default_domain 'cms' %}
+
+<h1>{{ 'Dashboard inhoud' | trans }}</h1>
+
+<p>{{ 'Voeg informatieblokken toe aan het dashboard' | trans }}</p>
+
+<table>
+	{% for b in blocks %}
+		{% set active = false %}
+		{% if b.bundle|lower ~ '-' ~ b.index in app.user.dashboardBlocks %}
+			{% set active = true %}
+		{% endif %}
+		<tr>
+			<td style="border-top:solid 1px #ddd;padding:10px 0;width:140px;">{{b.bundle}}</td>
+			<td style="border-top:solid 1px #ddd;padding:10px 0;">{{b.title}}</td>
+			<td style="border-top:solid 1px #ddd;padding:10px 0;width:50px;" class="right-align">
+				<a style="{% if active %}display:none;{% endif %}" href="#" class="btn-add" onclick="return addBlock(this, '{{b.bundle|lower}}', '{{b.index}}');">
+					<i class="material-icons green-text">add</i>
+				</a>
+				<a style="{% if not active %}display:none;{% endif %}" href="#" class="btn-del" onclick="return delBlock(this, '{{b.bundle|lower}}', '{{b.index}}');">
+					<i class="material-icons red-text">clear</i>
+				</a>
+			</td>
+		</tr>
+	{% endfor %}
+</table>
+
+<script type="text/javascript">
+</script>

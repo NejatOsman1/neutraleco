@@ -1,0 +1,216 @@
+{#
+    {
+        "key": "framework_content_card",
+        "category": "Framework",
+        "label": "Content + card",
+        "description": "...",
+        "allowMove": false,
+        "blocks": [
+            {
+                "key": "block-0",
+                "size": 8,
+                "buttons": true,
+                "required": "",
+                "fields": [
+                    {
+                        "key": "title",
+                        "type": "text",
+                        "label": "Titel"
+                    },
+                    {
+                        "key": "text",
+                        "type": "textarea",
+                        "label": "Tekst"
+                    }
+                ]
+            },
+            {
+                "key": "block-1",
+                "size": 4,
+                "buttons": true,
+                "contained": "right",
+                "required": "media",
+                "fields": [
+                    {
+                        "key": "title",
+                        "type": "text",
+                        "label": "Titel"
+                    },
+                    {
+                        "key": "text",
+                        "type": "textarea",
+                        "label": "Tekst"
+                    }
+                ]
+            }
+        ]
+    }
+#}
+
+<section
+class="text-blocks {{wrapper.classList}}"
+id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+style="{{wrapper.styleList}}"
+data-id="{{wrapper.id}}">
+
+  <div class="container">
+    {% if wrapper.label or wrapper.intro is not empty %}
+      <div class="introblock">
+        {% if wrapper.label is not empty %}
+          <div class="introtitle">
+            {{wrapper.label|raw}}
+          </div>
+        {% endif %}
+        {% if wrapper.intro is not empty %}
+          <div class="introtext">
+            {{wrapper.intro|raw}}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-sm-12 col-lg-8 {{ firstBlock.class }}">
+        <div class="vtable">
+          <div class="vcell">
+            <div class="padder">
+              <h3 class="title">{{firstBlock.config.title}}</h3>
+              <p>
+                {{firstBlock.config.text|raw}}
+                {{firstBlock.content|raw}}
+                {% if firstBlock.config.buttons is defined %}
+                  {% for button in firstBlock.config.buttons %}
+                    <a href="{{button.url}}" {% if button.target is defined and button.target != "null" %} target="{{button.target}}" {% endif %} class="{{button.class}} btn">
+                      {{button.label}}
+                      <i class="fa fa-arrow-right"></i>
+                    </a>
+                  {% endfor %}
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-12 col-lg-4 {{ wrapper.blocks[1].class }}">
+        {% if blocks[1] is iterable %}
+          {# IF BLOCKS 1 IS ITERABLE, ITS JUST A BLOCK #}
+          <div class="card sidebar">
+            {% if wrapper.blocks[1].media is not empty %}
+              <div class="image">
+
+                  <div class="lcp">
+                    {% if wrapper.blocks[1].media.hasBlurred %}
+                      <picture>
+                        {% if wrapper.blocks[1].media.hasWebp() %}
+                          <source srcset="/{{wrapper.blocks[1].media.getBlurredWebpPath('small')}}" type="image/webp">
+                        {% endif %}
+                        <source srcset="/{{wrapper.blocks[1].media.getBlurredWebPath('small')}}" type="{{wrapper.blocks[1].media.mime}}">
+                        <img class="lq" alt="{{wrapper.blocks[1].media.description_alt}}" src="/{{wrapper.blocks[1].media.getBlurredWebPath('small')}}" type="{{wrapper.blocks[1].media.mime}}" loading="lazy" width="{{wrapper.blocks[1].media.width}}" height="{{wrapper.blocks[1].media.height}}">
+                      </picture>
+                    {% endif %}
+                    <picture>
+                      {% if wrapper.blocks[1].media.hasWebp() %}
+                        <source srcset="/{{wrapper.blocks[1].media.getWebpPath('medium')}}" type="image/webp">
+                      {% endif %}
+                      <source srcset="/{{wrapper.blocks[1].media.getWebPath('medium')}}" type="{{ wrapper.blocks[1].media.mime }}">
+                    <img
+                      class="hq"
+                      alt="{{wrapper.blocks[1].media.description_alt}}"
+                      src="/{{wrapper.blocks[1].media.getWebPath('medium')}}" 
+                      type="{{wrapper.blocks[1].media.mime}}"
+                      loading="lazy" width="{{wrapper.blocks[1].media.width}}"
+                      height="{{wrapper.blocks[1].media.height}}"
+                      onload="this.style.opacity=1{% if wrapper.blocks[1].media.hasBlurred %};this.closest('.lcp').getElementsByClassName('lq')[0].style.opacity=0;{% endif %}"
+                      style="opacity: 0;">
+                    </picture>
+                  </div>
+
+              </div>
+            {% endif %}
+            <div class="content">
+            {% if wrapper.blocks[1].config.title is not empty %}
+              <h5>
+                {{wrapper.blocks[1].config.title|raw}}
+              </h5>
+            {% endif %}
+              <div class="text">
+                {{wrapper.blocks[1].config.text|raw}}
+                {% if wrapper.blocks[1].config.buttons is defined %}
+                  <br/>
+                  {% for button in wrapper.blocks[1].config.buttons %}
+                    <a href="{{button.url}}" {% if button.target is defined and button.target != "null" %} target="{{button.target}}" {% endif %} class="{{button.class}} btn">
+                      {{button.label}}
+                      <i class="fa fa-arrow-right"></i>
+                    </a>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+        {% else %}
+          {# IF BLOCKS 1 IS A STRING, MUST BE A CONTAINMENT LABEL #}
+          {% if 'contained:' in blocks[1] %}
+            {% set containmentKey = (blocks[1] | replace({'contained:': ''})) %}
+            {% if containments[containmentKey] is iterable %}
+              <div class="sidebar">
+              {% for cBlock in containments[containmentKey] %}
+                <div class="card">
+                  {% if cBlock.media is not empty %}
+                  <div class="image">
+                    {% if cBlock.media is not empty %}
+                      <div class="lcp">
+                        {% if cBlock.media.hasBlurred %}
+                          <picture>
+                            {% if cBlock.media.hasWebp() %}
+                              <source srcset="/{{cBlock.media.getBlurredWebpPath('small')}}" type="image/webp">
+                            {% endif %}
+                            <source srcset="/{{cBlock.media.getBlurredWebPath('small')}}" type="{{cBlock.media.mime}}">
+                            <img class="lq" alt="{{cBlock.media.description_alt}}" src="/{{cBlock.media.getBlurredWebPath('small')}}" type="{{cBlock.media.mime}}" loading="lazy" width="{{cBlock.media.width}}" height="{{cBlock.media.height}}">
+                          </picture>
+                        {% endif %}
+                        <picture>
+                          {% if cBlock.media.hasWebp() %}
+                            <source srcset="/{{cBlock.media.getWebpPath('full')}}" type="image/webp">
+                          {% endif %}
+                          <source srcset="/{{cBlock.media.getWebPath('full')}}" type="{{ cBlock.media.mime }}">
+                        <img class="hq" alt="{{cBlock.media.description_alt}}" src="/{{cBlock.media.getWebPath('full')}}" type="{{cBlock.media.mime}}" loading="lazy" width="{{cBlock.media.width}}" height="{{cBlock.media.height}}" onload="this.style.opacity=1{% if cBlock.media.hasBlurred %};this.closest('.lcp').getElementsByClassName('lq')[0].style.opacity=0;{% endif %}" style="opacity: 0;">
+                        </picture>
+                      </div>
+                    {% endif %}
+                  </div>
+                  {% endif %}
+
+                  <div class="card-body">
+                    {% if cBlock.config.title is not empty %}
+                    <h5>
+                      {{cBlock.config.title|raw}}
+                    </h5>
+                    {% endif %}
+                    <div class="text">
+                      {{cBlock.config.text|raw}}
+                    </div>
+
+                    {% if cBlock.config.buttons is defined %}
+                      {% for button in cBlock.config.buttons %}
+                        <a href="{{button.url}}" {% if button.target is defined and button.target != "null" %} target="{{button.target}}" {% endif %} class="{{button.class}} btn">
+                          {{button.label}}
+                        <i class="fa fa-arrow-right"></i>
+                        </a>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+              </div>
+            {% endif %}
+          {% else %}
+            {# Something strange happened #}
+          {% endif %}
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</section>

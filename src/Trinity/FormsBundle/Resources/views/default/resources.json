@@ -1,0 +1,12 @@
+{
+	"scripts": [
+		"/bundles/cms/select2/dist/js/select2.min.js",
+		"/bundles/trinityforms/front/js/front.js",
+		"/bundles/trinityforms/front/js/signature_pad.min.js",
+		"https://code.jquery.com/jquery-migrate-3.1.0.min.js",
+		"/bundles/cms/js/jquery.filedrop.js"
+	],
+	"style": [
+		"/bundles/cms/select2/dist/css/select2.min.css"
+	]
+}

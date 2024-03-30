@@ -1,0 +1,63 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'layout.title.apiclients'|trans}}{% endblock %}
+
+{% block body %}
+	<div class="card">
+		<div class="card-content">
+			<span class="card-title">Apps</span>
+			<table class="bordered striped highlight responsive-table">
+				<thead>
+					<tr>
+						<th class="center-align" style="width:40px;">ID</th>
+						<th>Omschrijving</th>
+						<th style="width:350px;">Methodes</th>
+						<th style="width:150px;">Secret</th>
+						<th style="width:80px;">&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% if clients is not empty %}
+						{% for Client in clients %}
+							<tr>
+								<td class="center-align">{{ Client.id }}</td>
+								<td>{{ Client.label }}</td>
+								<td>{{Client.allowedGrantTypes|join(', ')}}</td>
+								<td><a onclick="cpop.loadHtml('{{Client.secret}}')">Key tonen</a></td>
+								<td class="right-align actions">
+									<a href="{{ path('admin_mod_api_view',{'id': Client.id}) }}" title="{{'misc.edit'|trans}}"><i class="fa fa-search"></i></a>
+									<a href="{{ path('admin_mod_api_edit',{'id': Client.id}) }}" title="{{'misc.edit'|trans}}"><i class="fa fa-edit"></i></a>
+									{# <a href="#" onclick="cpop.confirm( 'Wilt u de FAQ configuratie <b>{{ Client.label|e }}</b> verwijderen?', function(){
+										window.location = '{{ path('admin_mod_api_delete',{'id': Client.id}) }}';
+									} ); return false;" title="{{'Verwijderen'|trans}}"><i class="fa fa-close fa-fw"></i></a> #}
+								</td>
+							</tr>
+						{% endfor %}
+					{% else %}
+						<tr>
+							<td colspan="5">Er zijn nog geen API configuraties aangemaakt.</td>
+						</tr>
+					{% endif %}
+				</tbody>
+			</table>
+	    </div>
+    </div>
+
+    <div class="btn-bar">
+    	<div class="right">
+    		<a href="{{path('admin_mod_api_edit')}}" class="btn">Nieuwe API</a>
+    	</div>
+    </div>
+
+    <script type="text/javascript">
+    $(".tablesorter").tablesorter({
+        // sort on the first column and third column, order asc
+        sortList: [[4,1]],
+        headers: {
+        	4: {sorter:"dd-mm-yyyy hh:ii:ss"},
+            6: {sorter: false}
+        }
+    });
+    </script>
+{% endblock %}

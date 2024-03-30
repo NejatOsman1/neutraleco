@@ -1,0 +1,87 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Redirect'|trans}}{% endblock %}
+
+{% block body %}
+	<form method="post">
+		<input type="hidden" name="x" value="y">
+		<div class="card">
+	        <div class="card-content">
+						<div class="card-title">
+        			<h6>{{ 'Redirects beheren' | trans }}</h6>
+
+							<div class="card-actions">
+								<button type="button" onclick="addRow()" class="btn"><i class="fa fa-plus"></i> {{'Rij toevoegen'|trans}}</button>
+							</div>
+						</div>
+
+	        	<table class="table table-responsive table-hover">
+	        		<thead>
+	        			<tr>
+	        				<th style="width:150px;">{{ 'Soort verwijzing' | trans }}</th>
+		        			<th style="width:100px;">{{ 'Code' | trans }}</th>
+		        			<th>{{ 'Oorsprong' | trans }}</th>
+		        			<th style="width:350px;">{{ 'Doel' | trans }}</th>
+		        			<th style="width:50px;">&nbsp;</th>
+	        			</tr>
+	        		</thead>
+	        		<tbody id="rows">
+	        			{% for row in redirectData %}
+	        				<tr>
+	        					<td>
+	        						<input type="text" class="form-control" name="data[{{loop.index0}}][]" value="{{row[0]}}" />
+	        					</td>
+	        					<td>
+	        						<input type="text" class="form-control" name="data[{{loop.index0}}][]" value="{{row[1]}}" />
+	        					</td>
+	        					<td>
+	        						<input type="text" class="form-control" name="data[{{loop.index0}}][]" value="{{row[2]}}" />
+	        					</td>
+	        					<td>
+	        						<input type="text" class="form-control" name="data[{{loop.index0}}][]" value="{{row[3]}}" />
+	        					</td>
+	        					<td valign="middle">
+											<div class="actions">
+	        							<button type="button" onclick="$(this).closest('tr').remove();" class=""><i class="far fa-trash-alt"></i></button>
+											</div>
+	        					</td>
+	        				</tr>
+	        			{% endfor %}
+	        		</tbody>
+	        	</table>
+	        </div>
+	    </div>
+
+		<div class="btn-bar">
+			<div class="right">
+				<button type="submit" class="btn right waves-effect waves-light"><i class="material-icons left">save</i>{{'Opslaan'|trans}}</button>
+			</div>
+		</div>
+	</form>
+
+	<script>
+	function addRow(){
+		var ts = Math.round(+new Date());
+		console.log( ts );
+		var r = $('<tr>\
+					<td>\
+						<input type="text" class="form-control" name="data[' + ts + '][]" value="redirect" />\
+					</td>\
+					<td>\
+						<input type="text" class="form-control" name="data[' + ts + '][]" value="301" />\
+					</td>\
+					<td>\
+						<input type="text" class="form-control" name="data[' + ts + '][]" value="{{ '/van' | trans }}" />\
+					</td>\
+					<td>\
+						<input type="text" class="form-control" name="data[' + ts + '][]" value="{{ '/naar' | trans }}" />\
+					</td>\
+					<td class="actions right-align">\
+						<button type="button" onclick="$(this).closest(\'tr\').remove();" class=""><i class="far fa-trash-alt"></i></button>\
+					</td>\
+				</tr>');
+		$('#rows').append(r);
+	}
+	</script>
+{% endblock %}

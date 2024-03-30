@@ -1,0 +1,10 @@
+{# Feestveiling\AdminBundle\Resources\views\Form\datepicker.html.twig #}
+{% block datePicker_widget %}
+    {% apply spaceless %}
+        <input type="text" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}/>
+        {% set attr = attr|merge({'class': ((attr.class|default('') ~ ' ff-datepicker')|trim)}) %}
+        {% set id = id ~ "_datepicker" %}
+        {% set full_name = "datepicker_" ~ full_name  %}
+        <input type="text" {{ block('widget_attributes') }}/>
+    {% endapply %}
+{% endblock datePicker_widget %}

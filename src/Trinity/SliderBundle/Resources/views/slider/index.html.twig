@@ -1,0 +1,84 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Slider'|trans}}{% endblock %}
+
+{% block body %}
+	<div class="card">
+		<div class="card-content">
+			<span class="card-title">
+				<span class="card-titles">
+					<h6>{{'Sliders'|trans}}</h6>
+				</span>
+			</span>
+			{% if sliders %}
+			<div class="table-responsive">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th class="" style="width:40px;">{{'ID'|trans}}</th>
+						<th>{{'Omschrijving'|trans}}</th>
+						<th class="center-align" style="width:80px;">{{'Slides'|trans}}</th>
+						<th class="right-align" style="width:100px;">{{'Acties'|trans}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for Slider in sliders %}
+						<tr>
+							<td class="">{{ Slider.id|e }}</td>
+							<td>{{ Slider.label|e }}</td>
+							<td class="center-align">{{ Slider.entries|length }}</td>
+							<td class="right-align actions">
+								<a href="{{ path('admin_mod_slider_edit',{'id': Slider.id}) }}" class="tooltipped"  data-tooltip="{{'Wijzigen'|trans}}"><i class="fa fa-edit"></i></a>
+								{% if Slider.id in slider_used %}
+								<span style="opacity: 0.5;" title="{{ 'Niet verwijderbaar, slider is op een pagina gekoppeld'|trans }}"><i class="far fa-trash-alt"></i></span>
+								{% else %}
+                                <a href="#" onclick="cpop.confirm('{{ 'Wilt u de slider <b>%sliderlabel%</b> en de %sliderlength% verbonden slide(s) verwijderen?' | trans({'%sliderlabel%': Slider.label|e, '%sliderlength%': Slider.entries | length}) | raw }}', function(){
+									window.location = '{{ path('admin_mod_slider_delete',{'id': Slider.id}) }}';
+								} ); return false;" class="tooltipped" data-tooltip="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>
+								{% endif %}
+{# Trinity V2 layout
+								<a href="{{ path('admin_mod_slider_edit',{'id': Slider.id}) }}" class="tooltipped" data-tooltip="{{'Wijzigen'|trans}}"><i class="fa fa-edit"></i></a>
+								<a href="#" onclick="cpop.confirm( 'Wilt u de slider <b>{{ Slider.label|e }}</b> en de {{ Slider.entries | length }} verbonden slide(s) verwijderen?', function(){
+									window.location = '{{ path('admin_mod_slider_delete',{'id': Slider.id}) }}';
+								} ); return false;" class="tooltipped" data-tooltip="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>
+#}
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			</div>
+			{% else %}
+				<div class="no-data">{{'Er zijn nog geen gegevens beschikbaar.'|trans}}</div>
+			{% endif %}
+	    </div>
+    </div>
+
+	{# <div class="fixed-action-btn">
+		<a href="{{path('admin_mod_slider_edit')}}" class="btn-floating btn-large red"><i class="large material-icons">add</i></a>
+	</div> #}
+
+
+
+	<div class="btn-bar">
+		<div class="right">
+			<a href="{{path('admin_mod_slider_edit')}}" class="btn waves-effect waves-light"><i class="material-icons left">add</i>{{'Nieuwe slider'|trans}}</a>
+		</div>
+	</div>
+
+    <script type="text/javascript">
+    /*$(function() {
+	    cpop.reset().loadAjax('{{path('admin_mod_slider_edit')}}');
+	});*/
+    {# tablesorter is not a function
+    $(".tablesorter").tablesorter({
+        // sort on the first column and third column, order asc
+        sortList: [[4,1]],
+        headers: {
+        	4: {sorter:"dd-mm-yyyy hh:ii:ss"},
+            6: {sorter: false}
+        }
+    });#}
+    </script>
+{% endblock %}

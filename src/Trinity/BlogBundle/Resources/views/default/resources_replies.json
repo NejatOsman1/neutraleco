@@ -1,0 +1,6 @@
+{
+	"scripts": [
+		"/bundles/cms/ckeditor/ckeditor.js",
+		"/bundles/trinityblog/js/common_blog.js"
+	]
+}

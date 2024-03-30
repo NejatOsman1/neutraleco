@@ -1,0 +1,51 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Metadata edit'|trans}}{% endblock %}
+
+{% block body %}
+	<form method="post">
+		<div class="card">
+			<div class="card-content">
+				<div class="card-titles">
+					<h6 class="card-title">{{'Metadata toevoegen'|trans}}</h6>
+				</div>
+				
+				<div id="form">
+				    <div class="content-block">
+				    	{{ form_widget(form) }}
+
+				    	<div class="row" style="display:{% if Metatag.getSystem() %}block{% else %}none{% endif %};" id="form_value_group">
+				    		<div class="mb-3">
+						    	<label class="form-label" for="form_value">{{'Waarde'|trans}}</label>
+					    		<input class="form-control" type="text" id="form_value" name="value" placeholder="{{'Waarde voor globale metatag'|trans}}" value="{{PageMetatag.getValue()}}">
+						    </div>
+					    </div>
+				    </div>
+			    </div>
+			</div>
+		</div>
+
+		<div class="btn-bar">
+			<div class="right">
+				<button type="submit" class="btn"><i class="fa fa-save left"></i>{{'Opslaan'|trans}}</button>
+				{# <a href="{{path('admin_metadata')}}" class="btn-large red darken-1"><i class="material-icons left">clear</i>{{'Annuleren'|trans}}</a> #}
+			</div>
+		</div>
+    </form>
+
+    <script type="text/javascript">
+    $('#form_system').click(function(){
+    	if( $(this).prop('checked') ){
+    		$('#form_value_group').show();
+    	}else{
+    		$('#form_value_group').hide();
+    	}
+    });
+
+    $().ready(function(){
+	    $(".tag-selector").select2({ tags: true });
+	});
+    </script>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Tags'|trans}}{% endblock %}
+
+{% block body %}
+	{% if Tag.pages is not empty %}
+		<div class="card">
+			<div class="card-content">
+				<div class="card-title">{{ "Pagina's" | trans }}</div>
+				<table>
+					<thead>
+						<th>{{ 'Pagina' | trans }}</th>
+						<th>{{ 'URL' | trans }}</th>
+					</thead>
+					<tbody>
+						{% for Page in Tag.pages %}
+							<tr>
+								<td><a href="{{path('admin_page_edit', {'id': Page.id})}}">{{Page.label|raw}}</a></td>
+								<td><a href="{{path('homepage') ~ Page.getFullUrl(true)}}" target="_blank">{{Page.getFullUrl(false)}}</a></td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	{% endif %}
+	{% if Tag.mediadirs is not empty %}
+		<div class="panel inline-table">
+			<table style="border-top:0;">
+				<tr>
+					<th colspan="2" class="left">{{'Media'|trans}}</th>
+				</tr>
+				{% for Mediadir in result_mediadir %}
+					<tr>
+						<td style="width:150px;">{{'Mappen'|trans}}</th></td>
+						<td><a href="{{path('admin_media', {'type': Mediadir.id})}}">{{Mediadir.label}}</a></td>
+					</tr>
+				{% endfor %}
+				{% for Media in result_media %}
+					<tr>
+						<td style="width:150px;">
+							{% if Media.type == 'images' %}
+								<span style="width:40px;height:40px;background-size:contain;display: block;background-position: center center;background-repeat:no-repeat;background-image:url('/{{Media.getWebPath}}');"></span>
+							{% else %}
+								{{Media.getTypeLabel}}
+							{% endif %}
+						</td>
+						<td><a href="{{path('admin_media_view', {'id': Media.id})}}">{{Media.label}}</a></td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	{% endif %}
+	{% if Tag.users is not empty %}
+		<div class="panel inline-table">
+			<table style="border-top:0;">
+				<tr>
+					<th class="left">{{'Gebruikers'|trans}}</th>
+				</tr>
+			</table>
+		</div>
+	{% endif %}
+{% endblock %}

@@ -1,0 +1,265 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+
+{% set pass_length  = ('Minimaal 8 tekens.'|trans({}, 'cms', app.request.locale)) %}
+{% set pass_number  = ('Minimaal één cijfer.'|trans({}, 'cms', app.request.locale)) %}
+{% set pass_letter  = ('Minimaal één kleine letter.'|trans({}, 'cms', app.request.locale)) %}
+{% set pass_capital = ('Minimaal één hoofdletter.'|trans({}, 'cms', app.request.locale)) %}
+{% set pass_chars   = ('Minimaal één van de volgende tekens:'|trans({}, 'cms', app.request.locale)) %}
+
+<style>
+form .passtip{
+	display: none;
+	font-size: 12px;
+	margin: 5px 10px 10px 10px;
+}
+
+form .passtip.show{
+	display: block;
+}
+
+form .passtip .hint {
+    display: block;
+    color: #a0a0a0;
+    height: 17px;
+}
+
+form .passtip .hint::before {
+    content: "\f111";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+form .passtip .hint.valid {
+    color: green;
+}
+
+form .passtip .hint.valid::before {
+    content: "\f058";
+}
+
+form .passloader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: red;
+    height: 5px;
+    width: 0;
+    border-radius: 0 0 4px 4px;
+}
+
+form .passloader.bad {
+    background-color: red;
+}
+
+form .passloader.medium {
+    background-color: orange;
+}
+
+form .passloader.good {
+    background-color: green;
+}
+</style>
+
+		<form action="{{ path('admin_profile') }}" method="POST">
+
+
+	    <ul class="nav nav-tabs" role="tablist">
+	      <li class="nav-item" role="presentation">
+	        <button class="nav-link active" id="tab1" data-bs-toggle="tab" data-bs-target="#tab-content1" type="button" role="tab" aria-controls="tab-content1" aria-selected="true">{{'Inloggegevens'|trans}}</button>
+	      </li>
+	      <li class="nav-item" role="presentation">
+	        <button class="nav-link" id="tab2" data-bs-toggle="tab" data-bs-target="#tab-content2" type="button" role="tab" aria-controls="tab-content2" aria-selected="false">{{'Contactgegevens'|trans}}</button>
+	      </li>
+	    </ul>
+
+	    <div class="tab-content" id="myTabContent">
+	      <div class="tab-pane fade show active" id="tab-content1" role="tabpanel" aria-labelledby="tab-content1">
+					<div id="basic" class="t-content">
+						<div class="card">
+							<div class="card-content">
+								<span class="card-title">
+									<h6>
+										{{ 'Inloggegevens' | trans }}
+									</h6>
+								</span>
+
+								<div class="row">
+									<div class="col-12 col-md-6 ">{{form_row(form.firstname)}}</div>
+									<div class="col-12 col-md-6 ">{{form_row(form.lastname)}}</div>
+									<div class="col-12 m12 ">{{form_row(form.admin_locale)}}</div>
+
+									<div class="col-12 col-md-6 ">{{form_row(form.username)}}</div>
+									<div class="col-12 col-md-6 ">{{form_row(form.email)}}</div>
+									<div class="clear"></div>
+									{% if form.plainPassword is defined %}
+										<div class="col-12 col-md-6 ">
+											<div class="indicator"><span class="weak"></span><span class="medium"></span><span class="strong"></span><div class="msg"></div></div>
+											{{form_row(form.plainPassword.first)}}
+										</div>
+										<div class="col-12 col-md-6 ">
+											<div class="indicator"><span class="weak"></span><span class="medium"></span><span class="strong"></span><div class="msg"></div></div>
+											{{form_row(form.plainPassword.second)}}
+										</div>
+										{% for errorItem in form.plainPassword.first.vars.errors %}
+											<label class="control-label has-error" for="{{ form.plainPassword.vars.id }}">{{ errorItem.message }}</label>
+										{% endfor %}
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div id="2fa" class="t-content">
+						<div class="card">
+							<div class="card-content">
+								<span class="card-title">
+									<h6>
+										{{ '2FA' | trans }}
+									</h6>
+									{% if User.isTotpEnabled %}
+										<h6><div class="float-end text-success">Ingeschakeld</div></h6>
+									{% else %}
+										<h6><div class="float-end text-danger">Uitgeschakeld</div></h6>
+									{% endif %}
+								</span>
+								{% if User.isTotpEnabled %}
+									{# 2FA is enabled #}
+									<a class="btn" href="{{path('admin_profile', {'2fa': 'off'})}}">2FA uitschakelen</a>
+								{% else %}
+									{# 2FA is not enabled #}
+									<a class="btn" href="{{path('admin_profile_setup2fa')}}">2FA inschakelen</a>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="tab-pane fade" id="tab-content2" role="tabpanel" aria-labelledby="tab-content2">
+					<div id="personal" class="t-content">
+						<div class="card">
+							<div class="card-content">
+								<span class="card-title">
+									<h6>
+										{{ 'Contactgegevens' | trans }}
+									</h6>
+								</span>
+								<div class="row">
+									<div class="col-12 ">{{form_row(form.gender)}}</div>
+									<div class="col-12  m9">{{form_row(form.street)}}</div>
+									<div class="col-12  m3">{{form_row(form.number)}}</div>
+									<div class="col-12  m4">{{form_row(form.postalcode)}}</div>
+									<div class="col-12  m8">{{form_row(form.city)}}</div>
+									{% if form.province is defined %}<div class="col-12  col-md-6">{{form_row(form.province)}}</div>{% endif %}
+									{% if form.country is defined %}<div class="col-12  col-md-6">{{form_row(form.country)}}</div>{% endif %}
+									<div class="col-12">
+										{{form_row(form.phone)}}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						{# <div class="card">
+							<div class="card-content">
+								<span class="card-title">
+									<h6>
+										{{ 'Bedrijfsgegevens' | trans }}
+									</h6>
+								</span>
+								<div class="row">
+									<div class="col-12 ">{{form_row(form.company)}}</div>
+									{% if form.companyEmail is defined %}<div class="col-12  col-md-6">{{form_row(form.companyEmail)}}</div>{% endif %}
+									{% if form.companyPhone is defined %}<div class="col-12  col-md-6">{{form_row(form.companyPhone)}}</div>{% endif %}
+									{% if form.companyKvk is defined %}<div class="col-12  col-md-6">{{form_row(form.companyKvk)}}</div>{% endif %}
+									{% if form.companyTaxNo is defined %}<div class="col-12  col-md-6">{{form_row(form.companyTaxNo)}}</div>{% endif %}
+									{% if form.website is defined %}<div class="col-12  col-md-6">{{form_row(form.website)}}</div>{% endif %}
+								</div>
+							</div>
+						</div> #}
+					</div>
+				</div>
+			</div>
+
+			{% if not form.vars.valid %}
+				<div class="card">
+					<div class="card-content red white-text" style="padding: 1px 15px;">
+						<strong>{{ form_errors(form) }}</strong>
+					</div>
+				</div>
+			{% endif %}
+			{{ form_row(form._token) }}
+
+			<div class="btn-bar">
+				<div class="right">
+					<a href="{{ path('admin') }}" class="btn-flat waves-effect waves-light red darken-1"><i class="material-icons left">clear</i>{{'Annuleren'|trans}}</a>
+					<button type="submit" class="btn waves-effect waves-light"><i class="material-icons left">save</i>{{'Opslaan'|trans}}</button>
+				</div>
+			</div>
+
+		</form>
+{% if app.request.get('saved') %}
+    <script>
+        window.location="{{ path('admin_profile') }}";
+    </script>
+{% endif %}
+
+{# <script>
+var regExpWeak   = /[a-z]/;
+var regExpMedium = /\d+/;
+var regExpStrong = /.[!,@,#,$,%,^,&,*,?,_,~,-,(,)]/;
+
+var st_bad       = '{{'Slecht'|trans({}, 'cms', app.request.locale)}}';
+var st_medium    = '{{'Matig'|trans({}, 'cms', app.request.locale)}}';
+var st_good      = '{{'Goed'|trans({}, 'cms', app.request.locale)}}';
+
+$('input[type="password"]').each(function(i, input){
+	if($(input).find('.indicator')){
+		$(input).keyup(function(){
+			var p = $(this).closest('.col');
+			var v = $(this).val();
+			var i = p.find('.indicator');
+			// Change password
+			if(v != ''){
+				// Not empty
+				if(v.length <= 3 && (v.match(regExpWeak) || v.match(regExpMedium) || v.match(regExpStrong)))no=1;
+				if(v.length >= 6 && ((v.match(regExpWeak) && v.match(regExpMedium)) || (v.match(regExpMedium) && v.match(regExpStrong)) || (v.match(regExpWeak) && v.match(regExpStrong))))no=2;
+				if(v.length >= 6 && v.match(regExpWeak) && v.match(regExpMedium) && v.match(regExpStrong))no=3;
+				if(no==1){
+					i.find('.weak')[0].classList.add("active");
+					i.find('.medium')[0].classList.remove("active");
+					i.find('.strong')[0].classList.remove("active");
+
+					i.find('.msg').html(st_bad).show();
+				}
+				if(no==2){
+					i.find('.weak')[0].classList.add("active");
+					i.find('.medium')[0].classList.add("active");
+					i.find('.strong')[0].classList.remove("active");
+
+					i.find('.msg').html(st_medium).show();
+				}
+				if(no==3){
+					i.find('.weak')[0].classList.add("active");
+					i.find('.medium')[0].classList.add("active");
+					i.find('.strong')[0].classList.add("active");
+
+					i.find('.msg').html(st_good).show();
+				}
+			}else{
+				i.find('.weak')[0].classList.remove("active");
+				i.find('.medium')[0].classList.remove("active");
+				i.find('.strong')[0].classList.remove("active");
+
+				i.find('.msg').html('').hide();
+			}
+		});
+	}
+});
+</script> #}
+
+<script defer src="/bundles/cms/js/utils.js"></script>
+{% endblock %}

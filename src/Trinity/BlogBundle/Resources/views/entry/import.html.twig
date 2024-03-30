@@ -1,0 +1,47 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{ 'Blog'|trans }}{% endblock %}
+
+{% block body %}
+    <form method="post" enctype="multipart/form-data">
+        <div class="card">
+            <div class="card-content">
+                <div class="input-field">
+                    <select name="where">
+                        <option value="wp">{{ 'Wordpress' | trans }}</option>
+                    </select>
+                    <label>{{ 'Te importeren platform' | trans }}</label>
+                </div>
+
+                <div class="input-field">
+                    <select name="what">
+                        <option value="posts">{{ 'Blog posts (wp_posts)' | trans }}</option>
+                        <option value="readcount">{{ 'Post statistieken (wp_popularpostsdata)' | trans }}</option>
+                        <option value="replies">{{ 'Reacties (wp_comments)' | trans }}</option>
+                    </select>
+                    <label>{{ 'Wat importeren?' | trans }}</label>
+                </div>
+
+                <div class="file-field input-field">
+                    <div class="btn">
+                        <span>{{ 'CSV-bestand' | trans }}</span>
+                        <input type="file" name="csv">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text">
+                    </div>
+                </div>
+            </div>
+        </div>        
+
+        <div class="btn-bar">
+            <div class="left">
+                <a href="{{ path("admin_mod_blog_entry", {'id': id}) }}" class="btn-flat waves-effect waves-dark"><i class="material-icons left">arrow_back</i>{{ 'Terug' | trans }}</a>
+            </div>
+            <div class="right">
+                <button type="submit" class="btn">{{ 'Importeren' | trans }}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% trans_default_domain 'forms' %}
+{% extends [':forms_elements:row.html.twig', '@TrinityForms/elements/row.html.twig'] %}
+
+{% block field %}
+
+	{% set defaultValue = null %}
+	{% if config is defined and config['pre-' ~ Question.id] is defined %}
+		{% set defaultValue = config['pre-' ~ Question.id] %}
+	{% endif %}
+
+	{% if Form.floatingLabels %}
+		<div class="form-floating">
+	{% endif %}
+
+	{% if edit is not defined %}
+		{% set getval = app.request.get('field' ~ Question.id) %}
+		{% if getval is empty %}
+			{% set getval = app.request.get(Question.getTitle|lower) %}
+		{% endif %}
+			<select data-lbl="{{Question.getTitle}}" id="frm-lbl-{{Question.id}}" class="form-select" name="form[{% if Form is not null %}{{Form.id}}{% endif %}][{% if Question is defined %}{{Question.id}}{% endif %}]" {% if edit is defined %}multiple="multiple" size="{{Question.getValues|length}}" disabled="disabled"{% endif %}>
+			{% if Question.getValues is not empty %}
+				{% for n,value in Question.getValues %}
+
+          {%  set shortValue = '' %}
+          {%  set found = false %}
+
+          {% for word in value | split(' ') %}
+              {% if word == '|' %}
+                  {% set found = true %}
+              {% endif %}
+              {% if not found %}
+                  {% set shortValue = shortValue ~ ' ' ~ (word | raw) %}
+              {% endif %}
+          {% endfor %}
+
+          <option {% if Question.default[n] is defined or (defaultValue and defaultValue == value) %}selected="selected"{% endif %} {% if Question.disabled[n] is defined %}disabled="disabled"{% endif %} {{getval is not empty and getval == value ? 'selected="selected"' : '' }} value="{{value}}">{{shortValue|trim|raw}}</option>
+				{% endfor %}
+			{% endif %}
+		</select>
+	{% else %}
+		{# PREVIEW #}
+		<select disabled="disabled"  class="form-select">
+			{% if Question.getValues is not empty %}
+				{% for value in Question.getValues %}
+					<option value="{{value}}">{{value|raw}}</option>
+				{% endfor %}
+			{% else %}
+				<option value="Select">{{ 'Select' | trans }}</option>
+			{% endif %}
+		</select>
+	{% endif %}
+
+	{% if Form.floatingLabels and not Question.hiddenLabel %}
+		<label for="frm-lbl-{{Question.id}}">{{ 'Maak een keuze' | trans }}</label>
+		</div>
+	{% endif %}
+
+{% endblock %}

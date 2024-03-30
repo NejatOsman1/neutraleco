@@ -1,0 +1,18 @@
+// Media breaks
+$break-xxl-up: "(min-width : 1500px)";
+$break-xxl: "(max-width : 1499px)";
+$break-xl-up: "(min-width : 1200px)";
+$break-xl: "(max-width : 1199px)";
+$break-lg-up: "(min-width : 992px)";
+$break-lg: "(max-width : 991px)";
+$break-md-up: "(min-width : 768px)";
+$break-md: "(max-width : 767px)";
+$break-sm-up: "(min-width : 576px)";
+$break-sm: "(max-width : 575px)";
+$break-xs-up: "(min-width : 370px)";
+$break-xs: "(max-width : 369px)";
+
+// Overflow ellipsis
+$font-size: 18px;
+$line-height: 1.2;
+$lines-to-show: 2;

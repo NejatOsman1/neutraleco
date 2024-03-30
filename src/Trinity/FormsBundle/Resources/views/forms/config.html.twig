@@ -1,0 +1,51 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Forms'|trans}}{% endblock %}
+
+{% block body %}
+	{{ form_start(form) }}
+
+	{{ form_errors(form, {class: 'class'}) }}
+	<div class="row">
+		<div class="col s12">
+			<div class="card">
+				<div class="card-content">
+			    	{{ form_errors(form) }}
+					{{ form_row(form.label) }}
+					{{ form_row(form.auto_response) }}
+				</div>
+			</div>
+			<div class="card auto_response_text" style="display:{{Form.autoResponse ? '' : 'none'}};">
+				<div class="card-content">
+					<div class="card-title">Automatisch antwoord</div>
+					{{ form_row(form.auto_response_subject) }}
+					{{ form_row(form.auto_response_text, {'attr' : {'class' : 'ckeditor'}}) }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="btn-bar">
+		<a href="{{path('admin_mod_forms')}}" class="btn-flat waves-effect waves-dark"><i class="material-icons left">clear</i>{{ 'Annuleren' | trans }}</a>
+		<button type="submit" class="btn waves-effect waves-light"><i class="material-icons left">save</i>{{ 'Opslaan' | trans }}</button>
+	</div>
+
+	{{ form_end(form) }}
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}
+
+{% block scripts %}
+	<script type="text/javascript">
+	$('#form_auto_response').click(function(){
+		var chk = $(this).prop('checked');
+		if(chk){
+			$('.auto_response_text').show();
+		}else{
+			$('.auto_response_text').hide();
+		}
+	});
+	</script>
+{% endblock %}

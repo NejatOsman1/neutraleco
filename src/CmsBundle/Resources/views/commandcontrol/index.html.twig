@@ -1,0 +1,368 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	<style>
+	span.tag, a.tag {
+	    background: #499ade;
+	    padding: 2px 5px;
+	    border-radius: 4px;
+	    color: white;
+	    font-weight: bold;
+	    font-size: 11px;
+	}
+	a.tag:hover {
+	    color: white;
+	}
+	span.tag.develop, a.tag.develop {
+	    background: orange;
+	}
+	span.tag.master, a.tag.master {
+	    background: green;
+	}
+	span.tag.sf4, a.tag.sf4 {
+	    background: red;
+	}
+	span.tag.sf5, a.tag.sf5 {
+	    background: red;
+	}
+	</style>
+	<div class="row">
+
+	    {# <div style="position:relative;" class="col l3 m6 s12">
+	        <div class="card center light-blue accent-3 white-text">
+	            <div style="padding:30px 0;">
+	                {{'Aantal clients'|trans}}
+	                <span style="display:block;font-size: 40px;font-weight:400;">{{count.total}}</span>
+	            </div>
+	        </div>
+	    </div> #}
+	    <div style="position:relative;" class="col l3 m6 s12">
+	        <div class="card center orange accent-3 white-text">
+	            {# <canvas class="auto-chart" data-values="2,6,7,3,4,2,1" style="position:absolute;top:0;left:0;right:0;bottom:0;"></canvas> #}
+	            <div style="padding:30px 0;">
+	                {{'Up-to-date'|trans}}
+	                <span style="display:block;font-size: 40px;font-weight:400;">{{count.latest}} / {{count.percent}}%</span>
+	            </div>
+	        </div>
+	    </div>
+	    <div style="position:relative;" class="col l3 m6 s12">
+	        <div class="card center light-blue accent-3 white-text">
+	            {# <canvas class="auto-chart" data-values="5,2,1,4" style="position:absolute;top:0;left:0;right:0;bottom:0;"></canvas> #}
+	            <div style="padding:30px 0;">
+	                {{'Live omgevingen'|trans}}
+	                <span style="display:block;font-size: 40px;font-weight:400;">{{count.real}}</span>
+	            </div>
+	        </div>
+	    </div>
+	    <div style="position:relative;" class="col l3 m6 s12">
+	        <div class="card center purple accent-4 white-text">
+	            {# <canvas class="auto-chart" data-values="5,2,1,4" style="position:absolute;top:0;left:0;right:0;bottom:0;"></canvas> #}
+	            <div style="padding:30px 0;">
+	                {{'Demo omgevingen'|trans}}
+	                <span style="display:block;font-size: 40px;font-weight:400;">{{count.demo}}</span>
+	            </div>
+	        </div>
+	    </div>
+	    <div style="position:relative;" class="col l3 m6 s12">
+	        <div class="card center green accent-4 white-text">
+	            {# <canvas class="auto-chart" data-values="9,4,3,6,4,5,6" style="position:absolute;top:0;left:0;right:0;bottom:0;"></canvas> #}
+	            <div style="padding:30px 0;">
+	                {{'Development omgevingen'|trans}}
+	                <span style="display:block;font-size: 40px;font-weight:400;">{{count.dev}}</span>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+	
+	<div class="row">
+		<div class="col s12">
+			<div class="card">
+				<div class="card-content">
+					<div class="row">
+						<div class="input-field col s12 m6">
+							<form method="get">
+								<input class="search" name="q" placeholder="Zoeken" value="{{app.request.get('q')}}" />
+							</form>
+						</div>
+						<div class="input-field col s12 m6">
+							<select name="tags[]" onchange="window.location = '{{path('admin_cc')}}?tag=' + this.value;">
+								<option value="">{{ 'Selecteer een tag' | trans }}</option>
+								{% for Tag in tags %}
+									<option {{app.request.get('tag') == Tag.id ? 'selected' : ''}} value="{{Tag.id}}">{{Tag.label}}</option>
+								{% endfor %}
+							</select>
+							<label>{{ 'Filter op tag' | trans }}</label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<form method="post" class="popup" action="{{path('admin_cc_bulkupdate')}}">
+		<div class="row">
+			{% if branch_filter is null %}
+				<div class="col s12">
+					<div class="card">
+						<div class="card-content">
+							<div class="card-title">{{'Beschikbare clients'|trans}}</div>
+
+							<table class="bordered highlight responsive-table">
+								<thead>
+									<tr>
+										<th style="width:50px;">
+											<p><input type="checkbox" id="chk_all" /><label for="chk_all"></label></p>
+										</th>
+										<th class="sort" data-sort="ssl" style="width:24px;">&nbsp;</th>
+										<th class="sort" data-sort="domain">{{'Client'|trans}}</th>
+										<th class="sort" data-sort="date" style="width:200px;">{{'Datum'|trans}}</th>
+										<th style="width:200px;">{{'Server IP'|trans}}</th>
+										<th class="sort center-align" data-sort="version" style="width:100px;">{{'Versie'|trans}}</th>
+										<th class="sort" data-sort="bundles" class="center-align" style="width:100px;">{{'Bundels'|trans}}</th>
+										<th class="center-align" style="width:200px;"></th>
+									</tr>
+								</thead>
+								<tbody class="list">
+									<tr><td colspan="10" style="text-transform: uppercase; font-weight: bold; background: #1c88e5; color: white;">{{ 'VANDAAG ACTIEF' | trans }}<span class="right">{{today}}</span></td></tr>
+									{% set chk_today = true %}
+									{% set chk_yesterday = true %}
+									{% if domains_grouped is not empty %}
+										{% for domainClean,clientlist in domains_grouped %}
+											{% for domainReal,Client in clientlist %}
+												{% if (Client.requests.first.datetime|date('Ymd')) != ('now'|date('Ymd')) and chk_today %}
+													<tr><td colspan="10" style="text-transform: uppercase; font-weight: bold; background: #1c88e5; color: white;">{{ 'GISTEREN' | trans }}<span class="right">{{yesterday}}</span></td></tr>
+													{% set chk_today = false %}
+												{% endif %}
+												{% if (Client.lastDate|date('Ymd')) != ('yesterday'|date('Ymd')) and chk_yesterday and chk_today == false %}
+													<tr><td colspan="10" style="text-transform: uppercase; font-weight: bold; background: #1c88e5; color: white;">{{ 'EERDER ACTIEF' | trans }}<span class="right">{{earlier}}</span></td></tr>
+													{% set chk_yesterday = false %}
+												{% endif %}
+
+												{% set lastRequest = Client.requests.first %}
+												<tr style="{{loop.index > 1 ? 'background:#eee;' : ''}}">
+													<td><p><input class="product-check" onclick="doChecks();" type="checkbox" id="chk_{{Client.id}}" value="{{Client.id}}" name="check[{{Client.id}}]" /><label for="chk_{{Client.id}}"></label></p></td>
+													<td class="ssl">{{('https' in Client.url ? '<i class="material-icons green-text">lock</i>' : '<i class="material-icons grey-text" style="opacity:.2;">lock</i>')}}</td>
+													<td class="domain">
+														{{domainClean}}
+														<span style="font-size: 11px;color: #179bde;font-weight: bold;display: block;">{{Client.tagslist}}</span>
+													</td>
+													<td class="date">{{lastRequest.datetime|date('d-m-Y H:i:s')}}</td>
+													<td class="ip">{{lastRequest.serverip}}</td>
+													<td class="version center-align">
+														{{Client.version}}
+														<span style="font-size: 11px;color: #179bde;font-weight: bold;display: block;">SF: {{Client.symfonyVersion}}</span>
+													</td>
+													<td class="bundles center-align"><a href="#" onclick="cpop.reset().loadAjax('{{path('admin_cc_bundles', {'domain':Client.domain})}}');return false;">{{Client.bundles|length}}</a></td>
+													<td class="right-align">
+														{% if Client.warnings %}
+															<a href="#" onclick="cpop.reset().loadAjax('{{ path('admin_cc_warnings', {'domain':Client.domain}) }}');return false;" title="{{'Fouten gevonden'|trans}}"><i class="orange-text material-icons">warning</i></a>
+														{% endif %}
+														{% if Client.apiToken and Client.apiSecret %}
+															{% if Client.dns %}
+																<a href="#" onclick="cpop.reset().loadAjax('{{ path('admin_cc_dns', {'domain':Client.domain}) }}');return false;" title="{{'DNS'|trans}}"><i class="material-icons">dns</i></a>
+															{% else %}
+																<a style="opacity:0.3;" title="Geen DNS gegevens beschikbaar."><i class="material-icons">dns</i></a>
+															{% endif %}
+															{% if Client.canRefresh %}
+																<a href="#" onclick="cpop.reset().loadAjax('{{ path('admin_cc_refresh', {'domain':Client.domain}) }}');return false;" title="{{'Verversen'|trans}}"><i class="material-icons">refresh</i></a>
+															{% else %}
+																<a style="opacity:0.3;" title="Minimaal Trinity 1.0.16 benodigd."><i class="material-icons">refresh</i></a>
+															{% endif %}
+															<a href="#" onclick="cpop.reset().loadAjax('{{ path('admin_cc_ping', {'domain':Client.domain}) }}');return false;" title="{{'Ping'|trans}}"><i class="material-icons">notifications_none</i></a>
+															{% if Client.canUpdate %}
+																<a href="#" onclick="cpop.reset().loadAjax('{{ path('admin_cc_update', {'domain':Client.domain}) }}');return false;" title="{{'Updaten'|trans}}"><i class="material-icons">update</i></a>
+															{% else %}
+																<a style="opacity:0.3;" title="{{ 'Minimaal Trinity 1.0.13 benodigd' | trans }}"><i class="material-icons">update</i></a>
+															{% endif %}
+														{% endif %}
+														<a href="{{ path('admin_cc_view', {'domain':Client.domain}) }}" title="{{'Details'|trans}}"><i class="material-icons">search</i></a>
+													</td>
+												</tr>
+
+											{% endfor %}
+										{% endfor %}
+									{% else %}
+										<tr>
+											<td colspan="4" style="text-align:center;">{{'Geen gegevens beschikbaar.'|trans}}</td>
+										</tr>
+									{% endif %}
+								</tbody>
+							</table>
+
+						    <ul class="pagination"></ul>
+						</div>
+					</div>
+				</div>
+
+				<div class="col s12 m6">
+					<div class="card">
+						<div class="card-content">
+							<div class="card-title">{{'Meest recente aanmeldingen'|trans}}</div>
+							<table class="bordered highlight responsive-table">
+								<thead>
+									<tr>
+										<th style="width:300px;">{{'Client'|trans}}</th>
+										<th style="width:240px;">{{'Datum'|trans}}</th>
+										<th>{{'Gebruiker'|trans}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% if last_requests %}
+										{% for request in last_requests %}
+											<tr>
+												<td>{{request.domain.domain}}</td>
+												<td>{{request.datetime|date('d-m-Y H:i:s')}}</td>
+												<td>{{request.username}}</td>
+											</tr>
+										{% endfor %}
+									{% else %}
+										<tr>
+											<td colspan="4" style="text-align:center;">{{'Geen gegevens beschikbaar.'|trans}}</td>
+										</tr>
+									{% endif %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<div class="col s12 m6">
+					<div class="card">
+						<div class="card-content">
+							<div class="card-title">{{'Cron acties'|trans}}</div>
+							<table class="bordered highlight responsive-table">
+								<thead>
+									<tr>
+										<th style="width:300px;">{{'Client'|trans}}</th>
+										<th style="width:240px;">{{'Datum'|trans}}</th>
+										<th>{{'Gebruiker'|trans}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% if cron_requests %}
+										{% for request in cron_requests %}
+											<tr>
+												<td>{{request.domain.domain}}</td>
+												<td>{{request.datetime|date('d-m-Y H:i:s')}}</td>
+												<td>{{request.username}}</td>
+											</tr>
+										{% endfor %}
+									{% else %}
+										<tr>
+											<td colspan="4" style="text-align:center;">{{'Geen gegevens beschikbaar.'|trans}}</td>
+										</tr>
+									{% endif %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			{% endif %}
+			<div class="col s12 m12">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">
+							{{'Beschikbare bundels'|trans}}
+						</div>
+
+						{% if branch_filter %}
+							<div style="background: #eee; border: solid 1px #ccc; border-radius: 5px; padding: 10px 15px;">
+								Er wordt gefiltert op <span class="tag {{branch_filter}}">{{branch_filter}}</span>.<br/>
+								<a href="{{path('admin_cc')}}">Klik hier om de filter te verwijderen.</a>
+							</div>
+						{% endif %}
+
+						{% if bundles is not empty %}
+							<table class="bordered highlight responsive-table">
+								<thead>
+									<tr>
+										<th>{{'Bundel'|trans}}</th>
+										<th>{{'Branches'|trans}}</th>
+										<th class="center-align" style="width:100px;">{{'Installaties'|trans}}</th>
+										<th class="center-align" style="width:240px;">{{'Nieuwste versie'|trans}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for name,bundle in bundles.bundles %}
+										<tr>
+											<td>{{name}}</td>
+											<td>
+												{% set branch_data = null %}
+												{% if bundle.branches is not empty %}
+													{% for branch in bundle.branches %}
+														<a href="{{path('admin_cc', {'branch': branch.name})}}" class="tag {{branch.name}}">{{branch.name}}</a>
+
+														{% if branch_filter and branch_filter == branch.name %}
+															{% set branch_data = branch %}
+														{% endif %}
+													{% endfor %}
+												{% endif %}
+
+												{% if branch_data %}
+													{# {{dump(branch_data)}} #}
+													<div style="margin-top: 10px; background: #eee; border-radius: 5px; padding: 10px 15px; font-size: 12px;">
+														<div><strong>Datum:</strong> {{branch_data.commit.committed_date|date('d-m-Y H:i:s')}} <strong>door:</strong> {{branch_data.commit.committer_name}}</div>
+														<div><strong>ID:</strong> {{branch_data.commit.id}}</div>
+														<div style="margin-top: 10px; font-family: courier new;">{{branch_data.commit.title}}</div>
+													</div>
+												{% endif %}
+											</td>
+											<td style="cursor:pointer;" onclick="cpop.reset().loadAjax('{{ path('admin_cc_installed', {'bundle':name}) }}');return false;" class="center-align">{{bundle.installed}}</td>
+											<td class="center-align">{{bundle.tag}}</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						{% else %}
+							<div class="center-align">
+								<p>{{ 'Bundles zijn nog niet geïndexeerd' | trans }}</p>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="btn-bar center-align" style="bottom: -60px;transition: .1s bottom;">
+			<button type="submit" class="btn"><span style="margin:0;" class="check-count"></span> {{ 'sites updaten' | trans }}</button>
+		</div>
+	</form>
+
+	<script>
+	/*var options = {
+		valueNames: ['ssl', 'domain', 'date', 'ip', 'version', 'bundles'],
+		pagination: true,
+		page: 10,
+	};*/
+
+	// var userList = new List('clients', options);
+
+    $(function(){
+    	// filterList(1);
+    	$('#chk_all').click(function(){
+    		var checked = $(this).prop('checked');
+    		$('.product-check').prop('checked', checked);
+    		doChecks();
+    	});
+
+	    doChecks();
+    });
+
+    function doChecks(){
+    	var n = $('.product-check:checked').length;
+
+    	var ids = [];
+    	$.each($('.product-check:checked'), function(ind, chk){
+    		ids.push(chk.value);
+    	});
+    	$('#ids').val(ids.join(','));
+    	$('.check-count').html(n);
+    	if(n > 0){
+    		$('.btn-bar').css('bottom', '0');
+    	}else{
+    		$('.btn-bar').css('bottom', '-60px');
+    	}
+    }
+	</script>
+{% endblock %}

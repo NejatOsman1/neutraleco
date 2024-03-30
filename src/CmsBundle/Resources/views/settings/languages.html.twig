@@ -1,0 +1,73 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	<div class="card">
+		<div class="card-content">
+			<span class="card-title">{{'Talen'|trans}}</span>
+			<div class="table-responsive">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th class="center-align" style="width:50px;">&nbsp;</th>
+							<th>{{'Taal'|trans}}</th>
+							<th class="center-align" style="width:150px;">{{'Taalcode'|trans}}</th>
+							<th class="center-align" style="width:250px;">{{'Taalcode (ISO 15897)'|trans}}</th>
+							<th class="center-align" style="width:80px;"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for Language in languages %}
+							<tr>
+								<td data-url="{{ path('admin_settings_languages_view',{'id': Language.id}) }}" class="center-align"><img src="{{asset('bundles/cms/images/flags/' ~ Language.locale ~ '.png')}}" height="12" /></td>
+								<td data-url="{{ path('admin_settings_languages_view',{'id': Language.id}) }}">{{ Language.label|e }}</td>
+								<td class="center-align" data-url="{{ path('admin_settings_languages_view',{'id': Language.id}) }}">{{ Language.locale|e }}</td>
+								<td class="center-align" data-url="{{ path('admin_settings_languages_view',{'id': Language.id}) }}">{{ Language.localeFull|e }}</td>
+								<td class="center-align actions">
+									<a href="{{ path('admin_settings_languages_dl',{'id': Language.id}) }}" title="{{'Downloaden'|trans}}"><i class="fa fa-download"></i></a>
+									<a href="{{ path('admin_settings_languages_edit',{'id': Language.id}) }}" title="{{'Wijzigen'|trans}}"><i class="fa fa-edit"></i></a>
+									{#<a href="#" onclick="cpop.confirm( '{{ 'Wilt u de taal <b>%language%</b> verwijderen?' | trans({'%language%': Language.label}) | raw }}', function(){
+										window.location = '{{ path('admin_settings_languages_delete',{'id': Language.id}) }}';
+									} ); return false;" title="{{'Delete'|trans}}"><i class="far fa-trash-alt"></i></a>#}
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+	    </div>
+    </div>
+
+	<div class="card" style="margin-top:15px;">
+		<div class="card-content">
+			<span class="card-title">{{'Taalbestand importeren'|trans}}</span>
+
+			<form method="post" enctype="multipart/form-data">
+				<div class="file-field input-field">
+					<div class="btn btn-gray">
+						<span>{{ 'CSV-file' | trans }}</span>
+						<input id="lang_file" type="file" name="lang_file" />
+					</div>
+					<div class="file-path-wrapper">
+						<input class="file-path validate" type="text">
+					</div>
+				</div>
+			</form>
+	    </div>
+    </div>
+
+	<div class="btn-bar">
+		<div class="right">
+			<a href="{{path('admin_settings_languages_edit')}}" class="btn"><i class="material-icons left">add</i>{{'Toevoegen'|trans}}</a>
+		</div>
+	</div>
+
+	<script>
+	$('#lang_file').on("change", function(){
+		$(this).closest('form').submit();
+	});
+    $('td[data-url]').css('cursor', 'pointer').click(function(){
+        window.location = $(this).data('url');
+    });
+	</script>
+{% endblock %}

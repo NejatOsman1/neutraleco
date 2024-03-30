@@ -1,0 +1,3 @@
+<?php //App%255CCmsBundle%255CEntity%255CPage%2524clone_type
+
+return [PHP_INT_MAX, []];

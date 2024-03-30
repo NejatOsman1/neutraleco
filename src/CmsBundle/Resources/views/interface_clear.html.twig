@@ -1,0 +1,226 @@
+{% set r = app.request.attributes.get('_route') %}
+{% trans_default_domain 'cms' %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{trinity}}</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<meta name="robots" content="noindex,nofollow"/>
+
+		<link rel="stylesheet" href="/bundles/cms/css/interface.css">
+		<link rel="stylesheet" href="/bundles/cms/css/style.css">
+		<link rel="stylesheet" href="/bundles/cms/css/jquery.cpop.css">
+		<link rel="stylesheet" href="/bundles/cms/css/select2.css">
+
+
+		{# GLOBAL #}
+		<script type="text/javascript">
+		var jsonUrl         = '{{path('_adminjson')}}/';
+		var ckAdminJsonUrl  = '{{path('_adminjson')}}';
+		var ckAdminPageUrl  = '{{path('admin_page_selector')}}';
+		var ckAdminMediaUrl = '{{path('admin_media', {type: 'image'})}}';
+		var ckDropUploadUrl = '{{path('admin_media', {type: 'image'})}}';
+
+        var cpop_message_today = "{{ 'Vandaag' | trans | raw }}";
+        var cpop_message_close = "{{ 'OK' | trans | raw }}";
+        var cpop_message_busyloading = "{{ 'Bezig met laden ...' | trans | raw }}";
+        var cpop_message_imagenotloading = "{{ 'De afbeelding kon niet worden geladen.' | trans | raw }}";
+        var cpop_message_timeout = "{{ 'Timeout na' | trans | raw }}";
+        var cpop_message_done = "{{ 'OK' | trans | raw }}";
+        var cpop_message_yes = "{{ 'Ja' | trans | raw }}";
+        var cpop_message_clear = "{{ 'Wissen' | trans | raw }}";
+        var cpop_message_cancel = "{{ 'Sluiten' | trans | raw }}";
+        var cpop_message_empty = "{{ 'Leegmaken' | trans | raw }}";
+        var cpop_message_save = "{{ 'Opslaan' | trans | raw }}";
+        var cpop_message_alert_notcsv = "{{ 'Het bestand kon niet toegevoegd worden. Controleer of deze van het type CSV is.' | trans | raw }}";
+
+	    </script>
+		{% block stylesheet %}{% endblock %}
+
+		<script src="/bundles/cms/js/jquery-2.2.4.min.js"></script>
+		<script src="/bundles/cms/materialize/js/materialize.min.js"></script>
+		<script src="/bundles/cms/js/script.js"></script>
+		<script src="/bundles/cms/ckeditor/ckeditor.js"></script>
+		<script src="/bundles/cms/js/jquery.cpop.js"></script>
+	</head>
+	<body>
+		{% for label, messages in app.session.flashBag.all() %}
+			{% for message in messages %}
+				<script> 
+				Toastify({
+					text: '<div>{{ label }}</div> {{ message|raw }}',
+					duration: 3000,
+					escapeMarkup: false,
+					close: false,
+					gravity: "bottom",
+					position: "right",
+					stopOnFocus: true,
+					onClick: function(){}
+				}).showToast();
+				</script>
+			{% endfor %}
+		{% endfor %}
+
+		<div style="padding:30px;">{% block body %}{% endblock %}</div>
+
+		{# JQUERY (UI) #}
+		<script type="text/javascript" src="/bundles/cms/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+
+		{# NESTED SORTABLES #}
+		<script type="text/javascript" src="/bundles/cms/nestedSortable/jquery.mjs.nestedSortable.js"></script>
+
+		{# SELECT2 #}
+		<script type="text/javascript" src="/bundles/cms/select2/dist/js/select2.min.js"></script>
+
+		<script type="text/javascript" src="/bundles/cms/js/script.js"></script>
+		<script type="text/javascript" src="/bundles/cms/responsive_waterfall/responsive_waterfall.js"></script>
+
+		<script type="text/javascript">
+        jQuery('.hamburger').click(function(e){
+            jQuery(this).toggleClass('is-active');
+            jQuery(document.body).toggleClass('menu');
+        });
+
+        jQuery('#profile-image img').on('click', function(e){
+        	jQuery('#profile-image ul.nav').show();
+        });
+
+        jQuery(document.body).on('click', function(e){
+        	if(e.target != $('#profile-image img')[0]){
+	        	jQuery('#profile-image ul.nav').hide();
+	        }
+        });
+
+        // workaround google chrome:
+        // https://support.google.com/chrome/thread/3363391?msgid=3613215
+	JQuery('.datepicker').on('mousedown', function(e){
+            e.preventDefault();
+        });
+
+        /*jQuery('[data-tooltip]').off('mouseover').on('mouseover', function(){
+        	$('.tt').remove();
+        	var tt = $('<div class="tt">' + $(this).data('tooltip').replace('#', '<br/>') + '</div>');
+        	$(document.body).append(tt);
+        	tt.css('top', (($(this).position().top + ($(this).height()) + 5)) + 'px').css('left', ($(this).position().left - ($(tt).width()/2) - ($(this).width())) + 'px')
+        }).off('mouseout').on('mouseout', function(){
+        	$('.tt').remove();
+        });*/
+
+		if($('.tabs').length > 0){
+			$('.tabs li:not(.no-tab)').click(function(){
+				$('.tabs li, .tc').removeClass('active');
+				var index = $(this).addClass('active').index();
+				$('.tc').eq(index).addClass('active');
+			});
+		}
+
+		// SPOTLIGHT
+
+		var typeTimer     = null;
+
+		var spotlightOpen = false;
+		var shiftDown     = false;
+		var cmdDown       = false;
+
+		var enter         = 13;
+		var escape        = 27;
+		var shift         = 16;
+		var cmd           = 91;
+		var p             = 80;
+		var up            = 38;
+		var down          = 40;
+
+		var firstUrl      = null;
+
+		$(document.body).keydown(function( event ) {
+			if(event.which == shift) shiftDown = true;
+			if(event.which == cmd) cmdDown = true;
+			if ( event.which == p && shiftDown && cmdDown ) {
+				event.preventDefault();
+				openSpotlight();
+			}
+		}).keyup(function( event ) {
+			if(event.which == shift) shiftDown = false;
+			if(event.which == cmd) cmdDown = false;
+			if(event.which == escape){
+				closeSpotlight();
+			}
+			if(event.which == enter){
+				event.preventDefault();
+				if($('.sl-results a.default').length > 0){
+					window.location = $('.sl-results a.default').attr('href');
+				}
+			}
+			if(event.which == up){
+				event.preventDefault();
+				$('.sl-window input')[0].blur();
+				if($('.sl-results a.default').prev('a').length > 0){
+					$('.sl-results a.default').removeClass('default').prev('a').addClass('default');
+				}
+			}
+			if(event.which == down){
+				event.preventDefault();
+				$('.sl-window input')[0].blur();
+				if($('.sl-results a.default').next('a').length > 0){
+					$('.sl-results a.default').removeClass('default').next('a').addClass('default');
+				}
+			}
+		});
+
+		$('.sl-backdrop').click(function(){
+			closeSpotlight();
+		});
+
+		function openSpotlight(){
+			$(document.body).addClass('spotlight');
+			$('.sl-results').html('').hide();
+			firstUrl = null;
+			var prevQ = '';
+			$('.sl-window input').val('').off('keyup').on('keyup', function(){
+				var q = $(this).val();
+				if(prevQ != q){
+					firstUrl = null;
+					$('.sl-results').html('').hide();
+					prevQ = q;
+					if(typeTimer != null) clearTimeout(typeTimer);
+					typeTimer = setTimeout(function(){
+						if(q == ''){
+							$('.sl-results').html('').hide();
+						}else{
+							var nr = 0;
+							$.getJSON('{{path('spotlight_search')}}/' + q).done(function(res){
+								$.each(res, function(group, results){
+									$('.sl-results').append($('<span>' + group + '</span>'));
+									$.each(results, function(url, label){
+										$('.sl-results').append($('<a href="' + url + '">' + label + '</span>'));
+										if(firstUrl == null) firstUrl = url;
+										nr++;
+									});
+								});
+
+								if(nr == 0){
+									$('.sl-results').append($('<em>{{ 'Geen resultaten gevonden' | trans }}</em>'));
+								}
+
+								$('.sl-results').show();
+								$('.sl-results a').first().addClass('default')
+							});
+						}
+					}, 400);
+				}
+			});
+			$('.sl-window input')[0].focus();
+			spotlightOpen = true;
+		}
+
+		function closeSpotlight(){
+			$('.sl-window input').val('');
+			$('.sl-results').html('').hide();
+			$(document.body).removeClass('spotlight');
+		}
+		</script>
+		{% block scripts %}{% endblock %}
+	</body>
+</html>

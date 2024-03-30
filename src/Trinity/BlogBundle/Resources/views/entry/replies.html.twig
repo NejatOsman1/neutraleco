@@ -1,0 +1,52 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{ 'Blog'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <div class="card-content">
+            <div class="card-title">
+                <h6>{{ 'Reacties' | trans }}</h6>
+                <form method="get">
+                    <input type="text" placeholder="Zoeken in reacties" class="form-control" style="width: 250px;" id="q" value="{{app.request.get('q')}}" name="q" />
+                    <button type="submit" style="position:fixed;left: -99999px;"></button>
+                </form>
+            </div>
+
+            <div class="table-responsive" id="replies-table">
+                {% include "@TrinityBlog/entry/replies_ajax.html.twig" %}
+            </div>
+        </div>
+    </div>
+    {# <div class="row">
+        {% for r in Entry.replies | reverse %}
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div style="position: relative;">
+                            <div class="card-title">
+                                <h6>{{r.firstname ~ ' ' ~ r.lastname}}</h6>
+                                <span>
+                                    <span style="color: #aaa !important;">(IP: {{r.ip}} {% if not r.approved %}, wacht op goedkeuring{% endif %})</span>
+                                    <span class="" style="margin: 0 10px;">{{r.date|date('d-m-Y H:i:s')}}</span>
+                                    <span class="actions"><a href="{{path('admin_mod_blog_entry_replies_delete', {id: r.id})}}" class="tt confirm" data-msg="{{ 'Wilt u deze reactie verwijderen?' | trans }}" data-info="{{ 'Reactie verwijderen' | trans }}"><i class="far fa-trash-alt"></i></a></span>
+                                </span>
+                            </div>
+                            <p>{{r.comment|raw|nl2br}}</p>
+                            <div><a href="mailto:{{r.email}}">{{r.email}}</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="btn-bar">
+        <div class="left">
+        </div>
+        <div class="right">
+            <a href="{{ path("admin_mod_blog_entry", {'id': Entry.Blog.id}) }}" class="btn-flat waves-effect waves-dark"><i class="material-icons left">arrow_back</i>{{ 'Terug' | trans }}</a>
+        </div>
+    </div> #}
+{% endblock %}

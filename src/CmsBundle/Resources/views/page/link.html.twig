@@ -1,0 +1,80 @@
+{# {% extends '@Cms/backend_clear.html.twig' %} #}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	{% set blocks_composer = (app.request.get('blocks') == 1) %}
+	{% if post is not null %}
+		{% if blocks_composer %}
+			{# Link bundles in blocks composer #}
+			<script>
+			linkBundle('{{activeRoute.bundleName}}', '{{activeRoute.name}}', '{{poststring|raw}}');
+			</script>
+		{% else %}
+			{# Link bundles in page editor #}
+			<script>
+			if(typeof activeEditor != 'undefined'){
+				if(typeof Trinity != 'undefined'){
+					Trinity.ckWrite('[{{activeRoute.bundleName|lower|replace({'qinox': 'trinity'})}}_show:show({{poststring|raw}})]');
+				}else{
+					activeEditor.insertText('[{{activeRoute.bundleName|lower|replace({'qinox': 'trinity'})}}_show:show({{poststring|raw}})]');
+				}
+				setTimeout(function(){
+					cpop.close();
+				}, 200);
+			}else{
+				if(typeof Trinity != 'undefined' && selectedEditorIndex <= 0){
+					Trinity.ckWrite('[{{activeRoute.bundleName|lower|replace({'qinox': 'trinity'})}}_show:show({{poststring|raw}})]');
+				}else{
+					editor[selectedEditorIndex].insertText('[{{activeRoute.bundleName|lower|replace({'qinox': 'trinity'})}}_show:show({{poststring|raw}})]');
+				}
+				setTimeout(function(){
+					cpop.close();
+				}, 200);
+			}
+			</script>
+		{% endif %}
+	{% endif %}
+
+	<div class="bundle-link-content">
+		{% if activeRoute is not null %}
+			<h3 class="popup-title">{{'Configureer de extensie'|trans}}</h3>
+
+			<input type="hidden" name="bundlename" value="{{activeRoute.bundleName}}" />
+
+			{# <input type="hidden" name="config[bundle_name]" value="{{activeRoute.bundleName}}" /> #}
+			{% include (activeRoute.bundleName == 'admin' ? '@Cms' : '@' ~ activeRoute.bundleName|replace({'Bundle': ''})) ~ '/link.html.twig' %}
+
+			<div id="popup_footer">
+				<button onclick="cpop.reset().loadAjax('{{path('admin_page_link')}}{{blocks_composer ? '?blocks=1' : ''}}');" type="button" class="cp_btn btn">&larr; {{'Vorige'|trans}}</button>
+				<button type="submit" class="btn green darken-1">{{'Koppelen'|trans}}</button>
+				<div class="left"><button type="button" onclick="cpop.close()" class="btn-flat">{{'Sluiten'|trans({})|raw}}</button></div>
+			</div>
+		{% else %}
+			<h3 class="popup-title">{{'Extensie koppelen'|trans}}</h3>
+
+			<ul class="list-group">
+				<a class="list-group-item list-group-item-action" href="javascript:cpop.reset().loadAjax('{{path('admin_page_link', {plugin: 'trinity'})}}{{blocks_composer ? '?blocks=1' : ''}}');"><i class="material-icons left">settings_applications</i>{{trinity}}</a>
+				{% for route in routes %}
+					{% if route.name != 'API' %}
+						<a class="list-group-item list-group-item-action" href="javascript:cpop.reset().loadAjax('{{path('admin_page_link', {plugin: route.name|trim})}}{{blocks_composer ? '?blocks=1' : ''}}');">
+						{% if 'fa-' in route.icon %}
+			              {# FONT-AWESOME ICONS #}
+			              <i class="{{route.icon ? route.icon : ''}} fa-fw left" style="font-size: 19px;"></i>
+			            {% else %}
+			              {# MATERIAL ICONS #}
+			              <i class="material-icons left">{{route.icon == 'star_rate' ? 'star' : route.icon}}</i>
+			            {% endif %}
+						{{route.name}}</a>
+					{% endif %}
+				{% endfor %}
+			</ul>
+
+			<div id="popup_footer">
+				<div class="left">
+					<button type="button" onclick="cpop.close()" class="btn-flat">{{'Sluiten'|trans({})|raw}}</button>
+				</div>
+				{# <div style="clear:both;"></div> #}
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

@@ -1,0 +1,363 @@
+{% trans_default_domain 'cms' %}
+
+{% set active = app.request.attributes.get('_route') %}
+{% set param = app.request.attributes.get('_route_params') %}
+
+{#
+<li class="heading {% if Settings.test %}red darken-4{% endif %}">
+  <a class="dropdown-button" href="#!">
+    <i class="material-icons">web</i>
+    <span>
+      <strong>{{Settings.label}}</strong>{{(app.user.name|trim) is not empty ? app.user.name : 'Administrator'}}</span>
+  </a>
+</li>
+#}
+
+<ul>
+  {#
+  <li class="sep">
+    <a class="subheader">{{ 'Admin' | trans }}</a>
+  </li>
+  #}
+
+  {% if app.User.checkPermissions('ALLOW_DASHBOARD') and Settings.piwikUrl is not empty and Settings.piwikApiHash is not empty %}
+    <li class="{% if active == 'admin' %}active{% endif %}">
+      <a href="{{path('admin')}}">
+        <i class="fa fa-fw fa-chart-line"></i>{{'Dashboard'|trans}}</a>
+    </li>
+  {% endif %}
+
+  {% if app.User.checkPermissions('ALLOW_PAGE') %}
+    <li class="{% if active starts with 'admin_page' %}active{% endif %}">
+      <a href="{{path('admin_page')}}"><i class="far fa-file-alt"></i>{{"Pagina's"|trans}}</a>
+      {#
+      <ul class="sub">
+        <li class="{% if active == 'admin_page_edit' %}active{% endif %}">
+          <a href="{{path('admin_page_edit')}}">
+            <i class="material-icons">add</i>{{'Toevoegen'|trans}}</a>
+        </li>
+        <li class="{% if active == 'admin_page_bundles' %}active{% endif %}">
+          <a href="{{path('admin_page_bundles')}}">
+            <i class="material-icons">link</i>{{'Extensies'|trans}}</a>
+        </li>
+        <li class="{% if active == 'admin_metadata' %}active{% endif %}">
+          <a href="{{path('admin_metadata')}}">
+            <i class="material-icons">label</i>{{'Metatags'|trans}}</a>
+        </li>
+      </ul>
+      #}
+    </li>
+  {% endif %}
+  {% if Settings.calendar is defined and Settings.calendar == true %}
+	<li class="{% if active starts with 'admin_calendar' %}active{% endif %}">
+		<a href="{{path('admin_calendar')}}"><i class="material-icons">today</i>{{'Agenda'|trans}}</a>
+		<ul class="sub">
+			<li>
+				<a href="#" onclick="$('#fc').fullCalendar('today');$('#fc').fullCalendar('changeView', 'agendaDay');">{{'Vandaag'|trans}}</a>
+			</li>
+			<li>
+				<a href="#" onclick="$('#fc').fullCalendar('today');$('#fc').fullCalendar('changeView', 'agendaDay');$('#fc').fullCalendar('incrementDate', moment.duration(1, 'day'));">{{'Morgen'|trans}}</a>
+			</li>
+			<li>
+				<a href="#" onclick="$('#fc').fullCalendar('today');$('#fc').fullCalendar('changeView', 'agendaWeek');">{{'Deze week'|trans}}</a>
+			</li>
+			<li>
+				<a href="#" onclick="$('#fc').fullCalendar('today');$('#fc').fullCalendar('changeView', 'month');">{{'Deze maand'|trans}}</a>
+			</li>
+		</ul>
+	</li>
+{% endif %}
+  {% if app.User.checkPermissions('ALLOW_MEDIA') %}
+    <li class="{% if active starts with 'admin_media' %}active{% endif %}">
+      <a href="{{path('admin_media')}}">
+        <i class="fa fa-photo-video"></i>{{'Media'|trans}}</a>
+        {#
+      <ul class="sub">
+        <li class="{% if active starts with 'admin_media_orphaned' %}active{% endif %}">
+          <a href="{{path('admin_media_orphaned')}}">
+            <i class="material-icons">cloud_download</i>{{'Ongebruikt'|trans}}</a>
+        </li>
+      </ul>
+      #}
+    </li>
+  {% endif %}
+  {% if (app.User.checkPermissions('ALLOW_NAVIGATION') and Settings.customNavigation) %}
+    <li class="{% if active starts with 'admin_navigation' %}active{% endif %}">
+      <a href="{{path('admin_navigation')}}">
+        <i class="far fa-compass"></i>{{'Navigatie'|trans}}</a>
+    </li>
+  {% endif %}
+  {% if installed is defined and 'WebshopBundle' in installed and app.User.checkPermissions('ALLOW_WEBSHOP') %}
+	{% if not Settings.isCatalog %}
+		<li class="{% if active starts with 'admin_mod_webshop' %}active{% endif %}">
+		  <a href="{{path('admin_mod_webshop')}}">
+			<i class="fa fa-fw fa-shopping-cart"></i>{{'Webshop beheren'|trans}}</a>
+		</li>
+	{% else %}
+		<li class="sep"><a class="subheader">{{ 'Catalogus' | trans({}) | raw }}</a></li>
+		<li class="{% if active matches '/^(admin_mod_catalog_products|admin_mod_webshop_tags|admin_mod_webshop_tag_displays|admin_mod_webshop_products_edit|admin_mod_webshop_channable|admin_mod_webshop_googlemerchant)/' %}active{% endif %}">
+			<a href="{{path('admin_mod_catalog_products')}}"><i class="fa fa-fw fa-shopping-bag"></i>{{'Producten'|trans}}</a>
+			<a class="btn-export" data-bs-toggle="tooltip" data-bs-placement="right" href="{{path('admin_mod_catalog_products_export', {'what': 'products'})}}" title="{{ 'Exporteren' | trans({}) | raw }}"><i class="fa fa-download"></i></a>
+			{% if WebshopSettings.tagsEnabled or WebshopSettings.channable or WebshopSettings.googlemerchant %}
+			<ul class="sub">
+			{% endif %}
+				{% if WebshopSettings.tagsEnabled %}
+					<li{{'admin_mod_webshop_tags' in active ? ' class="active"' : ''}}>
+						<a href="{{path('admin_mod_webshop_tags')}}"><i class="fa fa-tags"></i>{{ 'Tags (filter)' | trans({}) | raw }}</a>
+					</li>
+					<li{{'admin_mod_webshop_tag_displays' in active ? ' class="active"' : ''}}>
+						<a href="{{path('admin_mod_webshop_tag_displays')}}"><i class="fa fa-tags"></i>{{ 'Tags (weergave)' | trans({}) | raw }}</a>
+					</li>
+				{% endif %}
+				{% if WebshopSettings.channable %}
+					<li{{'admin_mod_webshop_channable' in active ? ' class="active"' : ''}}><a href="{{path('admin_mod_webshop_channable')}}"><i class="material-icons">shopping_basket</i>{{ 'Channable' | trans({}) | raw }}</a></li>
+				{% endif %}
+
+				{% if WebshopSettings.googlemerchant %}
+					<li{{'admin_mod_webshop_googlemerchant' in active ? ' class="active"' : ''}}><a href="{{path('admin_mod_webshop_googlemerchant')}}"><i class="material-icons">shopping_basket</i>{{ 'Google Merchant XML' | trans({}) | raw }}</a></li>
+				{% endif %}
+			{% if WebshopSettings.tagsEnabled or WebshopSettings.channable or WebshopSettings.googlemerchant %}
+			</ul>
+			{% endif %}
+		</li>
+
+		<li class="{% if active matches '/^(admin_mod_catalog_categories|admin_mod_webshop_categories_edit)/' %}active{% endif %}">
+			<a href="{{path('admin_mod_catalog_categories')}}"><i class="material-icons">view_day</i>{{'Product categorieën'|trans}}</a>
+		</li>
+
+		<li class="{% if active matches '/^(admin_mod_catalog_specs|admin_mod_webshop_specs_view)/' %}active{% endif %}">
+			<a href="{{path('admin_mod_catalog_specs')}}"><i class="material-icons">details</i>{{'Product specificaties'|trans}}</a>
+		</li>
+		{% if is_granted('ROLE_SUPER_ADMIN') %}
+			<li class="{% if active starts with 'admin_mod_catalog_config' %}active{% endif %}">
+			  <a href="{{path('admin_mod_catalog_config')}}">
+				<i class="fa fa-fw fa-cog"></i>{{'Instellingen'|trans}}</a>
+			</li>
+		{% endif %}
+	{% endif %}
+  {% endif %}
+  {% if installed is defined and 'TicketsBundle' in installed and app.User.checkPermissions('ALLOW_BUNDLES') %}
+    <li class="{% if active starts with 'admin_mod_tickets' %}active{% endif %}">
+      <a href="{{path('admin_mod_tickets')}}">
+        <i class="material-icons">event</i>{{'Ticketverkoop'|trans}}</a>
+    </li>
+  {% endif %}
+  {% if installed is defined and 'JobsBundle' in installed and app.User.checkPermissions('ALLOW_BUNDLES') %}
+    <li class="{% if active starts with 'admin_mod_jobs' %}active{% endif %}">
+      <a href="{{path('admin_mod_jobs')}}">
+        <i class="fa fa-fw fa-briefcase"></i>{{'Vacatures beheren'|trans}}</a>
+    </li>
+  {% endif %}
+
+  {% if app.User.checkPermissions('ALLOW_BUNDLES') %}
+    <li class="sep">
+      <a class="subheader">{{trinity}} {{ 'Extensies' | trans }}</a>
+    </li>
+
+    {# Routes from other bundles #}
+    {% set apiRoute = null %}
+    {% for route in modroutes | sort %}
+      {% if (route.hidden is not defined or route.hidden != true) and route.route != 'admin_mod_tickets' and route.route != 'admin_mod_webshop' and route.route != 'admin_mod_search' and route.route != 'admin_mod_jobs' and (route.bundleName in Settings.visibleBundles or multisite|length <= 1) and route.route != 'admin_mod_questionsandanswers' %}
+      {% if route.route == 'admin_mod_api' %}
+        {% set apiRoute = route %}
+      {% else %}
+        <li class="{% if active starts with route.route %}active{% endif %}">
+          <a href="{{path(route.route)}}">
+            {% if 'fa-' in route.icon %}
+              {# FONT-AWESOME ICONS #}
+              <i class="{{route.icon ? route.icon : ''}} fa-fw"></i>{{route.name|trans}}
+            {% else %}
+              {# MATERIAL ICONS #}
+              <i class="material-icons">{{route.icon ? route.icon : 'dashboard'}}</i>{{route.name|trans}}
+            {% endif %}
+          </a>
+          {% if route.nav is defined and route.nav is not empty %}
+            <ul class="sub">
+              {% for nav in route.nav %}
+                <li class="{% if active == nav.route %}active{% endif %}">
+                  <a href="{{path(nav.route)}}">{{nav.label|trans|raw}}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% if Settings.ccEnabled and is_granted('ROLE_SUPER_ADMIN') %}
+    <li class="sep">
+      <a class="subheader">{{ 'Command &amp; Control' | trans }}</a>
+    </li>
+    <li class="{% if active == 'admin_cc' %}active{% endif %}">
+      <a href="{{path('admin_cc')}}">
+        <i class="material-icons">group_work</i>{{ 'Site management' | trans }}</a>
+    </li>
+    <li class="{% if active == 'admin_monitor' %}active{% endif %}">
+      <a href="{{path('admin_monitor')}}">
+        <i class="material-icons">network_check</i>{{ 'System monitor' | trans }}</a>
+    </li>
+  {% endif %}
+
+  {% if tags is defined and tags is not empty %}
+    <li class="sep">
+      <a class="subheader">{{ 'Tags' | trans }}</a>
+    </li>
+    {% for Tag in tags %}
+      <li class="{% if active == 'admin_tag_view' and param.tag is defined and param.tag == Tag.label %}active{% endif %}">
+        <a href="{{path('admin_tag_view', {'tag': Tag.label})}}">
+          <i class="material-icons">bookmark</i>{{Tag.label}}</a>
+      </li>
+    {% endfor %}
+  {% endif %}
+
+  {# <li class="{% if active starts with 'admin_calendar' %}active{% endif %}"><a href="{{path('admin_calendar')}}"><span><i class="fa fa-calendar fa-fw"></i>{{'nav.calendar'|trans}}</a>
+	<ul class="sub">
+		<li class="{% if active == 'admin_calendar' and param.type is defined and param.type == 'day' %}active{% endif %}"><a href="{{path('admin_calendar', {'type': 'day'})}}"><span>{{'nav.calendar.today'|trans}}</a></li>
+		<li class="{% if active == 'admin_calendar' and param.type is defined and param.type == 'yesterday' %}active{% endif %}"><a href="{{path('admin_calendar', {'type': 'yesterday'})}}"><span>{{'nav.calendar.yesterday'|trans}}</a></li>
+		<li class="{% if active == 'admin_calendar' and param.type is defined and param.type == 'week' %}active{% endif %}"><a href="{{path('admin_calendar', {'type': 'week'})}}"><span>{{'nav.calendar.thisweek'|trans}}</a></li>
+		<li class="{% if active == 'admin_calendar' and param.type is defined and param.type == 'month' %}active{% endif %}"><a href="{{path('admin_calendar', {'type': 'month'})}}"><span>{{'nav.calendar.thismonth'|trans}}</a></li>
+	</ul></li> #}
+
+  <li class="sep">
+    <a class="subheader">{{ 'Systeem' | trans }}</a>
+  </li>
+
+    {% if app.User.checkPermissions('ALLOW_CONFIGURATION') %}
+      <li class="{% if active == 'admin_settings' %}active{% endif %}">
+        <a href="{{path('admin_settings')}}"><i class="fa fa-fw fa-cog"></i>{{'Configuratie'|trans}}</a>
+      </li>
+      {% if app.User.checkPermissions('ALLOW_PAGE') %}
+        {% if is_granted('ROLE_SUPER_ADMIN') %}
+          {% if app.User.checkPermissions('ALLOW_BUNDLES') %}
+            <li class="{% if active == 'admin_page_bundles' %}active{% endif %}">
+              <a href="{{path('admin_page_bundles')}}">
+                <i class="fa fa-fw fa-puzzle-piece"></i> {{'Gekoppelde extensies'|trans}}</a>
+            </li>
+          {% endif %}
+
+          <li class="{% if active == 'admin_metadata' %}active{% endif %}">
+            <a href="{{path('admin_metadata')}}">
+              <i class="fa fa-fw fa-tag"></i> {{'Metatags beheren'|trans}}</a>
+          </li>
+        {% endif %}
+      {% endif %}
+      {% if app.User.checkPermissions('ALLOW_REDIRECTS') %}
+        <li class="{% if active starts with 'admin_redirects' %}active{% endif %}">
+          <a href="{{path('admin_redirects')}}">
+            <i class="fa fa-random"></i>{{'Redirects beheren'|trans}}</a>
+        </li>
+      {% endif %}
+      {% if is_granted('ROLE_SUPER_ADMIN') %}
+        <li class="{% if active == 'admin_settings_languages' %}active{% endif %}">
+          <a href="{{path('admin_settings_languages')}}">
+            <i class="fa fa-fw fa-language"></i>{{'Talen'|trans}}</a>
+        </li>
+      {% endif %}
+
+      {% if is_granted('ROLE_SUPER_ADMIN') or app.User.checkPermissions('ALLOW_EMAIL_TEMPLATES') %}
+        <li class="{% if active starts with 'admin_mail' %}active{% endif %}">
+          <a href="{{path('admin_mail')}}">
+            <i class="fa fa-fw fa-envelope-open"></i>{{'E-mail inhoud'|trans}}</a>
+        </li>
+      {% endif %}
+
+      {% if is_granted('ROLE_SUPER_ADMIN') %}
+        <li class="{% if active starts with 'admin_settings_mailtest' %}active{% endif %}">
+          <a href="{{path('admin_settings_mailtest')}}">
+            <i class="fa fa-fw fa-paper-plane"></i>{{'E-mail testen'|trans}}</a>
+        </li>
+        <li class="{% if active starts with 'admin_cron' %}active{% endif %}">
+          <a href="{{path('admin_cron')}}">
+          <i class="far fa-fw fa-clock"></i>{{'Cronjob'|trans}}</a>
+        </li>
+      {% endif %}
+    {% endif %}
+
+    {% if Settings.uptimeRobotKey %}
+      <li class="{% if active starts with 'admin_status' %}active{% endif %}">
+        <a href="{{path('admin_status')}}">
+          <i class="material-icons">network_check</i>{{'Status'|trans}}
+        </a>
+      </li>
+    {% endif %}
+
+  {# {% if app.User.checkPermissions('ALLOW_ANALYTICS') %}
+	<li class="{% if active starts with 'admin_analytics' %}active{% endif %}"><a href="{{path('admin_analytics')}}"><i class="material-icons">pie_chart</i>{{'Analytics'|trans}}</a></li>
+  {% endif %} #}
+    {% if app.User.checkPermissions('ALLOW_USERS') %}
+      <li class="{% if active starts with 'admin_users' %}active{% endif %}">
+        <a href="{{path('admin_users')}}">
+          {# {% if moderation is defined and moderation > 0 %}<span class="new badge" data-badge-caption="">{{moderation}}</span>{% elseif ipblocks is defined and (ipblocks|length) > 0 and is_granted('ROLE_SUPER_ADMIN') %}<span class="new badge red" data-badge-caption="">{{ipblocks|length}}</span>{% endif %} #}
+          <i class="far fa-fw fa-user"></i>{{'Gebruikers'|trans}}
+        </a>
+          {#
+        <ul class="sub">
+          <li class="{% if active == 'admin_users_edit' %}active{% endif %}">
+            <a href="{{path('admin_users_edit')}}">
+              <i class="material-icons">add</i>{{'Toevoegen'|trans}}</a>
+          </li>
+        </ul>
+        #}
+      </li>
+    {% endif %}
+  {% if is_granted('ROLE_SUPER_ADMIN') %}
+  	<li class="{% if active starts with 'admin_multisite' %}active{% endif %}">
+  		<a href="{{path('admin_multisite')}}">
+  			<i class="fa fa-sitemap"></i> {{'Multi-site configuratie'|trans}}
+  		</a>
+  	</li>
+  {% endif %}
+
+  {% if is_granted('ROLE_SUPER_ADMIN') %}
+    <li class="{% if active starts with 'admin_system' or active starts with 'admin_install' or active starts with 'admin_update' %}active{% endif %}">
+      <a href="{{path('admin_system')}}">
+        <i class="fa fa-fw fa-database"></i>{{'Backups'|trans}}</a>
+        {#
+      <ul class="sub">
+        <li class="{% if active starts with 'admin_install' %}active{% endif %}">
+          <a href="{{path('admin_install')}}">
+            <i class="material-icons">cloud_download</i>{{'Extensies'|trans}}</a>
+        </li>
+
+        {% if apiRoute is defined and apiRoute %}
+          <li class="{% if active starts with apiRoute.route %}active{% endif %}">
+            <a href="{{path(apiRoute.route)}}">
+              <i class="material-icons">{{apiRoute.icon ? apiRoute.icon : 'dashboard'}}</i>{{apiRoute.name|trans}}</a>
+            {% if apiRoute.nav is defined and apiRoute.nav is not empty %}
+              <ul class="sub">
+                {% for nav in apiRoute.nav %}
+                  <li class="{% if active == nav.route %}active{% endif %}">
+                    <a href="{{path(nav.route)}}">{{nav.label|trans|raw}}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endif %}
+      </ul>
+      #}
+    </li>
+
+    <li class="{% if active starts with 'admin_log' %}active{% endif %}">
+      <a href="{{path('admin_log')}}">
+        <i class="fa fa-fw fa-clipboard-check"></i>{{'Systeem log'|trans}}</a>
+    </li>
+  {% endif %}
+
+  <li class="{% if active starts with 'admin_about' %}active{% endif %}">
+    <a href="{{path('admin_about')}}">
+      <i class="fa fa-fw fa-info-circle"></i>{{'Over'|trans}}
+      {{trinity}}</a>
+  </li>
+</ul>
+{#
+<ul class="nav-tray right hide-on-large-only show-on-med-and-down">
+  <li data-info="{{'Uitloggen'|trans}}">
+    <a href="{{logout_path('admin_secured_area')}}">
+      <i class="fa fa-power-off"></i>Uitloggen
+    </a>
+  </li>
+</ul>
+#}

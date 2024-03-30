@@ -1,0 +1,13 @@
+{% for warning in Client.warnings %}
+	<div class="card">
+		<div class="card-content">
+
+				{{warning|nl2br}}
+
+		</div>
+	</div>
+{% endfor %}
+
+<div id="popup_footer">
+	<button class="btn" onclick="cpop.close()">{{ 'Sluiten' | trans }}</button>
+</div>

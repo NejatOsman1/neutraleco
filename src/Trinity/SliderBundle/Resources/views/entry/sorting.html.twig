@@ -1,0 +1,75 @@
+{% trans_default_domain 'cms' %}
+{% if done is defined %}
+
+    <div class="card">
+        <div class="card-content center-align">
+            {{ 'De pagina wordt vernieuwd...' | trans }}
+        </div>
+    </div>
+
+    <script>
+    window.location.reload(false); 
+    </script>
+{% else %}
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+    <div class="card">
+            <div class="card-content center-align">
+                {#<div class="col s12 m6">{{ 'Sorteren van:' | trans ~ ' ' ~ slider.label }}</div>#}
+                <span>{{ 'Niet opgeslagen verandering gaan verloren!' | trans }}</span>
+            </div>
+    </div>
+
+    <div class="card">
+        <div class="card-content">
+            <ol class="slider-sortable sortable" id="menu-editor">
+                {% for entry in slider.entries %}
+                    <li class="page-entry nesteddisabled" id="entry_{{entry.id}}">
+                        <div class="page-entry-content" data-item_id="{{entry.id}}" data-label="{{entry.label}}" data-position="{{entry.position}}">
+                            <span class="left nav-disclose"></span>
+                            <img src="{{ '/' ~ entry.Media.getWebPath('thumb') }}">
+                            <span class="label" style="padding-left: 20px;">{{ 'Slide' | trans ~ ': ' ~ entry.position ~ ' ' ~ 'Titel' | trans ~ ': ' ~ entry.label}}</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+
+    <input type="hidden" id="pagesort" name="pagesort" value="" />
+
+    <button type="submit" class="btn waves-effect waves-light"><i class="material-icons left">save</i>{{'Opslaan'|trans}}</button>
+    {{ form_end(form) }}
+    <script>
+
+    var ns;
+    setTimeout(function(){
+        if($('ol.slider-sortable').length)
+        {
+            ns = $('ol.slider-sortable').nestedSortable({
+                forcePlaceholderSize: true,
+                handle: 'div',
+                helper: 'clone',
+                items: 'li',
+                opacity: .6,
+                placeholder: 'placeholder',
+                revert: 250,
+                tabSize: 25,
+                tolerance: 'pointer',
+                toleranceElement: '> div',
+                maxLevels: 0,
+                isTree: false,
+                expandOnHover: 700,
+                startCollapsed: true,
+                disableNestingClass: 'nesteddisabled',
+                relocate: function(){
+                        $('#pagesort').val(JSON.stringify(ns.nestedSortable('toArray')));
+                        console.log(JSON.stringify(ns.nestedSortable('toArray')));
+                }
+            });
+            $('#pagesort').val(JSON.stringify(ns.nestedSortable('toArray')));
+        }
+    }, 100);
+    </script>
+
+{% endif %}

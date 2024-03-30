@@ -1,0 +1,14 @@
+services:
+    trinitysearchbundle_show:
+        class: \App\Trinity\SearchBundle\Controller\SearchController
+        public: true
+        arguments: ["@translator", "@service_container", "@trinity.mailer"]
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    trinitysearchbundle_link:
+        class: \App\Trinity\SearchBundle\Controller\SearchController
+        public: true
+        arguments: ["@translator", "@service_container", "@trinity.mailer"]
+        calls:
+            - [setContainer, ["@service_container"]]

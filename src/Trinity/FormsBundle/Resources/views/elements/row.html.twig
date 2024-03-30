@@ -1,0 +1,209 @@
+{% trans_default_domain 'forms' %}
+{% set editableFields = (Question.getType in ['upload', 'email', 'email_check', 'date', 'text', 'textarea', 'dropzone']) %}
+
+{% if loadForm is not defined %}
+    <div class="fields-parent">
+        <div class="field-child">
+        {% endif %}
+
+        <div id="q-{{Question.id ? Question.id : random}}" data-id="{{Question.id ? Question.id : random}}" class="{% if loop is defined and loop.index0 % 2 %}two-last {% endif %} {% if Question.hidden %}qhidden{% endif %} {% if Question.required and Question.hidden == false %}required{% endif %} form-block child-sortable form-group card type-{{Question.getType}}">
+            {% if edit is defined %}
+                <input type="hidden" name="pos[{{Question.id ? Question.id : random}}]" class="row-pos" value="{{Question.position ?? 0}}" />
+                <input type="hidden" name="width[{{Question.id ? Question.id : random}}]" class="row-width" value="{{Question.width ?? 100}}" />
+            {% endif %}
+            {% if Question.getType in ['checkbox', 'radio', 'select', 'upload', 'email', 'email_check', 'date', 'text', 'textarea', 'canvas'] %}
+                {% if Question.getTitle is not empty %}
+					 {% if edit is not defined and not Question.hiddenLabel %}
+						<div class="field-label" {% if edit is defined %}contenteditable="true"{% endif %} data-type="title" style="outline:none;margin-left: 20px;line-height: 28px;min-width: 100px;display: inline-block;">
+						  {{Question.getTitle|raw}}
+						  {% if edit is not defined and Question.required and Question.hidden == false %}<span class="req">*</span>{% endif %}
+						</div>
+					{% endif %}
+					 {% if edit is defined %}
+						<div class="field-control">
+							<input {% if edit is defined %}title="{{'Titel is verplicht'|trans}}"{% endif %} placeholder="{{'Titel'|trans}}" type="text" class="title validate" name="title[]" data-type="title" value="{{Question.title|raw}}" {% if edit is defined %}required="required"{% endif %} />
+							{% if edit is not defined and Question.required and Question.hidden == false %}<span class="req">*</span>{% endif %}
+						</div>
+					{% endif %}
+                {% else %}
+                    <div class="field-label" {% if edit is defined %}contenteditable="true"{% endif %} data-type="title" style="outline:none;margin-left: 20px;line-height: 28px;min-width: 100px;display: inline-block;"></div>
+                {% endif %}
+                {% if edit is defined %}
+                    <div class="info">
+                        <span class="qid">({{Question.getTypeLabel}}, ID: {{Question.id}}<span class="req">, {{ 'VERPLICHT' |trans }}</span>)</span>
+                    </div>
+                {% endif %}
+                {# {% if edit is defined %}
+                        <span class="hid"><i class="material-icons">add</i></span>
+                {% endif %} #}
+            {% elseif Question.getType in ['dropzone'] %}
+                {% if Question.getTitle is not empty %}
+                    <div class="field-label" data-type="title" style="outline:none;margin-left: 20px;line-height: 28px;min-width: 100px;display: inline-block;"><span style="color:gray;">Dropzone</span>{% if edit is not defined and Question.required and Question.hidden == false %}<span class="req">*</span>{% endif %}</div>
+                {% endif %}
+                {% if edit is defined %}
+                    <div class="info">
+                        <span class="qid">({{Question.getTypeLabel}}, ID: {{Question.id}}<span class="req">, {{ 'VERPLICHT' |trans }}</span>)</span>
+                    </div>
+                {% endif %}
+            {% elseif Question.getType in ['newsletter'] %}
+                {% if edit is defined %}
+                    <div class="info">
+                        <span class="qid">({{Question.getTypeLabel}}, ID: {{Question.id}}<span class="req">, {{ 'VERPLICHT' |trans }}</span>)</span>
+                    </div>
+                {% endif %}
+            {% endif %}
+            {# <div class="field"> #}
+                {% if edit is defined %}
+                    <div class="edit" style="right:auto;left: 16px;top: 24px;">
+                        <span class="drag"><i class="material-icons" style="font-size: 20px;">drag_handle</i></span>
+                    </div>
+                {% endif %}
+
+                {% block field %}{% endblock %}
+                {% if Question.getType in ['select', 'upload', 'email', 'email_check', 'email_check', 'text', 'date', 'textarea'] %}
+                    {% if Question.getSubTitle|trim|striptags != ('Toelichting' | trans) and edit is not defined %}<div class="sublabel form-text text-muted" data-type="subtitle" style="outline:none;">{{Question.getSubTitle|raw}}</div>{% endif %}
+
+                    {# {% if Question.getType in ['upload', 'email', 'email_check', 'date', 'text', 'textarea'] %}
+                            {% if edit is defined %}<div class="placeholder form-text text-muted" contenteditable="true" data-type="placeholder" style="outline:none;">{{Question.placeholder}}</div>{% endif %}
+                    {% endif %} #}
+                {% endif %}
+                {# Editor #}
+                {% if edit is defined %}
+                    {# <div class="properties" style="display:none;">
+                            {% if Question.getType in ['select', 'checkbox', 'radio'] %}
+                                    {% include '@TrinityForms/elements/valueEditor.html.twig' %}
+                            {% endif %}
+                    </div> #}
+                    {# Technical #}
+                    <input type="hidden" class="id" name="id[]" value="{{Question.id ? Question.id : random}}" />
+                    <input type="hidden" class="type" name="type[]" value="{{Question.type}}" />
+                    <input type="hidden" class="title" name="title[{{Question.id ? Question.id : random}}]" value="{{Question.title}}" />
+                    {# <input type="hidden" class="subtitle" name="subtitle[{{Question.id ? Question.id : random}}]" value="{{Question.subtitle}}" /> #}
+                    <input type="hidden" class="classes" name="classes[{{Question.id ? Question.id : random}}]" value="{{Question.classes}}" />
+                    {# <div class="row"> #}
+                    {# {% if Question.getType in ['upload', 'email', 'email_check', 'date', 'text', 'textarea'] %} #}
+                    <div id="additional{{Question.id ? Question.id : random}}" class="modal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div style="display:{{editableFields ? 'block' : 'none'}};">
+                                        <p>
+                                            <label class="form-label" for="placeholder_{{Question.id ? Question.id : random}}">{{ 'Placeholder' | trans }}</label>
+                                            <input class="form-control" onkeyup="$('#frm-lbl-{{Question.id ? Question.id : random}}').prop('placeholder', this.value);" style="margin:0;" id="placeholder_{{Question.id ? Question.id : random}}" type="text" name="placeholder[]" value="{{Question.placeholder ? (Question.placeholder|raw) : ''}}">
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p>
+                                            <label class="form-label" for="subtitle_{{Question.id ? Question.id : random}}">{{ 'Toelichting' | trans }}</label>
+                                            <input class="form-control" style="margin:0;" id="subtitle_{{Question.id ? Question.id : random}}" type="text" name="subtitle[]" value="{{Question.subtitle|trim|striptags != ('Toelichting' | trans) ? (Question.subtitle|raw) : ''}}">
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Sluiten' | trans }}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {# {% endif %} #}
+                    <input style="display:none;" type="checkbox" {{Question.required and Question.hidden == false ? 'checked="checked"' : ''}} name="required[]" id="require_{{Question.id ? Question.id : random}}" value="{{Question.id ? Question.id : random}}" />
+                    <input style="display:none;" type="checkbox" {{Question.hidden ? 'checked="checked"' : ''}} name="hidden[]" id="hidden_{{Question.id ? Question.id : random}}" value="{{Question.id ? Question.id : random}}" />
+                    <input style="display:none;" type="checkbox" {{Question.hiddenLabel ? 'checked="checked"' : ''}} name="hidden_label[]" id="hidden_label_{{Question.id ? Question.id : random}}" value="{{Question.id ? Question.id : random}}" />
+					{# </div> #}
+                    <div class="edit" style="top: 20px;right: 17px;">
+                        <a class="more" style="font-size: 20px;" data-horizontal-offset="-380" data-vertical-offset="-200" data-jq-dropdown="#jq-dropdown-{{Question.id ? Question.id : random}}" href="#"><i style="color:black;" class="material-icons">more_horiz</i></a>
+                    </div>
+                    {% if Question.getType in ['select', 'checkbox', 'radio'] %}
+                        <div id="options{{Question.id ? Question.id : random}}" class="modal modal-fixed-footer">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <h4>{{ 'Keuze opties' | trans({}) }}</h4>
+                                        {% include '@TrinityForms/elements/valueEditor.html.twig' with {Question: Question} %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="#!" class="add-child-value btn btn-flat"><i class="fa fa-plus"></i> {{ 'Optie toevoegen' |trans }}</a>
+                                        <button type="button" class="btn btn-green" data-bs-dismiss="modal"><i class="fa fa-check"></i> {{ 'Opslaan' | trans }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                {% endif %}
+            {# </div> #}
+            {# <div class="options">
+            <a href="#" class="pull center-align"><i class="material-icons">arrow_drop_down</i></a>
+            </div> #}
+        </div>
+        {% if edit is defined %}
+            <div id="jq-dropdown-{{Question.id ? Question.id : random}}" class="jq-dropdown jq-dropdown-tip jq-dropdown-anchor-right">
+                <ul class="jq-dropdown-menu">
+                    {% if Question.getType in ['select', 'checkbox', 'radio'] %}
+                        <li><a href="#" onclick="$('#options{{Question.id ? Question.id : random}}').modal('show');return false;"><i style="font-size:15px;line-height: 17px;" class="material-icons left">edit</i>{{ 'Keuze opties bewerken' |trans }}</a></li>
+                    {% endif %}
+                    {% if Question.getType in ['select', 'upload', 'email', 'email_check', 'text', 'date', 'textarea', 'checkbox', 'radio', 'canvas', 'dropzone'] %}
+                    	<li>
+							<a href="#" data-toggle="true" onclick="if ($(this).find('i').html() == 'check_box') {
+                                $(this).find('i').html('check_box_outline_blank');
+                                $('#q-{{Question.id ? Question.id : random}}').removeClass('required');
+                                $('#require_{{Question.id ? Question.id : random}}').prop('checked', false);
+                            } else {
+                                $(this).find('i').html('check_box');
+                                $('#q-{{Question.id ? Question.id : random}}').addClass('required');
+                                $('#require_{{Question.id ? Question.id : random}}').prop('checked', true);
+                            }
+                            ;
+                            return false;"><i style="font-size:15px;line-height: 17px;" class="material-icons left">{{Question.required and Question.hidden == false ? 'check_box' : 'check_box_outline_blank'}}</i>{{ 'Verplichte invoer' | trans }}</a></li>
+						<li><a href="#" data-toggle="true" onclick="if ($(this).find('i').html() == 'check_box') {
+									$(this).find('i').html('check_box_outline_blank');
+									$('#q-{{Question.id ? Question.id : random}}').removeClass('qhidden');$('#hidden_{{Question.id ? Question.id : random}}').prop('checked', false);} else {
+									$(this).find('i').html('check_box');
+									$('#q-{{Question.id ? Question.id : random}}').addClass('qhidden');
+									$('#hidden_{{Question.id ? Question.id : random}}').prop('checked', true);
+								}
+								;
+								return false;"><i style="font-size:15px;line-height: 17px;" class="material-icons left">{{Question.hiddenLabel ? 'check_box' : 'check_box_outline_blank'}}</i>{{ 'Verborgen' | trans }}</a></li>
+						<li><a href="#" data-toggle="true" onclick="if ($(this).find('i').html() == 'check_box') {
+								$(this).find('i').html('check_box_outline_blank');
+								$('#q-{{Question.id ? Question.id : random}} .field-control').removeClass('qhidden');
+								$('#hidden_label_{{Question.id ? Question.id : random}}').prop('checked', false);
+								} else {
+								$(this).find('i').html('check_box');
+								$('#q-{{Question.id ? Question.id : random}} .field-control').addClass('qhidden');
+								$('#hidden_label_{{Question.id ? Question.id : random}}').prop('checked', true);
+							};
+							return false;"><i style="font-size:15px;line-height: 17px;" class="material-icons left">{{Question.hiddenLabel ? 'check_box' : 'check_box_outline_blank'}}</i>{{ 'Verberg label' | trans }}</a></li>
+						<li class="jq-dropdown-divider"></li>
+                        {# {% if loop is defined and loop.index == 1 %}
+						<li><a data-disabled="true" class="grey-text"><i style="font-size:15px;line-height: 17px;" class="material-icons left">attachment</i>{{ 'Inhoud koppelen' | trans }}</a></li>
+        {% else %}
+                <li><a><i style="font-size:15px;line-height: 17px;" class="material-icons left">attachment</i>{{ 'Inhoud koppelen' | trans }}</a></li>
+                        {% endif %} #}
+                        {# {% else %}
+                                <li><a href="#" class="grey-text" data-disabled="true"><i style="font-size:15px;line-height: 17px;" class="material-icons left">check_box_outline_blank</i>{{ 'Verplichte invoer' | trans }}</a></li> #}
+                    {% endif %}
+                    {# {% if Question.getType in ['upload', 'email', 'email_check', 'date', 'text', 'textarea'] %} #}
+                    <li><a href="#" onclick="$('#additional{{Question.id ? Question.id : random}}').modal('show'); return false;"><i style="font-size:15px;line-height: 17px;" class="material-icons left">settings</i>{{ 'Opties' |trans }}</a></li>
+                    {# {% endif %} #}
+                    <li class="jq-dropdown-divider"></li>
+                    <li><a href="#5" onclick="deleteQuestion({{Question.id ? Question.id : random}});" class="red-text delete"><i style="font-size:15px;line-height: 17px;" class="material-icons left">clear</i>{{ 'Vraag verwijderen' | trans }}</a></li>
+                    <li><a data-disabled="true" class="grey-text"><i style="font-size:15px;line-height: 17px;" class="material-icons left">info_outline</i>{{ 'Vraag ID:' | trans ~ ' ' ~ Question.id}}</a></li>
+                </ul>
+            </div>
+        {% endif %}
+        {% if loadForm is not defined %}
+        </div>
+    </div>
+{% endif %}
+{% if edit is defined %}
+    <script>
+        $('#jq-dropdown-{{Question.id ? Question.id : random}}').on('show', function (event, dropdownData) {
+            $('body').addClass('jq-dd');
+        }).on('hide', function (event, dropdownData) {
+            $('body').removeClass('jq-dd');
+        });
+
+        CKEDITOR.disableAutoInline = true;
+    </script>
+{% endif %}

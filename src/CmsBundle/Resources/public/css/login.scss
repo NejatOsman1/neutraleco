@@ -1,0 +1,246 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
+$break-xl-up: "(min-width : 1201px)";
+$break-xl: "(max-width : 1200px)";
+$break-lg-up: "(min-width : 993px)";
+$break-lg: "(max-width : 992px)";
+$break-md-up: "(min-width : 769px)";
+$break-md: "(max-width : 768px)";
+$break-sm-up: "(min-width : 577px)";
+$break-sm: "(max-width : 576px)";
+$break-xs-up: "(min-width : 371px)";
+$break-xs: "(max-width : 370px)";
+$dark: #2b333e;
+$blue: #11a2f4;
+$light: #fff;
+$gray: #f1f3f8;
+$gray2: #ddd;
+$darkgray: #888;
+$shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+body {
+  font-family: 'Roboto', sans-serif;
+  color: $dark;
+  background: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Rubik', sans-serif;
+}
+
+.btn-lg,
+.form-control-lg {
+  font-size: 16px;
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 1px solid $gray2;
+}
+
+.form-control-lg {
+  font-size: 14px;
+}
+
+.login-page {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  position: fixed;
+  @media #{$break-md} {
+    position: static;
+    background: none;
+  }
+
+  &.has-bg {
+    @media #{$break-md-up} {
+      .vtable {
+        width: auto;
+        background: $light;
+      }
+
+      .window {
+        border: 0;
+      }
+    }
+  }
+
+  .login-bg {
+    position: fixed;
+    top: 0;
+    left: 400px;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-color: $gray;
+    @media #{$break-md} {
+      display: none;
+    }
+  }
+
+  a {
+    color: #888;
+    text-decoration: none;
+
+    &:hover {
+      color: $blue;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #444;
+  }
+
+  .logobox {
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 35;
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    @media #{$break-md} {
+      padding: 30px;
+      position: static;
+    }
+
+    img {
+      height: 50px;
+    }
+  }
+
+  .alert {
+    font-size: 14px;
+  }
+
+  .btn {
+    background: $blue;
+    color: $light;
+    font-weight: bold;
+    border-radius: 5px;
+
+    &:hover {
+      background: lighten($blue,5);
+    }
+  }
+
+  .vtable {
+    display: table;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    z-index: 2;
+    border-radius: 0 20px 20px 0;
+    @media #{$break-md} {
+      width: 100%;
+      position: static;
+    }
+
+    .vcell {
+      display: table-cell;
+      vertical-align: middle;
+      @media #{$break-md} {
+        display: block;
+        padding: 10px;
+      }
+    }
+  }
+
+  .header {
+    padding: 60px 0 0;
+    @media #{$break-md} {
+      padding: 30px 0 0;
+    }
+  }
+
+  .window {
+    height: auto;
+    width: 420px;
+    margin: 0 auto;
+    padding: 50px;
+    display: flex;
+    align-content: space-between;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 2px solid $gray2;
+    border-radius: 20px;
+    background: $light;
+    @media #{$break-md} {
+      width: 100%;
+      max-width: 100%;
+      padding: 30px;
+    }
+
+    form {
+      width: 100%;
+
+      .field {
+        position: relative;
+
+        .form-control {
+          padding-left: 40px;
+        }
+
+        i {
+          position: absolute;
+          top: calc(50% - 1px);
+          left: 15px;
+          transform: translateY(-50%);
+          color: $darkgray;
+        }
+
+        button {
+          i {
+            position: static;
+            transform: none;
+            color: $light;
+          }
+        }
+      }
+
+      .lost-password {
+        font-size: 14px;
+        @media #{$break-md} {
+          padding: 15px 0;
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+.footer {
+  font-size: 14px;
+  position: absolute;
+  bottom: 50px;
+  left: 50px;
+  @media #{$break-md} {
+    width: 100%;
+    position: static;
+    padding: 20px 30px;
+  }
+
+  a {
+    color: transparentize($dark,.5);
+    padding: 0 10px;
+    text-decoration: none;
+    @media #{$break-sm} {
+      padding: 0 5px;
+    }
+
+    &:hover {
+      color: $dark;
+    }
+  }
+}

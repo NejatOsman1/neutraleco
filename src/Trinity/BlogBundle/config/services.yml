@@ -1,0 +1,20 @@
+services:
+    app.show_blog:
+        class: \App\Trinity\BlogBundle\Controller\BlogController
+        arguments: ["@translator", "@service_container", "@trinity.mailer"]
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    trinityblogbundle_show:
+        public: true
+        class: \App\Trinity\BlogBundle\Controller\BlogController
+        arguments: ["@translator", "@service_container", "@trinity.mailer"]
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    trinityblogbundle_link:
+        public: true
+        class: \App\Trinity\BlogBundle\Controller\BlogController
+        arguments: ["@translator", "@service_container", "@trinity.mailer"]
+        calls:
+            - [setContainer, ["@service_container"]]

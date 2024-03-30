@@ -1,0 +1,11 @@
+services:
+    trinityapibundle_show:
+        public: true
+        class: Trinity\ApiBundle\Controller\AdminController
+        arguments: ["@translator", "@service_container", "@trinity.mailer"]
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    trinityapibundle_inflector:
+        public: true
+        class: Trinity\ApiBundle\Controller\InflectController

@@ -1,0 +1,129 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Settings'|trans}}{% endblock %}
+
+{% block body %}
+	<div class="card">
+		<div class="card-content">
+			<div class="card-title">
+				<div class="card-titles">
+					<h6>{{'Cronjobs'|trans}}</h6>
+				</div>
+			</div>
+			{% if cronTasks %}
+			<div class="table-responsive">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>{{'Omschrijving'|trans}}</th>
+							<th style="width:35px;padding:7px 0px;" class="text-center">{{'M'|trans}}</th>
+							<th style="width:35px;padding:7px 0px;" class="text-center">{{'U'|trans}}</th>
+							<th style="width:35px;padding:7px 0px;" class="text-center">{{'D'|trans}}</th>
+							<th style="width:35px;padding:7px 0px;" class="text-center">{{'M'|trans}}</th>
+							<th style="width:35px;padding:7px 0px;" class="text-center">{{'W'|trans}}</th>
+							<th style="width:350px;">{{'Wordt uitgevoerd'|trans}}</th>
+							<th style="width:100px;" class="text-center">{{'Verwijder'|trans}}</th>
+							<th style="width:100px;" class="text-center">{{'Eenmalig'|trans}}</th>
+							<th style="width:80px;" class="text-center">{{'Status'|trans}}</th>
+							<th style="width:80px;" class="text-center">{{'Draaiend'|trans}}</th>
+							<th class="right-align" style="width:120px;"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for CronTask in cronTasks %}
+							<tr>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}}">{{ CronTask.name|e }}</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} text-center" style="font-size:12px;padding:7px 0px;">{{ CronTask.minutes|e }}</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} text-center" style="font-size:12px;padding:7px 0px;">{{ CronTask.hours|e }}</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} text-center" style="font-size:12px;padding:7px 0px;">{{ CronTask.days|e }}</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} text-center" style="font-size:12px;padding:7px 0px;">{{ CronTask.months|e }}</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} text-center" style="font-size:12px;padding:7px 0px;">{{ CronTask.weeks|e }}</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}}">
+									{% if CronTask.statusTask %}
+										{{ CronTask.naturalString }}
+										<div class="small" style="font-size:11px;font-weight:bold;margin-top:4px;">
+											{{CronTask.getNextRun|date('d-m-Y H:i:s')}}
+										</div>
+									{% else %}
+									{% endif %}
+								</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} text-center">
+									{% if CronTask.deleteAfterRun %}
+										<a href="{{path('admin_cron_delete_after_run', {id: CronTask.id})}}"><i class="fa fa-check"></i></a>
+									{% else %}
+										<a href="{{path('admin_cron_delete_after_run', {id: CronTask.id})}}"><i class="fa fa-times"></i></a>
+									{% endif %}
+								</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} text-center">
+									{% if CronTask.singleRun %}
+										<a href="{{path('admin_cron_singlerun', {id: CronTask.id})}}"><i class="fa fa-check"></i></a>
+									{% else %}
+										<a href="{{path('admin_cron_singlerun', {id: CronTask.id})}}"><i class="fa fa-times"></i></a>
+									{% endif %}
+								</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} text-center">
+									{% if CronTask.statusTask %}
+										<a href="{{path('admin_cron_status', {id: CronTask.id})}}"><i class="fa fa-check"></i></a>
+									{% else %}
+										<a href="{{path('admin_cron_status', {id: CronTask.id})}}"><i class="fa fa-times"></i></a>
+									{% endif %}
+								</td>
+								<td class="{{CronTask.running ? '' : 'grey-text text-lighten-1'}} text-center">
+									{% if CronTask.running %}
+										<a href="{{path('admin_cron_status', {id: CronTask.id})}}"><i class="fa fa-check"></i></a>
+									{% else %}
+										<a href="{{path('admin_cron_status', {id: CronTask.id})}}"><i class="fa fa-times"></i></a>
+									{% endif %}
+								</td>
+								<td class="{{CronTask.statusTask ? '' : 'grey-text text-lighten-1'}} right-align actions">
+									<a href="{{ path('admin_cron_edit',{'id': CronTask.id}) }}" title="{{'Wijzigen'|trans}}"><i class="fa fa-edit"></i></a>
+									<a href="#" onclick="cpop.confirm( '{{ 'Wilt u de volgende cronjob verwijderen?' | trans }} <b>{{ CronTask.name|e }}</b>', function(){
+										window.location = '{{ path('admin_cron_delete',{'id': CronTask.id}) }}';
+									} ); return false;" title="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			{% else %}
+				<div class="no-data">{{'Er zijn nog geen gegevens beschikbaar'|trans}}</div>
+			{% endif %}
+	    </div>
+    </div>
+	{# <div class="card">
+		<div class="card-content">
+		{% for cronTask in cronTasks %}
+					<div class="box-body row">
+						<div class="form-group">
+							<div class="col s6">
+								{{cronTask.name}}
+								<div>{{cronTask.naturalString}}</div>
+							</div>
+							<div class="col s1">
+								{% if cronTask.range == 'minutes' %}
+									{{'Minuten'|trans}}
+								{% endif %}
+								{% if cronTask.range == 'hours' %}
+									{{'Uren'|trans}}
+								{% endif %}
+								{% if cronTask.range == 'days' %}
+									{{'Dagen'|trans}}
+								{% endif %}
+							</div>
+							<div class="col s3">
+								{{cronTask.statusTask}}
+							</div>
+						</div>
+					</div>
+		{% endfor %}
+		</div>
+	</div> #}
+
+	<div class="btn-bar">
+		<div class="right">
+			<a href="{{ path('admin_cron_edit') }}" class="btn waves-effect waves-dark"><i class="fa fa-plus left"></i>{{'Toevoegen'|trans}}</a>
+		</div>
+	</div>
+{% endblock %}

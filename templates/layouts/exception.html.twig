@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block admin_header %}{% endblock %}
+
+    <title>
+      {% block title %}Welkom{% endblock %}
+      -
+      {% block sitetitle %}Website{% endblock %}
+    </title>
+
+    {% include '/framework/header_css.html.twig' %}
+    {% include '/framework/header_scripts.html.twig' %}
+
+    <link rel="alternate" href="http://priceyapp.local/nl" hreflang="nl-nl" />
+
+            <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.css" rel="stylesheet" />
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-3.1.1.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/framework/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/custom.css">
+  </head>
+
+  <body>
+
+
+
+    {% include '/framework/nav.html.twig' %}
+    <!-- end subnavbar -->
+      <section class="titlebar">
+        <div class="container">
+            <h1>Er ging even iets mis...</h1>
+        </div>
+      </section>
+
+    {% block body %}{% endblock %}
+
+    {% include '/framework/footer_scripts.html.twig' %}
+
+    {% block admin_footer %}{% endblock %}
+    {% block javascripts %}{% endblock %}
+  </body>
+</html>

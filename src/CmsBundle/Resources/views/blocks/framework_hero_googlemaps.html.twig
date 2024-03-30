@@ -1,0 +1,98 @@
+{#
+    {
+        "key": "framework_hero_googlemaps",
+        "category": "Framework",
+        "label": "Hero (Google Maps)",
+        "description": "Toont een hero sectie met Google Maps embed",
+        "allowMove": false,
+        "blocks": [
+            {
+                "key": "block-0",
+                "size": 12,
+                "required": "media",
+                "fields": [
+                    {
+                        "key": "address",
+                        "type": "text",
+                        "label": "Adres",
+                        "placeholder": "Adres, Postcode, Plaats"
+                    },
+                    {
+                        "key": "lng",
+                        "type": "text",
+                        "label": "Longitude"
+                    },
+                    {
+                        "key": "lat",
+                        "type": "text",
+                        "label": "Latitude"
+                    },
+                    {
+                        "key": "zoom",
+                        "type": "text",
+                        "label": "Zoom level"
+                    },
+                    {
+                        "key": "content",
+                        "type": "textarea",
+                        "label": "Omschrijving"
+                    },
+                    {
+                        "key": "key",
+                        "type": "text",
+                        "label": "API key"
+                    }
+                ]
+            }
+        ]
+    }
+#}
+
+<section
+class="hero gmaps {{wrapper.classList}}"
+id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+style="{{wrapper.styleList}}"
+data-id="{{wrapper.id}}">
+
+  <div class="map-wrapper">
+    <div id="map"></div>
+  </div>
+
+</section>
+
+<script>
+  function parseMap(coords) {
+    {% if firstBlock.config.content is not empty %}
+      var infowindow = new google.maps.InfoWindow({content: '<div class="gmaps-block">{{firstBlock.config.content|replace({"\n":'', "\r":''})|raw}}</div>'});
+    {% endif %}
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: {{firstBlock.config.zoom}},
+      center: coords
+    });
+    var aMarker = new google.maps.Marker({
+        position: coords,
+        map: map
+        {% if firstBlock.media %},icon: '/{{firstBlock.media.getWebPath}}'{% endif %}
+    });
+
+    {% if firstBlock.config.content is not empty %}
+      aMarker.addListener('click', function() {
+        infowindow.open(map, aMarker);
+      });
+    {% endif %}
+  }
+
+  {% if firstBlock.config.address is not empty %}
+    function initMap() {
+      $.getJSON('//maps.googleapis.com/maps/api/geocode/json?key={{firstBlock.config.key}}&address={{firstBlock.config.address}}&sensor=false', null, function(data) {
+        var p = data.results[0].geometry.location
+        parseMap({lat: p.lat, lng: p.lng})
+      });
+    }
+  {% else %}
+    function initMap() {
+      parseMap({lat: {{firstBlock.config.lat}}, lng: {{firstBlock.config.lng}}});
+    }
+  {% endif %}
+</script>
+<script async="async" defer="defer" src="https://maps.googleapis.com/maps/api/js?key={{firstBlock.config.key}}&callback=initMap"></script>

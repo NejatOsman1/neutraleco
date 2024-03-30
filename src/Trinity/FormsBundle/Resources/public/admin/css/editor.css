@@ -1,0 +1,189 @@
+/* Prevent the text contents of draggable elements from being selectable. */
+[draggable] {
+	/*
+    -moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+    */
+	/* Required to make elements draggable in old WebKit */
+	-khtml-user-drag: element;
+	-webkit-user-drag: element;
+}
+
+/*.form-editor{
+	min-height: 200px;
+}
+
+.toolbox span{
+	display: block;
+	padding: 4px 10px;
+	border: solid 1px #ddd;
+	margin-bottom: 2px;
+}
+
+.form-editor .form-block h1,
+.form-editor .form-block h2,
+.form-editor .form-block h3,
+.form-editor .form-block h4,
+.form-editor .form-block h5{
+    padding: 0;
+    margin: 0;
+}
+
+.form-block {
+    border: solid 1px #ccc;
+    border-radius: 2px;
+    margin-bottom: 7px;
+    padding: 10px;
+    background: #f8fcff;
+}
+
+.form-block .clearer {
+    clear: both;
+}
+
+.form-block div.label{
+	float: left;
+    background: red;
+    padding: 7px;
+    width: 200px;
+}
+
+.form-block .field{
+	position: relative;
+    margin-left: 220px;
+}
+
+.form-block .field input[type="text"],
+.form-block .field textarea {
+    border: solid 1px #ccc;
+    border-radius: 2px;
+    padding: 6px;
+    width: 70%;
+    margin: 0;
+}
+
+.form-block .field textarea{
+    height: 100px;
+    display: inherit;
+}
+
+.form-block .field .edit {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.form-block .field .sublabel {
+    font-size: 11px;
+    color: #666;
+    margin: 5px 0 0 10px;
+}*/
+
+.form-sortable-placeholder{
+    /*padding: 20px;*/
+    min-height: 40px;
+    background: rgba(0,0,0,0.1);
+    margin-top: 10px;
+    /*margin-bottom: 7px;*/
+    /*border-radius: 5px;*/
+}
+
+.options a.pull{
+    width: 100%;
+    display: inline-block;
+}
+
+.options a.pull:hover{
+    background: rgba(0, 0, 0, 0.1);
+}
+
+#editor .form-editor .fields-parent .field-child{
+     padding: 5px;
+}
+
+#editor .form-editor .fields-parent{
+    margin: 0;
+}
+
+.form-editor .fields-parent{
+    /*background: blue;*/
+    min-height:20px;
+    position:relative;
+    /*overflow: auto;*/
+}
+
+.form-editor .fields-parent:after{
+    clear: both;
+    content: "";
+    display: block;
+}
+
+.jq-dd .form-editor .fields-parent{
+    overflow: visible;
+}
+
+.form-editor .fields-parent{
+    border: dashed 2px #ddd;
+    min-height:30px;
+}
+
+.form-editor .field-child{
+    margin: 0 0 5px 0;padding:5px;float:left;width:100%;box-sizing:border-box;
+
+    position: relative;
+}
+
+.fields-parent .field-child .jq-dropdown.jq-dropdown-tip{
+    left: unset !important;
+    right: 13px !important;
+    top: 40px !important;
+}
+
+.form-editor .field-child > div{
+    background: white;
+}
+
+span.req{
+    display:none;
+}
+
+div.info{
+    font-size: 10px;
+    font-weight: bold;
+    float: right;
+    margin-right: 40px;
+    padding-top: 4px;
+}
+
+.required span.req{
+    display:inline;
+}
+
+.form-block.required{
+    color: red;
+}
+
+.form-editor .card.qhidden {
+    background: rgba(255,255,255,0.4);
+    color: rgba(0,0,0,0.3);
+}
+
+/*.form-editor .card.qhidden input,
+.form-editor .card.qhidden textarea,
+.form-editor .card.qhidden select,
+.form-editor .card.qhidden .btn,
+.form-editor .card.qhidden .btn-flat {
+    opacity: 0.4;
+}*/
+
+.form-block .placeholder {
+    font-size: 12px;
+    color: #999;
+}
+
+.form-block .placeholder:before {
+    content: "Placeholder: ";
+    color: #444;
+}

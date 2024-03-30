@@ -1,0 +1,146 @@
+{% trans_default_domain 'cms' %}
+
+<script>
+	// Temp for testing
+	$('body').addClass('treeview');
+</script>
+
+<div id="page-wrapper" class="treebox">
+	<div class="treebox-content">
+		<ul class="nav nav-tabs" id="treebox-tabs" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link active" data-bs-toggle="tab" data-bs-target="#treebox-blocks" type="button" role="tab" aria-controls="treebox-blocks" aria-selected="false">Secties</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link " data-bs-toggle="tab" data-bs-target="#treebox-overview" type="button" role="tab" aria-controls="home" aria-selected="true">Pagina's</button>
+			</li>
+		</ul>
+
+		<div class="tab-content" id="treebox-tabs-content">
+			<div class="tab-pane " id="treebox-overview" role="tabpanel" aria-labelledby="treebox-overview">
+				<div class="treebox-scroll" data-simplebar>
+					{% if pages is not empty %}
+					<ol>
+						{% include "@Cms/includes/menu-links.html.twig" with {'pages':pages, 'ActivePage':ActivePage, 'modal': true, 'allowLinks': true, 'depth': 1} only %}
+					</ol>
+					{% endif %}
+				</div>
+			</div>
+			<div class="tab-pane show active" id="treebox-blocks" role="tabpanel" aria-labelledby="treebox-blocks">
+				<div class="blocks-wrapper">
+					<div class="categories" data-simplebar>
+						<ul>
+							<li><span class="title">{{'Categorieën'|trans({})|raw}}</span></li>
+						{% for category,tpl_blocks in block_sections %}
+							<li>
+								<a href="#" class="{category == 'Framework' ? 'active' : ''}}">{{category}}</a>
+							</li>
+						{% endfor %}
+						</ul>
+					</div>
+					<div class="blocks">
+						<div class="scroll-area" data-simplebar>
+							<ul id="wrapper-select">
+								{% for category,tpl_blocks in block_sections %}
+									{% for key,entry in tpl_blocks %}
+						{% if key in usedBlocks or is_granted('ROLE_SUPER_ADMIN') or is_granted('ROLE_ADMIN') %}
+										{% set action = 'selectSection(\'' ~ key ~ '\', true, true);' %}
+										{% set icon = 'bundles/cms/blocks/' ~ entry.key ~ '.png' %}
+										{% set icon_large = 'bundles/cms/blocks/large/' ~ entry.key ~ '.png' %}
+										{% if file_exists(icon) %}{% else %}{% set icon = null %}{% endif %}
+										{% if file_exists(icon_large) %}{% else %}{% set icon_large = null %}{% endif %}
+										<li data-key="{{key}}" class="{{category == 'v2' ? 'cat-v2' : 'cat-v1'}}" style="{{category == 'v2' ? 'display:none;' : ''}}">
+											<div onclick="{{action}}$('#block-modal').modal('close');return false;" class="block-select">
+												<div class="thumbnail-wrapper">
+													<span class="thumbnail" style="{{(icon ? 'background-image:url(/' ~ icon ~ ');' : '')}} background-size: contain; background-color: #DEE5F0;">
+														{% if icon_large %}
+															<a href="#" class="large-preview">
+																<i class="far fa-eye"></i>
+															</a>
+														{% endif %}
+													</span>
+													<span class="label">{{entry.label|trans({}, 'blocks')|raw}}</span>
+												</div>
+												{% if icon_large %}
+													<div class="large-preview-wrapper">
+														<div class="preview-image-wrapper">
+															<img src="/{{icon_large}}" alt="" />
+														</div>
+													</div>
+												{% endif %}
+											</div>
+										</li>
+						{% endif %}
+									{% endfor %}
+								{% endfor %}
+							</ul>
+						</div>
+
+						<div class="blocks-search">
+							<i class="fa fa-search"></i>
+
+							<form action="">
+								<input type="Zoeken" autocomplete="off" id="wrap-q" onkeyup="searchSections(this.value);" placeholder="{{'Zoeken'|trans({})|raw}}">
+								<i id="wrap-q-clr" class="fa fa-times-circle" onclick="$('#wrap-q').val('');searchSections('');" style="display: none;"></i>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+function searchSections(val){
+	if(val.length > 0){
+		$('#wrap-q-clr').show();
+		val = val.toLowerCase();
+		val = val.split(' ');
+		$.each($('#wrapper-select li'), function(ind, el){
+			var label = $(el).find('span.label').html().toLowerCase();
+
+			var found = true;
+			$.each(val, function(i, v){
+				if((label.indexOf(v) !== -1)){
+					//
+				}else{
+					found = false;
+				}
+			});
+			if(!found){
+				$(el).hide();
+			}else{
+				$(el).show();
+			}
+		});
+	}else{
+		$('#wrap-q-clr').hide();
+		$('#wrapper-select li').show();
+	}
+}
+
+$(function(){
+	$('#wrapper-select li').draggable({
+		appendTo: 'body',
+		connectToSortable: "#block-container",
+		revert: "invalid",
+		helper: function(el){
+
+			$('#block-container').css('min-height', '100px');
+
+			var width = $('#wrapper-select li:first span.thumbnail').width();
+			var height = $('#wrapper-select li:first span.thumbnail').height();
+			var bg = $(el.currentTarget).find('span.thumbnail').css('background').replace(/["']/g, "'");
+			myNewBlock = $('<div class="new-block" data-key="' + $(el.currentTarget).data('key') + '" style="box-shadow: 0 2px 5px rgba(0,0,0,0.2);background:' + bg + '	;color:white;font-weight:bold;z-index:10000000000000;width:' + width + 'px;height:' + height + 'px;text-align:center;line-height:' + height + 'px;"></div>');
+			return myNewBlock;
+		}
+	});
+
+	/*$( "#block-container" ).droppable({
+		// accept: ".new-block"
+	});*/
+
+	$( "body" ).addClass( "page-overview" );
+});
+</script>

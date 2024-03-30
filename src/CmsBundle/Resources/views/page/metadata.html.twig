@@ -1,0 +1,99 @@
+{% trans_default_domain 'cms' %}
+
+<meta name="generator" content="{{trinity}} v{{version}}" />
+
+{% set foundOgImage = false %}
+{% set parsedBundleTags = [] %}
+{% if bundle_metatags is defined and bundle_metatags is not empty %}
+	{% for Metatag in bundle_metatags %}
+		{% if Metatag.value is not empty %}
+		{% set parsedBundleTags = parsedBundleTags|merge([Metatag.metatag]) %}
+		{% set val = Metatag.value %}
+		{% if Metatag.metatag.valueType == 'image' %}
+			{% set foundOgImage = true %}
+			<meta {{Metatag.metatag.keyType is not empty ? Metatag.metatag.keyType : 'name'}}="{{Metatag.metatag.getKey()}}" content="{{app.request.getSchemeAndHttpHost() ~ val|raw}}" />
+		{% else %}
+			<meta {{Metatag.metatag.keyType is not empty ? Metatag.metatag.keyType : 'name'}}="{{Metatag.metatag.getKey()}}" content="{{val|striptags|raw}}" />
+		{% endif %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
+
+{% if metatags is defined and metatags is not empty %}
+	{% for Metatag in metatags %}
+		{% if Metatag.value is not empty and Metatag not in parsedBundleTags %}
+			{% set val = Metatag.value %}
+			{% if customMetadata is defined and customMetadata is not null and customMetadata[Metatag.getKey()] is defined and customMetadata[Metatag.getKey()] is not empty %}
+				{% set val = customMetadata[Metatag.getKey()] %}
+			{% endif %}	
+			{% if Metatag.valueType == 'image' %}
+				{% set foundOgImage = true %}
+				<meta {{Metatag.keyType is not empty ? Metatag.keyType : 'name'}}="{{Metatag.getKey()}}" content="{{app.request.getSchemeAndHttpHost() ~ val|raw}}" />
+			{% else %}
+				<meta {{Metatag.keyType is not empty ? Metatag.keyType : 'name'}}="{{Metatag.getKey()}}" content="{{val|striptags|raw}}" />
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+        {% for Metatag in metatags %}
+            {% if Metatag.key == 'og:url' and Metatag.value is empty and Metatag not in parsedBundleTags and Page.slugkey is not empty %}
+                <meta {{Metatag.keyType is not empty ? Metatag.keyType : 'name'}}="{{Metatag.getKey()}}" content="{{url(Page.slugkey)}}" />
+            {% endif %}
+        {% endfor %}
+        {% for Metatag in metatags %}
+            {% if Metatag.key == 'og:type' and Metatag.value is empty and Metatag not in parsedBundleTags %}
+                <meta {{Metatag.keyType is not empty ? Metatag.keyType : 'name'}}="{{Metatag.getKey()}}" content="website" />
+            {% endif %}
+        {% endfor %}
+{% endif %}
+
+{% if foundOgImage == false and Page.image is not empty %}
+	<meta property="og:image" content="{{app.request.getSchemeAndHttpHost() ~ '/' ~ Page.image.getWebPath()}}" />
+{% endif %}
+
+{% if systemMetatags is defined and systemMetatags is not empty %}
+	<!-- systemMetatags -->
+	{% for Metatag in systemMetatags %}
+            {% if Metatag.value is not empty and Metatag not in parsedBundleTags %}
+                {% if Metatag.getKey() == 'link:icon' %}
+                    {% if Settings.getFaviconLocation() is not empty %}
+						{% if Settings.getFaviconLocation() starts with '/' %}
+							<link rel="icon" type="image/x-icon" href="{{ Settings.getFaviconLocation()}}" />
+						{% else %}
+							<link rel="icon" type="image/x-icon" href="/{{ Settings.getFaviconLocation()}}" />
+						{% endif %}
+                    {% else %}
+						{% if Metatag.value starts with '/' %}
+							<link rel="icon" type="image/x-icon" href="{{Metatag.value|raw}}" />
+						{% else %}
+							<link rel="icon" type="image/x-icon" href="/{{Metatag.value|raw}}" />
+						{% endif %}
+                    {% endif %}
+		{% elseif Metatag.getKey() == 'Cache-Control' %}
+			<meta http-equiv="Cache-Control" content="{{Metatag.value|raw}}" />
+		{% elseif Metatag.getKey() == 'link:apple-touch-icon' %}
+                    {% if Settings.getAppleTouchIcon() is not empty %}
+                        <link rel="apple-touch-icon" href="/{{Settings.getAppleTouchIcon()|raw}}" />
+                    {% else %}
+			<link rel="apple-touch-icon" href="{{Metatag.value|raw}}" />
+                    {% endif %}
+                {% elseif Metatag.getKey() == 'author' %}
+                    {% if Settings.getAuthor() is not empty %}
+                        <meta name="author" content="{{Settings.getAuthor()|raw}}">
+                    {% elseif Metatag.keyType is not empty %}
+                        <meta name="author" content="{{Metatag.value|raw}}">
+                    {% endif %}
+                {% elseif Metatag.getKey() == 'og:site_name' %}
+                    {% if Settings.getOgSiteName() is not empty %}
+                        <meta property="og:site_name" content="{{ Settings.getOgSiteName() }}" />
+                    {% endif %}
+		{% elseif Metatag.getKey() == 'charset' %}
+			<meta charset="{{Metatag.value|raw}}" />
+		{% else %}
+			<meta {{Metatag.keyType is not empty ? Metatag.keyType : 'name'}}="{{Metatag.getKey()}}" content="{{Metatag.value|striptags|raw}}" />
+		{% endif %}
+            {% endif %}
+	{% endfor %}
+	<!-- / systemMetatags -->
+{% else %}
+	<!-- ! systemMetatags -->
+{% endif %}

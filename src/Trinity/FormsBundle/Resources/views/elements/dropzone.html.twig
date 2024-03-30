@@ -1,0 +1,71 @@
+{% trans_default_domain 'forms' %}
+{% extends [':forms_elements:row.html.twig', '@TrinityForms/elements/row.html.twig'] %}
+
+{% block field %}
+        {% if edit is defined %}
+            <div class="plain-field" contenteditable="true" style="margin-top:40px;" data-type="title" style="outline:none;">{{Question.getTitle != ('Titel' | trans) ? (Question.getTitle|raw) : ('Begeleidende tekst bij de dropzone' | trans)}}</div>
+        {% else %}
+
+        {% if file_exists('../templates/override/forms/dropzone.html.twig') %}
+            {% include 'override/forms/dropzone.html.twig' %}
+        {% else %}
+        
+        <style type="text/css" media="screen">
+            .preview-element {
+                background: #eee;
+                border-radius: 5px;
+                width: 130px;
+                height: 113px;
+                margin: 10px;
+                float: left;
+                text-align: center;
+                padding: 10px 0;
+            }
+
+            .preview-element a{
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+            .preview-element .media-preview-wrap {
+                height: 70px;
+            }
+
+            .preview-element img.media-preview {
+                /*display: block;*/
+                max-width: 70px;
+                max-height: 70px;
+            }
+        </style>
+
+        <div class="preview-container">
+            <div id="preview-{{Question.id}}"></div>
+            <div style="clear:both;"></div>
+        </div>
+
+        <div>
+            <div class="dropzone-box" id="dropzone-{{Question.id}}"><div class="dropzone-msg"></div></div>
+            <input type="hidden" id="images-{{Question.id}}" name="imageslist[{{Question.id}}]" value="" />
+        </div>
+
+        <script>
+            var upload_url = '{{path('trinity_mod_forms_upload')}}';
+            var question_id = {{Question.id}};
+            var maxFileSize = {{ maxFileSize }};
+            var maxMediaFileSize = {{ maxMediaFileSize }};
+            var msg_idle = '{{ 'Sleep hier bestanden naar toe om deze te uploaden.'|trans }}';
+            var msg_hover = '{{"Laat los om toe te voegen."|trans}}';
+            var msg_uploading = '{{"Bezig met uploaden..."|trans}}';
+            var msg_done_idle = '{{"Uploaden voltooid!"|trans}}';
+            var lbl_delete = '{{ 'Verwijderen'|trans }}';
+            var lbl_confirm = '{{ 'Weer je zeker dat je deze afbeelding wilt verwijderen?'|trans }}';
+            var err_maxfiles = '{{ 'Je mag maximaal %maxfiles% bestanden tegelijk uploaden'|trans }}';
+            var err_filesize = '{{ 'Bestand is te groot. Maximaal toegestaan: %maxMediaFileSize% KB'|trans }}';
+            var err_fileext = '{{ 'Een of meerdere bestanden hebben een ongeldige extensie.'|trans }}';
+            var file_type = '{{'Bestandstype' | trans }}';
+            var text1 =  '{{ 'is niet toegestaan <strong>Toegestane bestanden:'|trans|raw}}';
+        </script>
+    {% endif %}
+    {% endif %} 
+
+{% endblock %}

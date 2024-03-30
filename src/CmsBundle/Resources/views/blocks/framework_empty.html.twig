@@ -1,0 +1,115 @@
+{#
+  {
+    "key": "framework_empty",
+    "category": "Framework",
+    "label": "Content / Media / Extensie",
+    "description": "...",
+    "allowMove": true,
+    "divider": true,
+    "priority": 1,
+    "blocks": [
+      {
+        "key": "block-0",
+        "size": 12,
+        "required": "",
+        "buttons": true,
+        "multiple": true,
+        "fields": []
+      }
+    ]
+  }
+#}
+
+<section
+class="empty {{wrapper.classList}}"
+id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+style="{{wrapper.styleList}}"
+data-id="{{wrapper.id}}">
+
+  <div class="container {{ firstBlock.class }}">
+    {% if wrapper.label or wrapper.intro is not empty %}
+      <div class="introblock">
+        {% if wrapper.label is not empty %}
+          <div class="introtitle">
+            {{wrapper.label|raw}}
+          </div>
+        {% endif %}
+        {% if wrapper.intro is not empty %}
+          <div class="introtext">
+            {{wrapper.intro|raw}}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="row">
+      {% for b in wrapper.blocks %}
+        <div class="col-sm-12 col-md-12 col-lg-{{b.width}} {{b.offset('offset-lg-')}} {{b.config.class}}" id="{{b.config.id}}">
+          {% if b.config.link is defined and b.config.link is not empty %}
+          <a href="{{b.config.link}}">
+          {% endif %}
+          <div class="block">
+            {% if b.data.type is defined and b.data.type == 'video' %}
+              <div class="responsive-wrapper">
+                {{b.video|raw}}
+              </div>
+              {% elseif b.media is not empty %}
+              <div class="image-wrapper">
+
+                {% if b.media is not empty %}
+                  <div class="lcp">
+                    {% if b.media.hasBlurred %}
+                      <picture>
+                        {% if b.media.hasWebp() %}
+                          <source srcset="/{{b.media.getBlurredWebpPath('medium')}}" type="image/webp">
+                        {% endif %}
+                        <source srcset="/{{b.media.getBlurredWebPath('medium')}}" type="{{b.media.mime}}">
+                        <img class="lq" alt="{{b.media.description_alt}}" src="/{{b.media.getBlurredWebPath('medium')}}" type="{{b.media.mime}}" loading="lazy" width="{{b.media.width}}" height="{{b.media.height}}">
+                      </picture>
+                    {% endif %}
+                    <picture>
+                      {% if b.media.hasWebp() %}
+                        <source srcset="/{{b.media.getWebpPath('large')}}" type="image/webp">
+                      {% endif %}
+                      <source srcset="/{{b.media.getWebPath('large')}}" type="{{ b.media.mime }}">
+                      <img
+                        class="hq"
+                        alt="{{b.media.description_alt}}"
+                        src="/{{b.media.getWebPath('large')}}"
+                        type="{{b.media.mime}}"
+                        loading="lazy"
+                        width="{{b.media.width}}"
+                        height="{{b.media.height}}"
+                        onload="this.style.opacity=1{% if b.media.hasBlurred %};this.closest('.lcp').getElementsByClassName('lq')[0].style.opacity=0;{% endif %}"
+                        style="opacity: 0;">
+                    </picture>
+                  </div>
+                {% endif %}
+
+                </div>
+              {% else %}
+
+              <div class="text-wrapper">
+                {{b.content|raw}}
+
+                {% if b.config.buttons is defined %}
+                  <div class="btns">
+                    {% for button in b.config.buttons %}
+                      <a href="{{button.url}}" {% if button.target is defined and button.target != "null" %} target="{{button.target}}" {% endif %} class="btn {{button.class}}">
+                        {{button.label}}
+                        <i class="fa fa-arrow-right"></i>
+                      </a>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+          {% if b.config.link is defined and b.config.link is not empty %}
+          </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

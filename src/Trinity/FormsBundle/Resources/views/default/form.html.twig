@@ -1,0 +1,80 @@
+{% trans_default_domain 'forms' %}
+
+<div class="plugin-forms">
+	{% if saved %}
+		<div class="message">
+			<div class="alert alert-success" role="alert">
+				{% if config.message is defined and config.message is not empty %}
+					{{config.message|raw}}
+				{% else %}
+					{{'Het formulier is succesvol verzonden.'|trans}}
+				{% endif %}
+			</div>
+		</div>
+	{% elseif error %}
+		<div class="alert alert-danger">
+			{{error|trans|raw}}
+		</div>
+	{% endif %}
+	{% if (saved and hide_send) %}
+
+	{% else %}
+
+       {% if inline_error %}
+               <div class="alert alert-danger">
+                       {{inline_error|trans}}
+               </div>
+       {% endif %}
+                <form method="post" enctype="multipart/form-data" style="display: none; width: 0px; height: 0px;">
+			<input type="hidden" name="manual_upload" value="1">
+			<input type="file" name="file[]" id="upload_button" multiple>
+			<button type="submit">{{'Uploaden'|trans({})|raw}}</button>
+		</form>
+		<form id="forms-bundle-form" method="post" enctype="multipart/form-data">
+			<div class="contains-form">
+				<div class="row">
+					<div class="field-pot" style="">
+						<div class="form-question">
+							<input id="frm-lbl-3" name="form-check" type="text" value="">
+						</div>
+					</div>
+					{% set firstField = true %}
+					{% for Question in questions %}
+						{% if Question.position == 0 and firstField != true %}
+							</div>
+							<div class="row">
+						{% endif %}
+						<div class="col-md-{{Question.width}}" style="{% if Question.hidden and config.show_hidden is not defined %}display: none;{% endif %}">
+							<div class="form-question {{Question.classes}}">
+								{% include [':forms_elements:' ~ Question.getType ~ '.html.twig', '@TrinityForms/elements/' ~ Question.getType ~ '.html.twig'] %}
+							</div>
+						</div>
+ 						{% set firstField = false %}
+					{% endfor %}
+                                        {% if settings.hasGoogleRecaptcha() %}
+                                            <div class="col-md-12">
+                                                <div style="padding-bottom: 10px;">
+                                                    {{ settings.getGoogleRecaptchaWidget() | raw }}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+				</div>
+			</div>
+
+			<div class="form-footer">
+				{% if config.show_clear is defined and (Form.hideClearButton is null or Form.hideClearButton == 0) %}
+					<button type="reset" class="btn">{{'Leegmaken'|trans}}</button>
+				{% endif %}
+				<button type="submit" class="btn primary forms-bundle">{{'Versturen'|trans}}</button>
+			</div>
+                        <input type="hidden" name="form-bundle-submit" value="{{ Form.id }}" />
+		</form>
+
+<style>
+.field-pot{
+	display: none;
+}
+</style>
+
+{% endif %}
+</div>

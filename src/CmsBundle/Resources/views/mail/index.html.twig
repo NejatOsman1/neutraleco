@@ -1,0 +1,84 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	<style>
+		.modal-body{
+		    height: calc(100vh - 220px);
+		}
+	</style>
+	<div class="card">
+		<div class="card-content">
+
+		  <div class="card-title">
+		    <div class="card-titles">
+		      <h6>{{ 'E-mail notificaties' | trans }}</h6>
+		    </div>
+		  </div>
+
+			{% if grouped %}
+				{% for category,mails in grouped %}
+				<div class="table-responsive">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>{{ category }}</th>
+								<th class="right-align" style="width:100px;">&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for Mail in mails %}
+								<tr>
+									<td data-url="{{ path('admin_mail_edit',{'id': Mail.id, 'system': (category == 'Systeem')}) }}">
+										{{ Mail.label }}<br/>
+										<small>{{ Mail.description }}</small>
+									</td>
+									<td class="right-align actions">
+										{# <a class="tooltipped" data-position="top" data-delay="300" data-tooltip="E-mail wijzigen" href="{{ path('admin_mail_edit',{'id': Mail.id}) }}"><i class="material-icons">mode_edit</i></a> #}
+										{% if category == 'Systeem' %}
+											<a class="tt popup large" data-info="{{ 'E-mail voorbeeld' | trans({}) | raw }}" href="{{ path('admin_mail_preview',{'id': Mail.id}) }}"><i class="fa fa-search"></i></a>
+										{% else %}
+											<a class="tt popup large" data-info="{{ 'E-mail voorbeeld' | trans({}) | raw }}" href="{{ path('admin_mod_webshop_mail_preview',{'id': Mail.id}) }}"><i class="fa fa-search"></i></a>
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+    </div>
+	{{ form_start(form) }}
+		{{ form_errors(form) }}
+		<div class="card">
+			<div class="card-content">
+
+			  <div class="card-title">
+			    <div class="card-titles">
+			      <h6>{{ 'E-mail footer' | trans }}</h6>
+			    </div>
+			  </div>
+
+			    <div class="row">
+			    	<div class="col s12">{{form_row(form.mail_footer, {attr: {class: 'page-header ckeditor'}})}}</div>
+			    </div>
+			</div>
+		</div>
+
+		<div class="btn-bar">
+			<div class="right">
+				<button type="submit" class="btn right waves-effect waves-light"><i class="material-icons left">save</i>{{'Opslaan'|trans}}</button>
+			</div>
+		</div>
+	{{ form_end(form) }}
+
+    <script>
+        $(function(){
+        	$('td[data-url]').css('cursor', 'pointer').click(function(){
+		        window.location = $(this).data('url');
+		    });
+        });
+    </script>
+{% endblock %}

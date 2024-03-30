@@ -1,0 +1,152 @@
+{#
+    {
+        "key": "framework_hero_applemaps",
+        "category": "Framework",
+        "label": "Hero (Apple Maps)",
+        "description": "Toont een hero sectie met Apple Maps embed",
+        "allowMove": false,
+        "blocks": [
+            {
+                "key": "block-0",
+                "size": 12,
+                "required": "media",
+                "fields": [
+                    {
+                        "key": "title",
+                        "type": "text",
+                        "label": "Marker titel"
+                    },
+                    {
+                        "key": "subtitle",
+                        "type": "text",
+                        "label": "Marker secundaire titel"
+                    },
+                    {
+                        "key": "color",
+                        "type": "text",
+                        "label": "Marker kleur (HEX-code)"
+                    },
+                    {
+                        "key": "label",
+                        "type": "text",
+                        "label": "Marker tekst/glypth"
+                    },
+                    {
+                        "key": "markeractive",
+                        "type": "checkbox",
+                        "label": "Marker automatisch actief"
+                    },
+                    {
+                        "key": "lat",
+                        "type": "text",
+                        "label": "Latitude (https://www.gps-coordinates.net/)"
+                    },
+                    {
+                        "key": "lng",
+                        "type": "text",
+                        "label": "Longitude"
+                    },
+                    {
+                        "key": "maptype",
+                        "type": "select",
+                        "choices": {"Standard": "Standaard weergave", "MutedStandard": "Standaard (clean) weergave", "Satellite": "Satelliet weergave", "Hybrid": "Hybride weergave"},
+                        "label": "Soort weergave"
+                    },
+                    {
+                        "key": "zoom",
+                        "type": "text",
+                        "label": "Zoom level"
+                    },
+                    {
+                        "key": "compass",
+                        "type": "checkbox",
+                        "label": "Kompas tonen"
+                    },
+                    {
+                        "key": "zoomcontrol",
+                        "type": "checkbox",
+                        "label": "Zoom control tonen"
+                    },
+                    {
+                        "key": "move",
+                        "type": "checkbox",
+                        "label": "Kaart verplaatsen"
+                    },
+                    {
+                        "key": "mapcontrol",
+                        "type": "checkbox",
+                        "label": "Map type control tonen"
+                    },
+                    {
+                        "key": "dark",
+                        "type": "checkbox",
+                        "label": "Donkere modus"
+                    },
+                    {
+                        "key": "key",
+                        "type": "text",
+                        "label": "Token"
+                    }
+                ]
+            }
+        ]
+    }
+#}
+
+<section
+class="hero amaps {{wrapper.classList}}"
+id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+style="{{wrapper.styleList}}"
+data-id="{{wrapper.id}}">
+
+  <div class="map-wrapper">
+    <div id="map"></div>
+  </div>
+
+</section>
+
+<script src="//cdn.apple-mapkit.com/mk/5.x.x/mapkit.js"></script>
+<script src="{{asset('bundles/cms/js/qmapkit.js')}}"></script>
+<script>
+qmapkit.token = '{{firstBlock.config.key}}';
+qmapkit.init('nl', function(){
+    qmapkit.addMarker({
+        title: "{{firstBlock.config.title ?? 'No title'}}",
+        coords: [{{firstBlock.config.lat}}, {{firstBlock.config.lng}}],
+        color: '{{firstBlock.config.color is defined and firstBlock.config.color is not empty ? firstBlock.config.color : '#969696'}}',
+        {% if firstBlock.config.subtitle is defined and firstBlock.config.subtitle is not empty %}
+        subtitle: "{{firstBlock.config.subtitle}}",
+        {% endif %}
+        {% if firstBlock.config.markeractive is defined and firstBlock.config.markeractive is not empty %}
+        selected: "true",
+        {% endif %}
+        glyphText: "{{firstBlock.config.label is defined and firstBlock.config.label is not empty ? firstBlock.config.label : '.'}}",
+        callout: {}
+        {% if firstBlock.media %},icon: { 1: '/{{firstBlock.media.getWebPath}}' }{% endif %}
+    });
+    {% if firstBlock.config.dark is defined and firstBlock.config.dark is not empty %}
+        qmapkit.setDark();
+    {% endif %}
+    {% if firstBlock.config.zoomcontrol is defined and firstBlock.config.zoomcontrol is not empty %}
+        qmapkit.enableZoom();
+    {% endif %}
+    {% if firstBlock.config.move is defined and firstBlock.config.move is not empty %}
+        qmapkit.enablePan();
+    {% endif %}
+    {% if firstBlock.config.mapcontrol is defined and firstBlock.config.mapcontrol is not empty %}
+        qmapkit.enableMapType();
+    {% endif %}
+    {% if firstBlock.config.compass is defined and firstBlock.config.compass is not empty %}
+        qmapkit.enableCompass();
+    {% endif %}
+    {% if firstBlock.config.maptype is defined and firstBlock.config.maptype is not empty %}
+        qmapkit.setMapType('{{firstBlock.config.maptype}}');
+    {% endif %}
+
+    var newCenter = new mapkit.Coordinate({{firstBlock.config.lat}}, {{firstBlock.config.lng}});
+    var span = new mapkit.CoordinateSpan(.018, .018);
+    var region = new mapkit.CoordinateRegion(newCenter, span);
+    qmapkit.map.setRegionAnimated(region)
+    // qmapkit.setRegion({{firstBlock.config.lat}}, {{firstBlock.config.lng}}, 0.167647972, 0.354985255);
+});
+</script>

@@ -1,0 +1,304 @@
+{% trans_default_domain 'cms' %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{% block title %}Legacy CMS{% endblock %}</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+	    {# Add to homescreen for Chrome on Android #}
+	    <meta name="mobile-web-app-capable" content="yes">
+	    <link rel="icon" sizes="192x192" href="{{ asset('bundles/cms/images/android-desktop') }}.png">
+	    <link rel="stylesheet" type="text/css" href="{{ asset('bundles/cms/css/hamburgers.min.css') }}" />
+
+	    {# Add to homescreen for Safari on iOS #}
+	    <meta name="apple-mobile-web-app-capable" content="yes">
+	    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+	    <meta name="apple-mobile-web-app-title" content="Material Design Lite">
+	    <link rel="apple-touch-icon-precomposed" href="{{ asset('bundles/cms/images/ios-desktop') }}.png">
+
+	    {# Tile icon for Win8 (144x144 + tile color) #}
+	    <meta name="msapplication-TileImage" content="{{ asset('bundles/cms/images/touch/ms') }}-touch-icon-144x144-precomposed.png">
+	    <meta name="msapplication-TileColor" content="#3372DF">
+
+		<link rel="stylesheet" type="text/css" href="{{asset('bundles/cms/select2/dist/css/select2.min.css')}}">
+		<link rel="stylesheet" type="text/css" href="{{asset('bundles/cms/css/layout.css')}}">
+
+		{# GLOBAL #}
+		<script type="text/javascript">
+		var jsonUrl = '{{path('_adminjson')}}/';
+		</script>
+
+		<link rel="stylesheet" href="{{asset('bundles/cms/css/jquery.cpop.css')}}">
+		<link rel="stylesheet" type="text/css" href="{{asset('bundles/cms/css/mobile.css')}}">
+
+		{% block stylesheets %}{% endblock %}
+
+		<script type="text/javascript" src="{{asset('bundles/cms/js/jquery-1.11.3.min.js')}}"></script>
+
+		<script type="text/javascript">
+	    var ckAdminJsonUrl = '{{path('_adminjson')}}';
+	    var ckAdminPageUrl = '{{path('admin_page_selector')}}';
+	    var ckAdminMediaUrl = '{{path('admin_media', {type: 'image'})}}';
+	    </script>
+
+		<script src="{{asset('bundles/cms/js/jquery.cpop.js')}}"></script>
+	</head>
+	{# <body>
+		<div class="">
+			{{ dump(app.user.roles) }}
+			{% include '@Cms/menu/main.html.twig' %}
+
+			<div class="main-content">
+				{{ wo_render_breadcrumbs({separator: ''}) }}
+				<div class="main-content-wrapper">
+					{% block body %}{% endblock %}
+				</div>
+			</div>
+		</div>
+	</body> #}
+	<body>
+
+		{% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+			<a class="impersonation" href="?_switch_user=_exit"><i class="fa fa-key fa-fw"></i> {{ 'Exit impersonation' | trans }}</a>
+		{% endif %}
+
+		{% if app.request.query.get("CKEditor") is null %}
+			<header class="site-header">
+
+                <button class="hamburger hamburger--slider" type="button">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner"></span>
+                    </span>
+                </button>
+
+                {{ wo_render_breadcrumbs({separator: '', viewTemplate: "@Cms/breadcrumbs.html.twig"}) }}
+
+				{# <img src="{{asset('bundles/cms/images/logo.svg')}}" title="Legacy CMS" alt="Legacy logo" class="logo" /> #}
+				<nav class="tray">
+					<div class="tray-section icon subnav">
+						<i class="fa fa-plus"></i>
+						<ul class="subnav">
+							<li><a href="{{path('admin_page_edit')}}"><i class="fa fa-files-o fa-fw"></i>{{ 'Nieuwe pagina' | trans }}</a></li>
+							{% for route in modroutes %}
+                                                            {% if route.quickmenu.add is defined %}
+								{% for entry in route.quickmenu.add %}
+									<li><a href="{{path(entry.route, entry.arguments)}}"><i class="fa fa-{{route.icon}} fa-fw"></i>{{entry.label}}</a></li>
+								{% endfor %}
+                                                            {% endif %}
+							{% endfor %}
+						</ul>
+					</div>
+					<div class="tray-section icon" onclick="openSpotlight();">
+						<i class="fa fa-search"></i>
+					</div>
+					<div class="tray-section string">
+						{{ "now"|date("d-m-Y") }}
+					</div>
+					<div class="tray-section">
+						<div class="lang-select {{ app.request.locale }}">
+							<span class="placeholder"></span>
+							<ul class="selector">
+								{% for Language in languages %}
+									<li {% if app.request.locale == Language.locale %} style="display:none;"{% endif %}><a href="{{path('changelang', {locale: Language.locale})}}"><img src="{{asset('bundles/cms/images/flags/' ~ Language.locale ~ '.png')}}" height="12" style="float:left; margin: 2px 5px 0 0;" /> {{Language.label}}</a></li>
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+					<div class="tray-section">
+						<div id="profile-image">
+							{% if gravatar is not empty %}
+								<img src="{{gravatar}}?s=100&amp;d=mm" />
+							{% else %}
+								<img src="{{asset('bundles/cms/images/default_avatar.png')}}" />
+							{% endif %}
+							<ul class="nav">
+								<li><a href="{{path('admin_profile')}}">{{ 'Mijn account' | trans }}</a></li>
+								<li class="border-top"><a href="{{path('admin_logout')}}">{{ 'Uitloggen' | trans }}</a></li>
+							</ul>
+						</div>
+					</div>
+					{# <a href="/admin/logout">Uitloggen</a> #}
+				</nav>
+			</header>
+
+			<nav class="side-nav">
+				<div class="logo" style="background-image:url('{{Settings.getLogo}}');"></div>
+				{% include '@Cms/menu/main.html.twig' %}
+			</nav>
+
+			<div class="page-content-wrapper">
+		{% else %}
+			<div>
+		{% endif %}
+			{% block body %}{% endblock %}
+			<div class="q-wrap"><img src="{{asset('bundles/cms/images/trinity@2x.png')}}" height="40" alt="Easify CMS" />
+		</div>
+
+		{# SPOTLIGHT #}
+
+		<div class="sl-backdrop"></div>
+		<div class="sl-window">
+			<input type="text" name="q" value="Test" />
+			<div class="sl-results">
+				{# Here comes results #}
+			</div>
+		</div>
+
+		{# / SPOTLIGHT #}
+
+
+		{# JQUERY (UI) #}
+		<script type="text/javascript" src="{{asset('bundles/cms/jquery-ui-1.11.4.custom/jquery-ui.js')}}"></script>
+
+		{# NESTED SORTABLES #}
+		<script type="text/javascript" src="{{asset('bundles/cms/nestedSortable/jquery.mjs.nestedSortable.js')}}"></script>
+
+		{# SELECT2 #}
+		<script type="text/javascript" src="{{asset('bundles/cms/select2/dist/js/select2.min.js')}}"></script>
+
+		<script type="text/javascript" src="{{asset('bundles/cms/js/script.js')}}"></script>
+		<script type="text/javascript" src="{{asset('bundles/cms/responsive_waterfall/responsive_waterfall.js')}}"></script>
+
+		<script type="text/javascript">
+        jQuery('.hamburger').click(function(e){
+            jQuery(this).toggleClass('is-active');
+            jQuery(document.body).toggleClass('menu');
+        });
+
+        jQuery('#profile-image img').on('click', function(e){
+        	jQuery('#profile-image ul.nav').show();
+        });
+
+        jQuery(document.body).on('click', function(e){
+        	if(e.target != $('#profile-image img')[0]){
+	        	jQuery('#profile-image ul.nav').hide();
+	        }
+        });
+
+        jQuery('[data-tooltip]').off('mouseover').on('mouseover', function(){
+        	$('.tt').remove();
+        	var tt = $('<div class="tt">' + $(this).data('tooltip').replace('#', '<br/>') + '</div>');
+        	$(document.body).append(tt);
+        	tt.css('top', (($(this).position().top + ($(this).height()) + 5)) + 'px').css('left', ($(this).position().left - ($(tt).width()/2) - ($(this).width())) + 'px')
+        }).off('mouseout').on('mouseout', function(){
+        	$('.tt').remove();
+        });
+
+		if($('.tabs').length > 0){
+			$('.tabs li:not(.no-tab)').click(function(){
+				$('.tabs li, .tc').removeClass('active');
+				var index = $(this).addClass('active').index();
+				$('.tc').eq(index).addClass('active');
+			});
+		}
+
+		// SPOTLIGHT
+
+		var typeTimer     = null;
+
+		var spotlightOpen = false;
+		var shiftDown     = false;
+		var cmdDown       = false;
+
+		var enter         = 13;
+		var escape        = 27;
+		var shift         = 16;
+		var cmd           = 91;
+		var p             = 80;
+		var up            = 38;
+		var down          = 40;
+
+		var firstUrl      = null;
+
+		$(document.body).keydown(function( event ) {
+			if(event.which == shift) shiftDown = true;
+			if(event.which == cmd) cmdDown = true;
+			if ( event.which == p && shiftDown && cmdDown ) {
+				event.preventDefault();
+				openSpotlight();
+			}
+		}).keyup(function( event ) {
+			if(event.which == shift) shiftDown = false;
+			if(event.which == cmd) cmdDown = false;
+			if(event.which == escape){
+				closeSpotlight();
+			}
+			if(event.which == enter){
+				event.preventDefault();
+				if($('.sl-results a.default').length > 0){
+					window.location = $('.sl-results a.default').attr('href');
+				}
+			}
+			if(event.which == up){
+				event.preventDefault();
+				$('.sl-window input')[0].blur();
+				if($('.sl-results a.default').prev('a').length > 0){
+					$('.sl-results a.default').removeClass('default').prev('a').addClass('default');
+				}
+			}
+			if(event.which == down){
+				event.preventDefault();
+				$('.sl-window input')[0].blur();
+				if($('.sl-results a.default').next('a').length > 0){
+					$('.sl-results a.default').removeClass('default').next('a').addClass('default');
+				}
+			}
+		});
+
+		$('.sl-backdrop').click(function(){
+			closeSpotlight();
+		});
+
+		function openSpotlight(){
+			$(document.body).addClass('spotlight');
+			$('.sl-results').html('').hide();
+			firstUrl = null;
+			var prevQ = '';
+			$('.sl-window input').val('').off('keyup').on('keyup', function(){
+				var q = $(this).val();
+				if(prevQ != q){
+					firstUrl = null;
+					$('.sl-results').html('').hide();
+					prevQ = q;
+					if(typeTimer != null) clearTimeout(typeTimer);
+					typeTimer = setTimeout(function(){
+						if(q == ''){
+							$('.sl-results').html('').hide();
+						}else{
+							var nr = 0;
+							$.getJSON('{{path('spotlight_search')}}/' + q).done(function(res){
+								$.each(res, function(group, results){
+									$('.sl-results').append($('<span>' + group + '</span>'));
+									$.each(results, function(url, label){
+										$('.sl-results').append($('<a href="' + url + '">' + label + '</span>'));
+										if(firstUrl == null) firstUrl = url;
+										nr++;
+									});
+								});
+
+								if(nr == 0){
+									$('.sl-results').append($('<em>{{ 'Geen resultaten gevonden' | trans }}</em>'));
+								}
+
+								$('.sl-results').show();
+								$('.sl-results a').first().addClass('default')
+							});
+						}
+					}, 400);
+				}
+			});
+			$('.sl-window input')[0].focus();
+			spotlightOpen = true;
+		}
+
+		function closeSpotlight(){
+			$('.sl-window input').val('');
+			$('.sl-results').html('').hide();
+			$(document.body).removeClass('spotlight');
+		}
+		</script>
+		{% block scripts %}{% endblock %}
+	</body>
+</html>

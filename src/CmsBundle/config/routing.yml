@@ -1,0 +1,28 @@
+global_api:
+    type: annotation
+    resource: App\Trinity\ApiBundle\Controller\DefaultController
+
+trinity_apibundle:
+    resource: "@TrinityApiBundle/Controller/AdminController.php"
+    type:     annotation
+    prefix:   /
+
+trinity_api:
+    type: annotation
+    resource: App\CmsBundle\Controller\ApiController
+
+cms_annotate:
+    resource: "@CmsBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+paging:
+    resource: CmsBundle:Page
+    type: db
+
+fos_oauth_server_token:
+    resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing/swaggerui.xml"
+    prefix:   /docs

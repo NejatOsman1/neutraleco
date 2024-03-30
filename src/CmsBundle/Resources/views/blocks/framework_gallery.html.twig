@@ -1,0 +1,149 @@
+{#
+  {
+    "key": "framework_gallery",
+    "label": "Galerij",
+    "description": "Blokken met afbeeldingen met tekst op hover-functie",
+    "allowMove": true,
+    "category": "",
+    "blocks": [
+      {
+        "key": "block-0",
+        "size": 4,
+        "required": "media",
+        "multiple": false,
+        "fields": [
+          {
+            "key": "content",
+            "type": "textarea",
+            "label": "Tekst"
+          }
+        ]
+      },
+      {
+        "key": "block-1",
+        "size": 4,
+        "required": "media",
+        "multiple": false,
+        "fields": [
+          {
+            "key": "content",
+            "type": "textarea",
+            "label": "Tekst"
+          }
+        ]
+      },
+      {
+        "key": "block-2",
+        "size": 4,
+        "required": "media",
+        "multiple": false,
+        "fields": [
+          {
+            "key": "content",
+            "type": "textarea",
+            "label": "Tekst"
+          }
+        ]
+      },
+      {
+        "key": "block-3",
+        "size": 4,
+        "required": "media",
+        "multiple": false,
+        "fields": [
+          {
+            "key": "content",
+            "type": "textarea",
+            "label": "Tekst"
+          }
+        ]
+      },
+      {
+        "key": "block-4",
+        "size": 4,
+        "required": "media",
+        "multiple": false,
+        "fields": [
+          {
+            "key": "content",
+            "type": "textarea",
+            "label": "Tekst"
+          }
+        ]
+      },
+      {
+        "key": "block-5",
+        "size": 4,
+        "required": "media",
+        "multiple": false,
+        "fields": [
+          {
+            "key": "content",
+            "type": "textarea",
+            "label": "Tekst"
+          }
+        ]
+      }
+    ]
+  }
+#}
+
+<section id="{{wrapper.cssId is defined ? wrapper.cssId : ''}} block-gallery-container-{{wrapper.Id}}" class="block-gallery block-gallery-{{wrapper.Id}} {{wrapper.cssClass is defined ? wrapper.cssClass : ''}}">
+  <div class="images">
+    {% set num = wrapper.blocks | length %}
+    {% for b in wrapper.blocks %}
+      {#
+      {% if loop.index > 6 and num > 6 %}
+        <div class="extra">
+          + {{num - 6}}
+        </div>
+      {% else %}
+      #}
+
+      {% if b.media is not empty %}
+        <a href="/{{b.media.getWebPath}}">
+          <div class="lcp" id="lcp{{b.id}}">
+            {% if b.media.hasBlurred %}
+              <picture>
+                {% if b.media.hasWebp() %}
+                  <source srcset="/{{b.media.getBlurredWebpPath('medium')}}" type="image/webp">
+                {% endif %}
+                <source srcset="/{{b.media.getBlurredWebPath('medium')}}" type="{{b.media.mime}}">
+                <img class="lq" alt="{% if b.config.content is not empty %}
+                    {{b.config.content|raw}}
+                  {% else %}
+                    {{b.media.description_alt}}
+                  {% endif %}" src="/{{b.media.getBlurredWebPath('medium')}}" type="{{b.media.mime}}" loading="lazy" width="{{b.media.width}}" height="{{b.media.height}}">
+              </picture>
+            {% endif %}
+            <picture>
+              {% if b.media.hasWebp() %}
+                <source srcset="/{{b.media.getWebpPath('large')}}" type="image/webp">
+              {% endif %}
+              <source srcset="/{{b.media.getWebPath('large')}}" type="{{ b.media.mime }}">
+              <img class="hq" alt="{% if b.config.content is not empty %}
+                {{b.config.content|raw}}
+              {% else %}
+                {{b.media.description_alt}}
+              {% endif %}" src="/{{b.media.getWebPath('large')}}" type="{{b.media.mime}}" loading="lazy" width="{{b.media.width}}" height="{{b.media.height}}" onload="document.querySelector('#lcp{{b.id}} .hq').style.opacity=1;
+              {% if b.media.hasBlurred %}
+                document.querySelector('#lcp{{b.id}} .lq').style.opacity = 0;
+              {% endif %}" style="opacity: 0;">
+            </picture>
+          </div>
+
+          {% if b.config.content is not empty %}
+            <div class="text">
+              {{b.config.content|raw}}
+            </div>
+          {% endif %}
+        </a>
+
+        {#
+    {% endif %} // end loop extra
+      #}
+
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>

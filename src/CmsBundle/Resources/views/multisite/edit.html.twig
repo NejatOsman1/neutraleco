@@ -1,0 +1,69 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	{{ form_start(Form) }}
+
+	{% if DefaultSettings %}
+		<div class="card">
+			<div class="card-content">
+				<h6 class="card-title">{{'Let op'|trans}}</h6>
+				<p>{{ 'De onderstaande configuratie is gebaseerd op <strong>%label%</strong> (%host%). Alle instellingen worden overgenomen na het opslaan.' |trans({'%label%': DefaultSettings.label, '%host%': DefaultSettings.host}) | raw }}</p>
+				<a class="btn btn-gray" href="{{path('admin_multisite_edit', {'nocopy' : 1})}}" class="">{{ 'Klik hier voor een blanco configuratie' | trans }}</a>
+			</div>
+		</div>
+	{% endif %}
+
+	<div class="card">
+		<div class="card-content">
+			<h6 class="card-title">{{'Website gegevens'|trans}}</h6>
+			{{ form_errors(Form) }}
+			{{ form_widget(Form) }}
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="card-content">
+			<h6 class="card-title">{{ 'Beschikbare extensies' | trans }}</h6>
+			{% set defaultEnabled = ['TrinityBlogBundle', 'TrinitySearchBundle', 'TrinitySliderBundle', 'TrinityFormsBundle'] %}
+			{% for route in modroutes | sort %}
+        {% if (route.hidden is not defined or route.hidden != true) %}
+					{% if route.route != 'admin_mod_api' and route.bundleName != 'TrinitySearchBundle' %}
+							<div class="form-check">
+								<input class="form-check-input" {{(route.bundleName in defaultEnabled and BaseSettings.visibleBundles is empty) or route.bundleName in BaseSettings.visibleBundles ? 'checked' : ''}} type="checkbox" name="bundles[]" value="{{route.bundleName}}" id="chk_{{route.bundleName}}" />
+								<label class="form-check-label" for="chk_{{route.bundleName}}">
+									{# {% if 'fa-' in route.icon %}
+			              <i style="width: 24px; height: 24px; line-height: 24px; margin-right:10px;" class="fa-fw {{route.icon ? route.icon : ''}}"></i>
+			            {% else %}
+			              <i style="margin-right:10px;" class="material-icons left">{{route.icon ? route.icon : 'dashboard'}}</i>
+			            {% endif %} #}
+									{{route.name|trans}}
+								</label>
+							</div>
+						{% endif %}
+	        {% endif %}
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+
+	<div class="card" style="{{(languages|length) == 1 ? 'display: none;' : ''}}">
+		<div class="card-content">
+			<h6 class="card-title">{{'Gekoppelde talen'|trans}}</h6>
+			{% for Lang in languages %}
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="{{Lang.id}}" name="languages[]" value="{{Lang.id}}" {{(languages|length) == 1 or Lang in languagesActive ? 'checked' : ''}} />
+					<label class="form-check-label" for="{{Lang.id}}">{{Lang.label}} ({{Lang.locale}})</label>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<div class="btn-bar">
+		<div class="right">
+			{# <a href="{{path('admin_multisite')}}" class="btn-flat waves-effect waves-dark left"><i class="material-icons left">arrow_back</i>{{'Annuleren'|trans({})|raw}}</a> #}
+			<button type="submit" class="btn waves-effect waves-light"><i class="material-icons left">save</i>{{'Opslaan'|trans({})|raw}}</button>
+		</div>
+	</div>
+	{{ form_end(Form) }}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% trans_default_domain 'blog' %}
+
+{% if file_exists('../templates/override/blog/prefs.html.twig') %}
+		{% include 'override/blog/prefs.html.twig' %}
+{% else %}
+	<div class="blog v3">
+		<h1>E-mail voorkeuren</h1>
+
+		{% if message %}
+			<div class="alert alert-success">{{message}}</div>
+		{% endif %}
+
+		<p>Uw e-mailadres:<br/><strong>{{emailhash}}</strong></p>
+
+		{{form_start(Form)}}
+		{{form_widget(Form)}}
+
+		<button type="submit" class="btn btn-primary">Voorkeuren opslaan</button>
+		{{form_end(Form)}}
+	</div>
+{% endif %}

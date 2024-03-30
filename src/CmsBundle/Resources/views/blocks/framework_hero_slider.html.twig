@@ -1,0 +1,37 @@
+{#
+    {
+        "key": "framework_hero_slider",
+        "category": "Framework",
+        "label": "Hero (Slider)",
+        "description": "...",
+        "allowMove": false,
+        "blocks": [
+            {
+                "key": "block-0",
+                "size": 12,
+                "required": "SliderBundle",
+                "fields": []
+            }
+        ]
+    }
+#}
+
+{#
+    Available objects:
+
+    - page: current page
+    - locale: current locale
+    - wrapper: contains the wrapper around multiple blocks.
+    - firstBlock: contains the first block in the wrapper, useful when only one block is expected.
+    - data: contains the data as mentioned above this file
+#}
+
+<section
+class="hero hero-slider {{wrapper.classList}}"
+id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+style="{{wrapper.styleList}}"
+data-id="{{wrapper.id}}">
+
+    {{firstBlock.content|raw}}
+
+</section>

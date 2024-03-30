@@ -1,0 +1,791 @@
+{% extends app.request.xmlHttpRequest ? '@Cms/interface_empty.html.twig' : '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Slider'|trans}}{% endblock %}
+
+{% block body %}
+<div class="slider-bundle">
+    {% if saved %}
+            <div class="text-center">
+                    <i class="green-text material-icons" style="font-size:100px">check_circle</i>
+            </div>
+
+            <div class="card">
+                    <div class="card-body text-center">
+                            {{ 'De slider is succesvol toegevoegd, u wordt doorgestuurd naar de slider..'|trans }}<br />
+                            <br />
+                            <span style="font-size: .8em"><a href="{{ path('admin_mod_slider_edit', {'id': Slider.id}) }}">{{ 'Klik hier als u niet binnen enkele seconden wordt omgeleid'|trans }}</a></span>
+                    </div>
+            </div>
+
+            <script>
+                    setTimeout(
+                            function() {
+                                    window.location = '{{ path('admin_mod_slider_edit', {'id': Slider.id}) }}';
+                            },
+                            1000
+                    );
+            </script>
+    {% else %}
+            <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.css">
+            <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick-theme.css">
+
+            {{ form_start(form, {'attr': {'id': 'page-slider-form' }})}}
+
+            <input type="hidden" id="inline_save" name="inline_save" value="0" />
+            <input type="hidden" id="new_media" name="new_media" value="" />
+
+            {% if app.request.xmlHttpRequest or Slider.id is empty %}
+                    <div class="card">
+                            <div class="card-body">
+                                {{ form_row(form.label) }}
+                            </div>
+                    </div>
+            {% else %}
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="card-title">
+                          <div class="card-titles">
+                            <h6>Slider</h6>
+                            {{ 'Onderstaande previews geven een impressie van hoe de slider aan de voorkant er uit komt te zien. Er kan een aparte afbeelding ingesteld worden voor de mobiele weergave door in de mobiele weergave de afbeelding aan te passen, standaard zal de voor desktop gekozen afbeelding ook op de mobiele weergave gebruikt worden.' | trans | raw }}
+                          </div>
+                        </div>
+
+
+
+                        <div class="row" style="position:relative;">
+  <div class="col-12">
+    <div class="s-slider" id="slider_{{- Slider.id -}}">
+      {% for entry in Slider.entries %}
+        <div class="slide" data-id="slide-{{entry.id}}"
+             style="background-size: cover; height: 500px; position: relative; background-repeat: no-repeat; background: center;"
+             data-desktop="{% if entry.hasMedia %}{{ '/' ~ entry.Media.getWebPath }}{% else %}/bundles/trinityslider/img/placeholder.jpeg{% endif %}"
+             data-mobile="{% if entry.hasMobileMedia %}{{ '/' ~ entry.getMobileMedia.getWebPath }}{% elseif entry.hasMedia %}{{ '/' ~ entry.Media.getWebPath }}{% else %}/bundles/trinityslider/img/placeholder.jpeg{% endif %}"
+             data-thumb="{% if entry.hasMedia %}{{ '/' ~ entry.Media.getWebPath('thumb') }}{% else %}/bundles/trinityslider/img/placeholder.jpeg{% endif %}">
+
+          <div style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 10;"></div>
+          <div class="action-buttons left">
+            <a onclick="$('.s-slider').removeClass('mode-mobile');reInitSlick({{loop.index0}});" class="active tt" data-info="{{ 'Desktop mode' | trans }}"><i class="fa fa-desktop"></i></a>
+            <a onclick="$('.s-slider').addClass('mode-mobile');reInitSlick({{loop.index0}});" class="tt" data-info="{{ 'Mobile mode' | trans }}"><i class="fa fa-mobile-alt"></i></a>
+          </div>
+
+          <div class="action-buttons" style="z-index: 30; text-shadow: 1px 1px 5px black;">
+                  <a href="#" class="tt" data-info="{{ 'Sorteer Slider entries' | trans }}" onclick="sortPosition();"><i class="fa fa-random"></i></a>
+                  <a href="#" onclick="slideConfig({{entry.id}})" class="tt" data-info="{{ 'Slide specifieke opties' | trans }}"><i class="fa fa-cog"></i></a>
+                  {# FIXME maak slide breede klikbaar link #}
+                  <a href="#" class="visible tt" onclick="toggleVisibility({{entry.id}}, this);" data-info="{{ 'Toggle zichtbaarheid' | trans }}" >{% if entry.enabled %}<i class="fa fa-eye"></i>{% else %}<i class="far fa-eye-slash"></i>{% endif %}</a>
+                  {# popup Media ding weghalen in V2 #}
+                  <a href="#" class="add tt" onclick="popupNewLibraryMediaSlide();" data-info="{{ 'Nieuwe slide toevoegen uit media bibilotheek' | trans }}"><i class="fa fa-plus"></i></a>
+                  <a href="#" class="media tt" onclick="replaceSlideImage(this, {{ entry.id }});" data-info="{{ 'Afbeelding vervangen' | trans }}"><i class="far fa-images"></i></a>
+                  <a href="#" class="delete tt" onclick="deleteSlide(this,{{ entry.id }}); return false;" data-info="{{ 'Slide verwijderen' | trans }}"><i class="far fa-trash-alt"></i></a>
+          </div>
+          <div class="container" style="position: relative; z-index: 20;">
+                  <div class="titles">
+                    <div class="row">
+                      <div class="col-8 offset-2">
+                        <h1 class="i-ckeditor h1-title" data-id="slide_{{entry.id}}_title" contenteditable="true">{{(entry.getLabel|trim) != '' ? entry.getLabel|raw : ''}}</h1>
+                        <input type="hidden" id="slide_{{entry.id}}_title" name="slide[{{entry.id}}][title]" value="{{(entry.getLabel|trim) != '' ? entry.getLabel|raw|replace({'\"': "&quot;"}) : ''}}" />
+
+                        <div class="i-ckeditor span-content" data-id="slide_{{entry.id}}_content" contenteditable="true">{{(entry.getContent|trim) != '' ? entry.getContent|raw : ''}}</div>
+                        <textarea id="slide_{{entry.id}}_content" name="slide[{{entry.id}}][content]" style="display:none;">{{(entry.getContent|trim) != '' ? entry.getContent : ''}}</textarea>
+
+                        <div class="slide-buttons">
+                          <div class="button-wrapper">
+                          {% for key, button in entry.buttons %}
+                            <a onclick="editButton(this, {{entry.id}});" data-url="{{button.url is defined ? button.url : ''}}" data-class="{{button.class is defined ? button.class : ''}}" data-label="{{button.label is defined ? button.label : ''}}" data-target="{{button.target is defined ? button.target : ''}}" class="btn custom-block-btn">
+                              {{button.label|raw}}
+                              <input type="hidden" name="block_config[{{entry.id}}][buttons][{{key}}][label]" value="{{button.label}}" />
+                              <input type="hidden" name="block_config[{{entry.id}}][buttons][{{key}}][url]" value="{{button.url}}" />
+                              <input type="hidden" name="block_config[{{entry.id}}][buttons][{{key}}][class]" value="{{button.class}}" />
+                              <input type="hidden" name="block_config[{{entry.id}}][buttons][{{key}}][target]" value="{{button.target}}" />
+                            </a>
+                          {% endfor %}
+                          </div>
+                            <button class="btn btn-blank" type="button" onclick="addButton(this, {{entry.id}});"><i class="fa fa-plus"></i> Knop toevoegen</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {# {% endif %} #}
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+
+                            <div class="col-12 py-3">
+                              <div class="s-thumbslider" id="thumbslider_{{- Slider.id -}}">
+                                {% for entry in Slider.entries %}
+                                  <div class="slide" data-id="slide-{{entry.id}}"
+                                   style="background-size: cover; height: 80px; position: relative; {% if not loop.last%}margin-right: 5px;{% endif %}"
+                                   data-desktop="{% if entry.hasMedia %}{{ '/' ~ entry.Media.getWebPath('thumb') }}{% else %}/bundles/trinityslider/img/placeholder.jpeg{% endif %}"
+                                   data-mobile="{% if entry.hasMobileMedia %}{{ '/' ~ entry.getMobileMedia.getWebPath('thumb') }}{% elseif entry.hasMedia %}{{ '/' ~ entry.Media.getWebPath('thumb') }}{% else %}/bundles/trinityslider/img/placeholder.jpeg{% endif %}">
+                                  </div>
+                                {% endfor %}
+                              </div>
+                            </div>
+
+                            <div class="col-12">
+                              <div id="dropzone" {#style="width: 60%;"#}>
+                                <span class="message">
+                                  {{ 'Sleep hier bestanden naar toe om deze te uploaden' | trans}}
+                                </span>
+                              </div>
+
+                              <div class="text-center">
+                                <a onclick="addMedia(false);" class="btn" data-position="top"><i class="fa fa-plus"></i>{{ 'Afbeelding toevoegen' | trans }}</a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                          <div class="row" style="margin: 0 -.75rem">
+                            <div class="col-12 col-md-8">
+                                    <div class="card">
+                                            <div class="card-body">
+                                                    <div class="card-title">
+                                                      <div class="card-titles">
+                                                        <h6>{{ 'Slider gegevens' | trans }}</h6>
+                                                      </div>
+                                                    </div>
+                                                    {{ form_errors(form) }}
+                                                    <div class="row">
+                                                            <div class="col-12 m6">
+                                                                    {{ form_row(form.label) }}
+                                                            </div>
+                                                            <div class="col-12 m6">
+                                                                    {{ form_row(form.classes) }}
+                                                            </div>
+                                                            <div class="col-12 m6">
+                                                                    {{ form_row(form.scroll_speed) }}
+                                                            </div>
+                                                            <div class="col-12 m6">
+                                                                    {{ form_row(form.auto_speed) }}
+                                                            </div>
+                                                    </div>
+                                            </div>
+                                    </div>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                    <div class="card">
+                                            <div class="card-body">
+                                                    <div class="card-title">
+                                                      <div class="card-titles">
+                                                        <h6>{{ 'Slider opties' | trans }}</h6>
+                                                      </div>
+                                                    </div>
+                                                    {{ form_errors(form) }}
+                                                    <div class="row">
+                                                            <div class="col-12">
+                                                                    {{ form_row(form.show_title) }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                    {{ form_row(form.show_content) }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                    {{ form_row(form.arrows) }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                    {{ form_row(form.fade) }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                    {{ form_row(form.auto_play) }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                    {{ form_row(form.dots) }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                    {{ form_row(form.center_mode) }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                    {{ form_row(form.infinite) }}
+                                                            </div>
+                                                    </div>
+                                            </div>
+                                    </div>
+                            </div>
+
+                            <input type="hidden" name="positions" value="">
+                    </div>
+            {% endif %}
+
+            {% if app.request.xmlHttpRequest or Slider.id is empty %}
+                    {# <div id="popup_footer">
+                        <button class="btn-flat" type="button" onclick="cpop.close()">
+                            <i class="material-icons left">clear</i>{{ 'Annuleren' | trans }}
+                        </button>
+                        <button class="btn" type="submit">
+                            <i class="material-icons left">save</i>{{ 'Opslaan' | trans }}
+                        </button>
+                    </div> #}
+                    <div class="btn-bar">
+                        <div class="left">
+                        </div>
+                        <div class="right">
+                            <a href="{{ path('admin_mod_slider') }}" class="btn-flat">
+                                <i class="fa fa-arrow-left"></i> {{ 'Terug' | trans }}
+                            </a>
+                            <a class="btn" onclick="$('#inline_save').val('1');$('#page-slider-form').submit();" href="#">{{'Opslaan en doorgaan'|trans}} <i style="margin-left: 5px;" class="fa fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+            {% else %}
+                    <div class="btn-bar">
+                        <div class="left">
+                        </div>
+                        <div class="right">
+                            {#<a href="{{ path('admin_mod_slider') }}" class="btn-flat">
+                                <i class="fa fa-arrow-left"></i> {{ 'Terug' | trans }}
+                            </a>#}
+                            <a class="btn-flat" onclick="$('#inline_save').val('1');$('#page-slider-form').submit();" href="#"><i class="fa fa-check"></i> {{'Toepassen'|trans}}</a>
+                            <a class="btn waves-effect waves-light" onclick="$('#page-slider-form').submit();return false;" href="#"><i class="fa fa-save"></i> {{'Opslaan en sluiten'|trans}}</a>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+
+                    <div>
+                        <form method="post" enctype="multipart/form-data">
+                            <input type="hidden" id="mediadirid" name="mediadirid" value="{{parentid.id}}" />
+                            <input type="hidden" name="manual_upload" value="1" />
+                            <input type="file" name="media[]" id="upload_button" />
+                            <button type="submit">{{'Uploaden'|trans}}</button>
+                        </form>
+                    </div>
+
+                    <script type="text/javascript" src="{{ asset('bundles/cms/jquery-filedrop/jquery.filedrop.js') }}"></script>
+                    <script type="text/javascript" src="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js"></script>
+                    <script type="text/javascript">
+                            let sliderEl = $('#slider_{{ Slider.id }}');
+                            let thumbsliderEl = $('#thumbslider_{{ Slider.id }}');
+
+                            function initSlick()
+                            {
+                                let slider_options = {{ slider_options | raw }}
+
+                                sliderEl.slick({
+                                    arrows: slider_options['arrows'],
+                                    fade: slider_options['fade'],
+                                    autoplay: false,
+                                    dots:  false,
+                                    arrows: true,
+                                    infinite: false,
+                                    speed: slider_options['speed'],
+                                    autoplaySpeed: false,
+                                    centereMode: true,
+                                    // draggable: slider_options['draggable'],
+                                    draggable: false,
+                                    asNavFor: thumbsliderEl,
+                                    accessibility: false
+                                });
+
+                                /*
+                                    customPaging: function(slider, i) {
+                                    var thumb = $(slider.$slides[i]).data('thumb');
+                                    return '<a><img src="'+thumb+'"></a>';
+                                },
+                                */
+
+                                thumbsliderEl.slick({
+                                    slidesToShow: 8,
+                                    slidesToScroll: 1,
+                                    arrows: true,
+                                    asNavFor: sliderEl,
+                                    dots: false,
+                                    infinite: false,
+                                    centerMode: false,
+                                    focusOnSelect: true
+                                });
+                            }
+
+                            $(document).ready(function() {
+                                    initSlick();
+                                    switchSliderImage();
+                                    initLabels();
+                            });
+
+                            function sortPosition()
+                            {
+                                cpop.reset().loadAjax('{{ path('admin_slider_entry_sorting', {'sliderid': Slider.id}) }}');
+                            }
+
+                            function reInitSlick(index)
+                            {
+                                    setTimeout(function() {
+                                            sliderEl.slick('unslick');
+                                            thumbsliderEl.slick('unslick');
+                                            switchSliderImage();
+
+                                            initSlick();
+                                            if (index) {
+                                                sliderEl.slick('slickGoTo', index);
+                                            }
+                                            initLabels();
+                                    },
+                                            200
+                                    );
+                            }
+
+                            function initLabels() {
+                                    $('.slide .h1-title, .slide .span-content').off('keyup').on('keyup', function(e) {
+                                            $('#' + $(this).data('id')).val($(this).html());
+//                                            $('#' + $(this).data('id')).attr('value', $(this).html());
+                                    });
+                            }
+
+                            function switchSliderImage() {
+                                    let mode = sliderEl.hasClass('mode-mobile') ? 'mobile' : 'desktop';
+
+                                    $.each($('.slide'), function(index, slide) {
+                                            $(slide).css({
+                                                'background-image': 'url(' + $(slide).data(mode) + ')',
+                                                'background-repeat': 'no-repeat',
+                                                'background-position': 'center',
+                                                'background-size': 'cover',
+                                        });
+                                    });
+                            }
+
+                            function toggleVisibility(id, elem) {
+                                    $.ajax({
+                                            type: "POST",
+                                            url: '{{ path('admin_mod_slider_entry_toggle') ~ '/' }}' + id,
+                                            dataType: 'json',
+                                            content: '',
+                                            success: (function(response) {
+                                                    if (response.value)
+                                                            $(elem).find('.material-icons').html('visibility');
+                                                    else
+                                                            $(elem).find('.material-icons').html('visibility_off');
+                                            }),
+                                    });
+                            }
+
+function slideConfig(entryid)
+{
+    cpop.reset().loadAjax('{{ path('admin_slider_entry_edit_config') }}' + '/' + entryid);
+}
+
+/**
+ * Callback from admin_media_popup
+ *
+ * integer mediaid (internal media ID to existing media entity)
+ * string filepath (relative path to physical file - for preview?)
+ * string label (filename + ext)
+ * integer width (max. width of the existing image)
+ */
+function clickedPopupMedia(mediaid, filepath, label, width)
+{
+    if (mediaReplace) {
+
+        var type = $('.s-slider').hasClass('mode-mobile') ? 'mobile' : 'desktop';
+        $.ajax({
+            url: '{{ path('admin_mod_slider_entry_edit_replace_image') }}' + '/' + callerEntry + '/' + mediaid + '/' + type,
+            dataType: 'json',
+        })
+        .done(function (data) {
+            // Saved media link between media and slide, attach image to slide
+            $('[data-id="slide-' + callerEntry + '"]').css('background-image', 'url(' + filepath + ')');
+            $('[data-id="slide-' + callerEntry + '"]').data(type, filepath);
+        });
+
+    } else {
+
+        // Add media ID to the 'existing_media' field
+        $('#new_media').val($('#new_media').val() + ',' + mediaid);
+
+        var newEntry = $('\
+        <div class="slide" style="background: url(' + filepath + ') no-repeat center; background-size: cover; height: 500px; position: relative;" data-desktop="' + filepath + '" data-mobile="">\
+                <div class="action-buttons" style="z-index: 30; text-shadow: 1px 1px 5px black;">\
+                    <a href="#" class="tt" data-info="{{ 'Sorteer Slider entries' | trans }}" onclick="sortPosition();"><i class="material-icons">swap_vert</i></a>\
+                    <a href="#" onclick="slideConfig(' + mediaid + ')" class="tt" data-info="{{ 'Slide specifieke opties' | trans }}"><i class="material-icons">settings</i></a>\
+                    <a href="#" class="visible tt" onclick="toggleVisibility(' + mediaid + ', this);" data-info="{{ 'Toggle zichtbaarheid' | trans }}" ><i class="material-icons">visibility</i></a>\
+                    <a href="#" class="media tt" onclick="replaceSlideImage(this, ' + mediaid + ');" data-info="{{ 'Afbeelding vervangen' | trans }}"><i class="material-icons">photo_library</i></a>\
+                    <a href="#" class="delete tt" onclick="deleteSlide(this,' + mediaid + '); return false;" data-info="{{ 'Slide verwijderen' | trans }}"><i class="material-icons">delete</i></a>\
+                </div>\
+                <div class="container">\
+                        <div class="titles">\
+                                <div class="row">\
+                                        <div class="col-sm-12 col-md-6">\
+                                                <h1 class="i-ckeditor h1-title" data-id="slide_' + mediaid + '_title" contenteditable="true" style="border:dashed 2px rgba(255,255,255,0.7); text-shadow: 1px 1px 5px black; height: 70px;"></h1>\
+                                                <input type="hidden" id="slide_' + mediaid + '_title" name="slide[_' + mediaid + '][title]" value="" />\
+                                                <div class="i-ckeditor span-content" data-id="slide_' + mediaid + '_content" contenteditable="true" style="border:dashed 2px rgba(255,255,255,0.7);text-shadow: 1px 1px 2px black; min-height: 30px; display: block; max-height: 160px; overflow-y: scroll;"></div>\
+                                                <input type="hidden" id="slide_' + mediaid + '_content" name="slide[_' + mediaid + '][content]" value="" />\
+                                        </div>\
+                                        <div class="col-sm-12 col-md-6">\
+                                                <div class="slide-buttons">\
+                                                    <div class="button-wrapper"></div>\
+                                                    <button class="btn btn-blank" type="button" onclick="addButton(this, ' + mediaid + ');"><i class="fa fa-plus"></i></button>\
+                                                </div>\
+                                        </div>\
+                                </div>\
+                        </div>\
+                </div>\
+        </div>');
+
+        sliderEl.slick('slickAdd', newEntry);
+
+        initCkeditor(newEntry);
+
+        sliderEl.slick('slickGoTo', newEntry.index());
+
+        var newThumbEntry = '<div class="slide" data-id="slide-' + mediaid + '"\
+                                style="background: url(' + filepath + ') no-repeat center; background-size: cover; min-height: 50px; max-width: 100px; position: relative; margin-left: 5px;" \>\
+                            </div>';
+
+        thumbsliderEl.slick('slickAdd', newThumbEntry);
+
+        $.each(newEntry.find('.c_ckeditor'), function(ind, el){
+                CKEDITOR.replace(el, custom_config);
+        });
+    }
+
+    // Close popup after logics are done
+    cpop.close();
+}
+{# #}
+    function popupNewLibraryMediaSlide()
+    {
+        let id = {{ Slider.id }};
+
+        cpop.reset().large().loadAjax('{{path('admin_media', {type: 'all', inline: 1, composer: 1})}}');
+    }
+{# #}
+    // media handling van bibilotheek
+    function loadLibraryMedia(mediaid, filepath, label, width)
+    {
+        // Add media thing as new slider entry (controller)
+        $.ajax({
+            url: "{{ path("admin_mod_slider_entry_media_add", {'sliderid': Slider.id}) ~ '/' }}" + mediaid,
+            dataType: "json",
+        })
+        .done(function() {
+            location.reload();
+            // FIXME of
+            // Add new slider entry to slickslider
+            // reinit slick?
+        });
+    }
+
+    function deleteSlide(el, id) {
+        var i = $(el).closest('.slick-slide').data('slick-index');
+        cpop.confirm("{{ 'Wilt u deze slide entry verwijderen?' | trans }}", function() {
+            //cpop.reset().loadAjax('{{ path('admin_mod_slider_entry_delete') ~ '/' }}' + id);
+            $.ajax({
+                url: "{{ path('admin_mod_slider_entry_delete') ~ '/' }}" + id,
+                dataType: "json",
+            })
+            .done(function() {
+                sliderEl.slick('slickRemove',i);
+                thumbsliderEl.slick('slickRemove',i);
+                console.info('slide ' + id + 'removed');
+            })
+            .fail(function() {
+            })
+            .always(function() {
+                cpop.close();
+            });
+        });
+    }
+
+
+    var callerEntry = null;
+    var multi_media = false;
+    var mediaReplace = false;
+
+    function replaceSlideImage(el, id)
+    {
+        callerEntry = id;
+        mediaReplace = true;
+        // afhandling wordt in de callback gedaan
+        cpop.reset().large().loadAjax('{{path('admin_media', {parentid: parentid.id, type: 'all', inline: 1, composer: 1})}}');
+        return false;
+    }
+
+
+    function addMedia(replace)
+    {
+        mediaReplace = replace;
+
+        cpop.reset().large().loadAjax('{{path('admin_media', {parentid: parentid.id , type: 'all', inline: 1, composer: 1})}}');
+        return false;
+    }
+
+            var totalUploadSize = 0,
+                fileDrop = [],
+                activeZone = null,
+                myToolBar = [
+                    {
+                        name: 'verticalCustomToolbar',
+                        groups: [],
+                        items: [
+                            'Bold',
+                            'Italic',
+                            'Underline',
+                            'Subscript',
+                            'Superscript',
+                            'RemoveFormat',
+                            'BulletedList',
+                            'Outdent',
+                            'Indent',
+                            'Blockquote',
+                            'JustifyLeft',
+                            'JustifyCenter',
+                            'JustifyRight',
+                            'JustifyBlock',
+                            'Link',
+                            'Unlink',
+                            'Image',
+                            'FontSize',
+                            'TextColor',
+                            'Source'
+                        ]
+                    }
+                ],
+                custom_config = {};
+            custom_config.toolbar = myToolBar;
+
+            let fd = $('#dropzone').filedrop({
+                    fallback_id: 'upload_button', // An indentifier of a standard file input element, becomes the target of "click" events on the dropzone
+                    url: '{{ path('admin_mod_slider_entry_add', {id: Slider.id}) }}', // Upload handler, handles each file separately, can also be a function taking the file and returning a url
+                    paramname: 'newSlideImage', // POST parameter name used on serverside to reference file, can also be a function taking the filename and returning the paramname
+                    withCredentials: true, // Make a cross-origin request with cookies
+                    data: [],
+                    error: function(err, file) {
+                        switch(err) {
+                                    case 'BrowserNotSupported':
+                                            $('#upload-overlay').hide();
+                                            alert('{{ 'Browser does not support HTML5 drag and drop' | trans }}');
+                                            break
+                                    case 'TooManyFiles':
+                                            $('#upload-overlay').hide();
+                                            // user uploaded more than 'maxfiles'
+                                            alert('TooManyFiles');
+                                            break;
+                                    case 'FileTooLarge':
+                                            $('#upload-overlay').hide();
+                                            // program encountered a file whose size is greater than 'maxfilesize'
+                                            // FileTooLarge also has access to the file which was too large
+                                            // use file.name to reference the filename of the culprit file
+                                            alert('FileTooLarge');
+                                            break;
+                                    case 'FileTypeNotAllowed':
+                                            $('#upload-overlay').hide();
+                                            // The file type is not in the specified list 'allowedfiletypes'
+                                            alert('FileTypeNotAllowed');
+                                            break;
+                                    case 'FileExtensionNotAllowed':
+                                            $('#upload-overlay').hide();
+                                            // The file extension is not in the specified list 'allowedfileextensions'
+                                            alert('FileExtensionNotAllowed');
+                                            break;
+                                    default:
+                                            break;
+                            }
+                    },
+                    allowedfiletypes: ['image/bmp', 'image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/tiff', 'text/plain', 'text/richtext', 'application/msword', 'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel', 'application/pdf', 'application/mspowerpoint', 'application/powerpoint', 'application/vnd.ms-powerpoint', 'application/x-mspowerpoint', 'application/x-iwork-keynote-sffkey', 'application/x-iwork-numbers-sffnumbers', 'application/vnd.apple.keynote', 'application/vnd.apple.pages', 'application/vnd.apple.numbers', 'text/html', 'text/css', 'text/php', 'text/asp', 'text/x-c', 'text/x-script.csh', 'text/x-script.elisp', 'text/x-setext', 'text/webviewhtml', 'text/x-java-source', 'text/x-pascal', 'text/pascal', 'text/x-script.perl', 'text/x-script.perl-module', 'text/x-script.phyton', 'text/x-asm', 'text/sgml', 'text/x-sgml', 'text/x-script.sh', 'text/x-server-parsed-html', 'text/uri-list', 'text/x-uuencode', 'video/msvideo', 'video/avi', 'video/x-msvideo', 'video/mpeg', 'video/quicktime', 'audio/basic', 'audio/x-midi', 'audio/mpeg', 'audio/vorbis', 'audio/ogg', 'audio/x-pn-realaudio', 'audio/vnd.rn-realaudio', 'audio/wav', 'audio/x-wav'], // Filetypes allowed by Content-Type. Empty array means no restrictions
+                    allowedfileextensions: [], // File extensions allowed. Empty array means no restrictions
+                    maxfiles: 10,
+                    maxfilesize: {{ maxFileSize }}, // Max file size in MBs
+                    dragOver: function() {
+                            $(this).addClass('hover');
+                    },
+                    dragLeave: function() {
+                            $(this).removeClass('hover');
+                    },
+                    globalProgressUpdated: function(progress) {
+                        $('#upload-overlay .progress-bar').css('width', progress + '%');
+                    },
+                    uploadStarted: function(i, file, len){
+                        $('#upload-overlay').show();
+                    },
+
+                    uploadFinished: function(i, file, response, time) {
+                            var newEntry = $('\
+                            <div class="slide" style="background: url(' + response.image + ') no-repeat center; background-size: cover; height: 500px; position: relative;" data-desktop="' + response.image + '" data-mobile="">\
+                                    <div class="action-buttons" style="z-index: 30; text-shadow: 1px 1px 5px black;">\
+                                        <a href="#" class="tt" data-info="{{ 'Sorteer Slider entries' | trans }}" onclick="sortPosition();"><i class="material-icons">swap_vert</i></a>\
+                                        <a href="#" onclick="slideConfig(' + response.entryid + ')" class="tt" data-info="{{ 'Slide specifieke opties' | trans }}"><i class="material-icons">settings</i></a>\
+                                        <a href="#" class="visible tt" onclick="toggleVisibility(' + response.entryid + ', this);" data-info="{{ 'Toggle zichtbaarheid' | trans }}" ><i class="material-icons">visibility</i></a>\
+                                        <a href="#" class="media tt" onclick="replaceSlideImage(this, ' + response.entryid + ');" data-info="{{ 'Afbeelding vervangen' | trans }}"><i class="material-icons">photo_library</i></a>\
+                                        <a href="#" class="delete tt" onclick="deleteSlide(this,' + response.entryid + '); return false;" data-info="{{ 'Slide verwijderen' | trans }}"><i class="material-icons">delete</i></a>\
+                                    </div>\
+                                    <div class="container">\
+                                            <div class="titles">\
+                                                    <div class="row">\
+                                                            <div class="col-sm-12 col-md-6">\
+                                                                    <h1 class="i-ckeditor h1-title" data-id="slide_' + response.entryid + '_title" contenteditable="true" style="border:dashed 2px rgba(255,255,255,0.7); text-shadow: 1px 1px 5px black; height: 70px;"></h1>\
+                                                                    <input type="hidden" id="slide_' + response.entryid + '_title" name="slide[' + response.entryid + '][title]" value="" />\
+                                                                    <div class="i-ckeditor span-content" data-id="slide_' + response.entryid + '_content" contenteditable="true" style="border:dashed 2px rgba(255,255,255,0.7);text-shadow: 1px 1px 2px black; min-height: 30px; display: block; max-height: 160px; overflow-y: scroll;"></div>\
+                                                                    <input type="hidden" id="slide_' + response.entryid + '_content" name="slide[' + response.entryid + '][content]" value="" />\
+                                                            </div>\
+                                                            <div class="col-sm-12 col-md-6">\
+                                                                    <div class="slide-buttons">\
+                                                                        <div class="button-wrapper"></div>\
+                                                                        <button class="btn btn-blank" type="button" onclick="addButton(this, ' + response.entryid + ');"><i class="fa fa-plus"></i></button>\
+                                                                    </div>\
+                                                            </div>\
+                                                    </div>\
+                                            </div>\
+                                    </div>\
+                            </div>');
+
+                            sliderEl.slick('slickAdd', newEntry);
+
+                            initCkeditor(newEntry);
+
+                            sliderEl.slick('slickGoTo', newEntry.index());
+
+                            var newThumbEntry = '<div class="slide" data-id="slide-' + response.entryid + '"\
+                                                style="background: url(' + response.image + ') no-repeat center; background-size: cover; min-height: 50px; max-width: 100px; position: relative; margin-left: 5px;" \>\
+                                            </div>';
+
+                            thumbsliderEl.slick('slickAdd', newThumbEntry);
+
+                            $.each(newEntry.find('.c_ckeditor'), function(ind, el){
+                                    CKEDITOR.replace(el, custom_config);
+                            });
+                    },
+                    beforeSend: function(file, i, done) {
+                            activeZone = $(this);
+                            done(); // Start upload
+                            $(this).removeClass('hover');
+                            $(this).addClass('running');
+                    },
+                    afterAll: function() {
+                            $('#upload-overlay').hide();
+                            $('#upload-overlay .progress-bar').css('width', '0%');
+                            $(this).removeClass('hover');
+                            $(this).removeClass('running');
+                    }
+            });
+
+            fileDrop.push(fd);
+
+            function addButton(btn, blockid) {
+                    btn_action = 'new';
+                    btnBlockId = blockid;
+                    add_btn = $(btn).parent();
+                    add_blockid = blockid;
+                    editBtn = null;
+
+                    linkSelector(null, 'linkComposerPage', 'linkComposerMedia');
+            }
+
+            function editButton(btn, blockid) {
+                    btn_action = 'edit';
+                    btnBlockId = blockid;
+                    editBtn = $(btn);
+                    add_btn = editBtn.parent().parent();
+
+                    linkSelector(null, 'linkComposerPage', 'linkComposerMedia', '&url=' + encodeURIComponent(editBtn.data('url')) + '&label=' + encodeURIComponent(editBtn.data('label')) + '&target=' + encodeURIComponent(editBtn.data('target')) + '&class=' + encodeURIComponent(editBtn.data('class')));
+            }
+
+            function delButton() {
+                    editBtn.remove();
+                    cpop.close();
+            }
+
+            function randId() {
+                    return Math.random().toString(36).substr(2, 10);
+            }
+
+	function setLink()
+        {
+            var label  = $('#lc_btn_label').val();
+            var url    = $('#lc_btn_url').val();
+            var cl     = $('#lc_btn_class').val();
+            var target = $('#lc_btn_target').val();
+
+            var wrapper = add_btn.find('.button-wrapper');
+
+            var btnid = randId();
+
+            var btn = $('<a onclick="editButton(this, ' + btnBlockId + ');" data-url="' + url + '" data-class="' + cl + '" data-label="' + label + '" data-target="' + target + '" class="btn custom-block-btn">' + label + '</a>');
+
+            btn.append($('<input type="hidden" name="block_config[' + btnBlockId + '][buttons][' + btnid + '][label]" value="' + label + '" />'));
+            btn.append($('<input type="hidden" name="block_config[' + btnBlockId + '][buttons][' + btnid + '][url]" value="' + url + '" />'));
+            btn.append($('<input type="hidden" name="block_config[' + btnBlockId + '][buttons][' + btnid + '][class]" value="' + cl + '" />'));
+            btn.append($('<input type="hidden" name="block_config[' + btnBlockId + '][buttons][' + btnid + '][target]" value="' + target + '" />'));
+
+            if(editBtn){
+                editBtn.replaceWith(btn);
+            }else{
+                wrapper.append(btn);
+            }
+
+            cpop.close();
+	}
+
+function initCkeditor(parent){
+    var myToolBar = [
+        {
+            name: 'document',
+            items: [
+                'Bold',
+                'Italic',
+                'Underline',
+                'Subscript',
+                'Superscript',
+                'RemoveFormat',
+                'BulletedList',
+                'Blockquote',
+                'Link',
+                'Unlink',
+                'Image',
+                'bundleSelect',
+                'FontSize',
+                'TextColor',
+                'Sourcedialog'
+            ]
+        },
+        '/',
+        { name: 'styles', items: [ 'Format', 'Styles' ] },
+    ];
+    var custom_config = {};
+    custom_config.toolbar = myToolBar;
+    {% set css = "'" ~ Settings.getLayoutIncludeCss(true)|join("','") ~ "'" %}
+    custom_config.contentsCss = ['/bundles/cms/ckeditor/plugins/fontawesome/font-awesome/css/font-awesome.min.css', {{css|raw}}, '/framework/css/style.css', '/css/custom.css', '/bundles/cms/css/editor.css', '/bundles/trinityslider/css/editor.css'];
+    custom_config.resize_dir = 'vertical';
+    custom_config.allowedContent = true;
+    custom_config.protectedSource = {};
+    custom_config.floatSpaceDockedOffsetY = 30;
+    custom_config.protectedSource = [/<protected>[\s\S]*<\/protected>/g];
+
+    $.each(parent.find('.i-ckeditor'), function(ind, el){
+        var tmp_editor = CKEDITOR.inline(el, custom_config);
+
+        tmp_editor.on('change', function(evt) {
+            $('#' + $(evt.editor.element.$).data('id')).val(evt.editor.getData());
+        });
+
+        tmp_editor.on('change', function(evt) {
+            $('#' + $(evt.editor.element.$).data('id')).val(evt.editor.getData());
+        });
+
+
+        // Bundle selection popup
+        tmp_editor.addCommand("bundleSelect", { // create named command
+            exec: function(edt) {
+                cpop.reset().loadAjax('{{path('admin_page_link')}}');
+            }
+        });
+        tmp_editor.ui.addButton('bundleSelect', { // add new button and bind our command
+            label: "{{ 'Bundle selection' | trans }}",
+            command: 'bundleSelect',
+            toolbar: 'document',
+            icon: '{{asset('bundles/cms/ck_ext.png')}}'
+        });
+    });
+}
+
+initCkeditor($('.s-slider'));
+        </script>
+        {% endif %}
+    {% endif %}
+</div>
+ {% endblock %}

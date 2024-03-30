@@ -1,0 +1,15 @@
+{% extends 'form_div_layout.html.twig' %}
+
+{% block form_row %}
+	{% apply spaceless %}
+		<div class="row">
+			<div class="input-field col s12 {% if errors|length > 0 %}error{% endif %}">
+				{{ form_widget(form, { 'attr' : attr|default({}) }) }}
+				{# <input id="email" type="email" class="validate"> #}
+				{# <label for="email">Email</label> #}
+				{{ form_label(form, label) }}
+				{{ form_errors(form) }}
+			</div>
+		</div>
+	{% endapply %}
+{% endblock form_row %}

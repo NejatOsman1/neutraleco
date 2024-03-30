@@ -1,0 +1,12 @@
+fos_oauth_server:
+    db_driver:           orm                            # Drivers available: orm, mongodb, or propel
+    client_class:        App\Trinity\ApiBundle\Entity\Client
+    access_token_class:  App\Trinity\ApiBundle\Entity\AccessToken
+    refresh_token_class: App\Trinity\ApiBundle\Entity\RefreshToken
+    auth_code_class:     App\Trinity\ApiBundle\Entity\AuthCode
+    service:
+        user_provider:   app_user_provider
+        options:
+            access_token_lifetime: 1209600              # 14 days
+            refresh_token_lifetime: 1209600             # 14 days
+            auth_code_lifetime: 30                      # 30 seconds

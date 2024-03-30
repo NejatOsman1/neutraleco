@@ -1,0 +1,3 @@
+<?php //App%255CCmsBundle%255CController%255CStorageController
+
+return [PHP_INT_MAX, []];

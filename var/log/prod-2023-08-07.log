@@ -1,0 +1,2 @@
+[2023-08-07T13:26:49.095951+02:00] php.CRITICAL: Uncaught Error: Call to a member function diff() on null {"exception":"[object] (Error(code: 0): Call to a member function diff() on null at /var/www/vhosts/neutral.eco/httpdocs/src/CmsBundle/EventListener/SecurityListener.php:347)"} []
+[2023-08-07T14:56:41.799922+02:00] php.CRITICAL: Uncaught Error: Call to a member function diff() on null {"exception":"[object] (Error(code: 0): Call to a member function diff() on null at /var/www/vhosts/neutral.eco/httpdocs/src/CmsBundle/EventListener/SecurityListener.php:347)"} []

@@ -1,0 +1,107 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+{% block pagetitle %}{{'Cron edit'|trans}}{% endblock %}
+{% block body %}
+	{{ form_start(form) }}
+	<div class="row">
+		<div class="col s12 m8">
+			<div class="card">
+				<div class="card-content">
+					<h6 class="card-title">{{'Cronjob wijzigen'|trans}}</h6>
+					{{ form_row(form.name) }}
+					<div class="mb-3">
+						<label class="form-label">{{ 'Preset' | trans }}</label>
+						<select name="preset" onchange="if(this.value == 'custom'){$('#custom').show();}else{$('#custom').hide();}" class="form-select">
+							<option value="" disabled selected>{{ 'Kies een optie' | trans }}</option>
+							<option {{CronTask.getExpression == '*/5 * * * *' ? 'selected="selected"' : ''}} value="*/5 * * * *">{{ 'Om de 5 minuten' | trans }}</option>
+							<option {{CronTask.getExpression == '0 * * * *' ? 'selected="selected"' : ''}} value="0 * * * *">{{ 'Elk uur' | trans }}</option>
+							<option {{CronTask.getExpression == '0 2 * * *' ? 'selected="selected"' : ''}} value="0 2 * * *">{{ 'Elke nacht om 02:00' | trans }}</option>
+							<option {{CronTask.getExpression == '0 2 * * 0' ? 'selected="selected"' : ''}} value="0 2 * * 0">{{ 'Elke zondag nacht om 02:00' | trans }}</option>
+							<option {{CronTask.getExpression == '*/5 * 25,26 12 *' ? 'selected="selected"' : ''}} value="*/5 * 25,26 12 *">{{ 'Om de 5 minuten tijdens kerst' | trans }}</option>
+							<option value="custom">{{ 'Aangepast' | trans }}</option>
+						</select>
+					</div>
+					<div class="row" id="custom" style="display:none;">
+						<div class="col-sm-3">{{ form_row(form.minutes) }}</div>
+						<div class="col-sm-3">{{ form_row(form.hours) }}</div>
+						<div class="col-sm-3">{{ form_row(form.days) }}</div>
+						<div class="col-sm-3">{{ form_row(form.months) }}</div>
+						{# <div class="col s12">{{ form_row(form.weeks) }}</div> #}
+					</div>
+					<div class="mb-3">
+						<label for="command" class="form-label">{{ 'Commando' | trans }}</label>
+						<textarea placeholder="{{ 'Bijv. trinity:optimize' | trans }}" id="command" class="form-control" name="command">{{id ? CronTask.commands|join("\n") : ''}}</textarea>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col s12 m4">
+			<div class="card">
+				<div class="card-content">
+					<h6 class="card-title">{{ 'Preset' | trans }}</h6>
+					<select onchange="loadPreset(this.value);" class="form-select">
+						<option value="" disabled selected>{{ 'Kies een optie' | trans }}</option>
+						<option value="trinity-backup">{{ 'Trinity: Backup (volledige database)' | trans }}</option>
+						<option value="trinity-cache">{{ 'Trinity: Taal cache (elke nacht)' | trans }}</option>
+						<option value="webp">{{ 'Media: WebP + blur genereren (elke nacht)' | trans }}</option>
+						<option value="webshop-index">{{ 'Webshop: Indexeren (elk uur)' | trans }}</option>
+						<option value="webshop-notify">{{ 'Webshop: Voorraad meldingen (elk uur)' | trans }}</option>
+						<option value="search-index">{{ 'Zoeken: Resultaten (elk uur)' | trans }}</option>
+					</select>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-content">
+					<h6 class="card-title">{{'Opties'|trans}}</h6>
+					{{form_row(form.statusTask)}}
+					{{form_row(form.single_run)}}
+					{{form_row(form.delete_after_run)}}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="btn-bar">
+	<div class="right">
+		<a href="{{path('admin_cron')}}" class="btn-flat waves-effect waves-light"><i class="material-icons left">clear</i>{{'Annuleren'|trans}}</a>
+		<button type="submit" class="btn waves-effect waves-light"><i class="material-icons left">save</i>{{'Opslaan'|trans}}</button>
+	</div>
+</div>
+{{ form_end(form) }}
+<script>
+{% if id %}
+	if($('select[name="preset"]').val() == '' || $('select[name="preset"]').val() == 'custom' || $('select[name="preset"]').val() == null){
+		$('select[name="preset"]').val('custom');
+		$('#custom').show();
+	}
+{% endif %}
+
+function loadPreset(key){
+	if(key == 'trinity-cache'){
+		$('#form_name').val('Trinity: Taal cache');
+		$('#command').val('trinity:language:cache');
+	}
+	if(key == 'webshop-index'){
+		$('#form_name').val('Webshop: Indexeren');
+		$('#command').val('trinity:webshop:index');
+	}
+	if(key == 'webshop-notify'){
+		$('#form_name').val('Webshop: Voorraad meldingen');
+		$('#command').val('trinity:webshop:notify');
+	}
+	if(key == 'search-index'){
+		$('#form_name').val('Zoeken: Resultaten indexeren');
+		$('#command').val('trinity:search:index');
+	}
+	if(key == 'trinity-backup'){
+		$('#form_name').val('Trinity: Backup (volledige database)');
+		$('#command').val('trinity:db:backup');
+	}
+	if(key == 'webp'){
+		$('#form_name').val('Media: WebP + blur genereren');
+		$('#command').val('trinity:media:webp');
+	}
+}
+</script>
+{% endblock %}

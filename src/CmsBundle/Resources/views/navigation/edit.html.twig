@@ -1,0 +1,407 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% macro parse_navigation(items, depth, doctrine, slugCheck, itemNotExists, cms_pages, cms_pages_reference, webshop_categories) %}
+    {% for item in items %}
+		{% if item %}
+			{% set slug = item.slug %}
+			{% set slugKey = item.slug %}
+			{% set itemObj = item.getObject(doctrine) %}
+			{% set itemDoesNotExist = (item.id in itemNotExists) %}
+			{% if itemObj or item.type == 'anchor' or item.type == 'custom_page'  %}
+				{% if item.type != 'anchor' and item.type != 'custom_page' %}
+					{% set slug = item.getObject(doctrine).slug %}
+					{% set slugKey = item.getObject(doctrine).slugKey %}
+				{% endif %}
+
+				{% set num_prefix = '10000' %}
+				{% if item.type == 'category' %}
+					{% set num_prefix = '20000' %}
+				{% elseif item.type == 'archive' %}
+					{% set num_prefix = '30000' %}
+				{% elseif item.type == 'custom_page' %}
+					{% set num_prefix = '40000' %}
+				{% endif %}
+				
+				{% set placeholder = item.type ~ "_" ~ item.targetid %}
+				{% if item.targetid is not null %}
+					{%  if item.type == "page" %}
+						{% for page in cms_pages_reference %}
+							{% if page.id == item.targetid %}
+								{% set placeholder = page.label %}
+							{% endif %}
+						{% endfor %}
+					{% elseif item.type == "category" %}
+						{% for category in webshop_categories %}
+							{% if category.id == item.targetid %}
+								{% set placeholder = category.label %}
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				{% endif %}				
+
+				<li class="page-entry" id="{{item.type}}_{{num_prefix}}{{(item.type == 'anchor' ? (item.id) : item.targetId)}}">
+					<div class="page-entry-content" data-slug="{{slugKey}}" data-newtab="{{(item.newtab == 0 ? '0' : 1)}}" data-type="{{item.type}}" data-simpleslug="{{slug}}" data-label="{{item.label}}" data-id="{{num_prefix}}{{item.targetId}}">
+						<span class="left nav-disclose"></span>
+						<span class="label">
+              <span class="label-content">
+  							<input placeholder="{{placeholder}}" type="text" name="labels[{{item.id}}]" value="{{item.label}}" />
+  							{% if itemDoesNotExist or (itemObj == null and item.type != 'anchor' and item.type != 'custom_page') %}<span style="background-color: red; color:black; padding: 5px;">{{ 'De gelinkte pagina bestaat niet meer!' | trans }}</span>{% endif %}
+
+                <span class="path">
+                    {%  if item.type == "page" %}
+                        {% set pagetype = ('Pagina' | trans({}, 'cms', app.request.locale))  %}
+                    {% elseif item.type == "category" %}
+                        {% set pagetype = ('Category' | trans({}, 'cms', app.request.locale)) %}
+                    {% elseif item.type == "custom_page" %}
+                        {% set pagetype = ('Custom page' | trans({}, 'cms', app.request.locale)) %}
+                    {% else %}
+                        {% set pagetype = ('Onbekend' | trans({}, 'cms', app.request.locale)) %}
+                    {% endif %}
+                    {% if item.type == 'custom_page' %}
+						{{ item.slug }}
+                    {% endif %}
+                    {% if item.type == 'page' %}
+                        {% for page in cms_pages %}
+                            {% if item.targetid is not null and page.id == item.targetid %}
+                                {{ page.getFullUrl ~ ' (' ~ pagetype ~')' }}
+                            {% endif %}
+                        {% endfor %}
+                    {% elseif item.type == 'category' %}
+                                {% for category in webshop_categories %}
+                            {% if item.targetid is not null and category.id == item.targetid and category.getFullUrl is defined %}
+                                {{ category.getFullUrl ~ ' (' ~ pagetype ~')' }}
+                            {% elseif item.targetid is not null and category.id == item.targetid %}
+                                {{ category.label ~ ' (' ~ pagetype ~')' }}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </span>
+              </span>
+						</span>
+
+						<span class="actions">
+							{% if placeholder is not empty and placeholder != item.label and item.type != 'custom_page' %}
+								<a title="{{placeholder}}" onclick="cpop.loadHtml('{{placeholder}}');" class="orange-text"><i class="fa fa-exclamation-circle"></i></a>
+							{% endif %}
+							<span>
+								<input {{item.locked ? '' : 'checked="checked"'}} type="checkbox" name="clickable[{{item.id}}]" value="1" id="clickable_{{num_prefix}}{{item.id}}" />
+                <label for="clickable_{{num_prefix}}{{item.id}}">&nbsp;{{ 'Klikbaar' | trans }}</label>
+							</span>
+							 <a href="#" onclick="deleteItem(this); return false;" class="do-delete red-text" alt="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>
+						</span>
+					</div>
+
+					{% if item.children.count %}
+						<ol>
+							{{ _self.parse_navigation(item.children, depth + 1, doctrine, slugCheck, itemNotExists, cms_pages, cms_pages_reference, webshop_categories) }}
+						</ol>
+					{% endif %}
+				</li>
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+{% endmacro %}
+
+{% block body %}
+	{{ form_start(Form) }}
+	{{ form_errors(Form) }}
+
+  <div class="row">
+    <div class="col-12 col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">
+            <h6>{{ 'Navigatie opties' | trans }}</h6>
+          </div>
+
+          {{form_row(Form.short)}}
+          {{form_row(Form.label)}}
+
+          <span>{{form_row(Form.sub_pages)}}</span>
+          <span style="{{installed is defined and 'WebshopBundle' in installed ? '' : 'display: none;'}}">{{form_row(Form.sub_webshop_cats)}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-8">
+    	<div class="card">
+    		<div class="card-body">
+          <div class="card-title">
+            <h6>{{ 'Pagina\'s' | trans }}</h6>
+
+            <div class="card-actions">
+              <button class="btn modal-trigger" data-bs-toggle="modal" data-bs-target="#modal1" type="button"><i class="fa fa-plus"></i> {{'Optie toevoegen'|trans({})|raw}}</button>
+            </div>
+          </div>
+
+    			<ol class="nav-sortable" id="menu-editor">
+    				{{ _self.parse_navigation(rootItems, 0, doctrine, slugCheck, itemNotExists, cms_pages, cms_pages_reference, webshop_categories) }}
+    			</ol>
+    		</div>
+    	</div>
+    </div>
+  </div>
+
+	<input type="hidden" id="pagesort" name="pagesort" value="" />
+
+	<div class="btn-bar">
+		<div class="right">
+			<button type="submit" class="btn right waves-effect waves-light"><i class="fa fa-save"></i> {{'Opslaan'|trans}}</button>
+		</div>
+	</div>
+
+  <!-- Modal Structure -->
+  <div id="modal1" class="modal fade" tabindex="-1" aria-labelledby="" aria-hidden="true">
+    <div class="modal-dialog modal-wide modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ 'Koppelen' | trans({}) | raw }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-12 col-md-3">
+              <h6>{{ 'Categorieën' | trans }}</h6>
+              <ul class="nav-editor-menu">
+                <li data-trigger="cms" class="active">{{trinity}}</li>
+                {% if webshop_categories is not empty %}
+                  <li data-trigger="webshop">{{ 'Webshop' | trans }}</li>
+                {% endif %}
+                {% if anchors is not empty %}
+                  <li data-trigger="anchor">{{ 'Link doelen' | trans }}</li>
+                {% endif %}
+                  <li data-trigger="custom_links">{{ 'Custom link' | trans }}</li>
+              </ul>
+            </div>
+            <div class="col-12 col-md-9">
+              <h6>{{ 'Pagina\'s' | trans }}</h6>
+              <div id="options-cms" class="options-all">
+                <ul class="nav-editor-options">
+                  {% for page in cms_pages %}
+                    <li data-id="10000{{page.id}}" data-slug="{{page.slug}}" data-label="{{page.label}}" title="{{page.getFullUrl()}}">
+                      <div class="label">{{page.label}}</div>
+                    </li>
+                    {% for sub_page in page.pages %}
+                      <li data-id="10000{{sub_page.id}}" style="margin-left: 30px;" data-slug="{{sub_page.slug}}" data-label="{{sub_page.label}}" title="{{sub_page.getFullUrl()}}">
+                        <div class="label">{{sub_page.label}}</div>
+                      </li>
+                      {% for sub_sub_page in sub_page.pages %}
+                        <li data-id="10000{{sub_sub_page.id}}" style="margin-left: 60px;" data-slug="{{sub_sub_page.slug}}" data-label="{{sub_sub_page.label}}" title="{{sub_sub_page.getFullUrl()}}">
+                          <div class="label">{{sub_sub_page.label}}</div>
+                        </li>
+                        {% for sub_sub_sub_page in sub_sub_page.pages %}
+                          <li data-id="10000{{sub_sub_sub_page.id}}" style="margin-left: 90px;" data-slug="{{sub_sub_sub_page.slug}}" data-label="{{sub_sub_sub_page.label}}" title="{{sub_sub_sub_page.getFullUrl()}}">
+                            <div class="label">{{sub_sub_sub_page.label}}</div>
+                          </li>
+                        {% endfor %}
+                      {% endfor %}
+                    {% endfor %}
+                  {% endfor %}
+                </ul>
+              </div>
+              {% if webshop_categories is not empty %}
+                <div id="options-webshop" class="options-all" style="display:none;">
+                  <ul class="nav-editor-options">
+                    {% for cat in webshop_categories %}
+                      <li data-id="20000{{cat.id}}" data-slug="{{cat.slug}}" data-label="{{cat.label}}">{{cat.label}}</li>
+                      {% for cat in cat.children %}
+                        <li data-id="20000{{cat.id}}" style="margin-left: 30px;" data-slug="{{cat.slug}}" data-label="{{cat.label}}">{{cat.label}}</li>
+                        {% for cat in cat.children %}
+                          <li data-id="20000{{cat.id}}" style="margin-left: 60px;" data-slug="{{cat.slug}}" data-label="{{cat.label}}">{{cat.label}}</li>
+                        {% endfor %}
+                      {% endfor %}
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+              {% if anchors is not empty %}
+                <div id="options-anchor" class="options-all" style="display:none;">
+                  <ul class="nav-editor-options">
+                    {% for anchor in anchors %}
+                      <li data-id="30000{{anchor}}" data-slug="{{anchor}}">{{anchor}}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+              <div id="options-custom_links" class="options-all" style="display:none;">
+				<div class="row">
+					<div class="input-group mb-3">
+						<input id="40000_title" data-id="40000_title" class="form-control" type="text" value="" name="title" placeholder="{{'Titel'|trans}}" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="input-group mb-3">
+						<input id="40000_link" data-id="40000_link" class="form-control" type="text" value="" name="link" placeholder="{{'Link'|trans}}" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="input-group mb-3">
+						<input type="checkbox" data-id="40000_anchor" id="40000_anchor" name="link" />
+						<label style="padding-left:5px;" for="40000_anchor">{{'Openen in een nieuwe tab'|trans}}</label><br>
+					</div>
+				</div>
+				<a class="btn btn-primary add-custom-link">{{'Toevoegen'|trans}}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-bs-dismiss="modal">{{ 'Venster sluiten' | trans }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var myModal = document.getElementById('myModal')
+    var myInput = document.getElementById('myInput')
+
+    myModal.addEventListener('shown.bs.modal', function () {
+		myInput.focus()
+    })
+  </script>
+
+<script>
+$(document).ready(function(){
+
+	  var activeType = 'cms';
+	  
+	  $('.modal-body .add-custom-link').click(function(){
+			if($("#40000_link").val() == ""){
+				alert("Kan custom link niet toevoegen. Link mag niet leeg zijn.");
+				return;
+			}
+			if($("#40000_title").val() == ""){
+				alert("Kan custom link niet toevoegen. Titel mag niet leeg zijn.");
+				return;
+			}
+			var type = 'custom_page';
+			activeType = 'custom_link'
+			var type_pleural = 'page';
+			var linkSlug = "40000_link";
+			var titleSlug = "40000_title";
+			var newTabSlug = "40000_anchor";
+			var title = $("#40000_title").val();
+			var link = $("#40000_link").val();
+			var newTab = ($("#40000_anchor").prop("checked") == true ? 1 : 0);
+			var id = link;
+			
+			var li = $('<li class="page-entry" id="' + activeType + '_' +id + '">\
+				<div class="page-entry-content" data-slug="' + link + '" data-link="'+link+'" data-newtab="'+newTab+'" data-type="' + type + '" data-simpleslug="' + linkSlug + '" data-label="' + title + '" data-id="' + id + '">\
+					<span class="left nav-disclose"></span>\
+					<span class="label">\
+						<span class="label-content">\
+							<input type="text" name="new_labels[' + link + ']" value="' + title + '" />\
+							<span class="path">'+link+'</span>\
+						</span>\
+					</span>\
+					<span class="actions">\
+						<span><input checked type="checkbox" name="clickable[' + id + ']" value="1" id="clickable_' + id + '" /><label for="clickable_' + id + '">&nbsp;{{ 'Klikbaar' | trans({}) | raw }}</label></span>\
+						<a href="#" onclick="deleteItem(this); return false;" class="do-delete red-text" alt="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>\
+					</span>\
+				</div>\
+			</li>');
+		  $('#menu-editor').append(li);
+		  $('.modal-footer .btn').click();
+		  initSorting();
+	  });
+
+	  $('.nav-editor-menu li').click(function(){
+		  $('.nav-editor-options > div, .nav-editor-menu li').removeClass('active');
+		  $(this).addClass('active');
+		  activeType = $(this).data('trigger');
+		  $('.options-all').hide();
+		  $('#options-' + $(this).data('trigger')).show();
+	  });
+
+	  $('.nav-editor-options li').click(function(){
+		  var label = $(this).data('label');
+		  var id = $(this).data('id');
+		  var slug = $(this).data('slug');
+
+		  	var num_prefix = '10000';
+			var type = 'page';
+			var type_pleural = 'page';
+			if(activeType == 'webshop'){
+				num_prefix = '20000';
+				type = 'category';
+				type_pleural = 'category';
+			}
+			if(activeType == 'anchor'){
+				num_prefix = '30000';
+				type = 'anchor';
+				type_pleural = 'anchor';
+			}
+
+			if(typeof label == 'undefined'){
+				label = slug;
+			}
+
+
+
+		  var li = $('<li class="page-entry" id="' + activeType + '_' +id + '">\
+				<div class="page-entry-content" data-slug="' + slug + '" data-type="' + type + '" data-simpleslug="' + slug + '" data-label="' + label + '" data-id="' + id + '">\
+					<span class="left nav-disclose"></span>\
+					<span class="label"><input type="text" name="new_labels[' + slug + ']" value="' + label + '" /></span>\
+					<span class="actions">\
+						<span><input checked type="checkbox" name="clickable[' + id + ']" value="1" id="clickable_' + id + '" /><label for="clickable_' + id + '">&nbsp;{{ 'Klikbaar' | trans({}) | raw }}</label></span>\
+						<a href="#" onclick="deleteItem(this); return false;" class="do-delete red-text" alt="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>\
+					</span>\
+				</div>\
+			</li>');
+		  $('#menu-editor').append(li);
+		  {# $('#modal1').modal('close'); #}
+
+		  $(this).hide();
+
+		  initSorting();
+	  });
+
+	  initSorting();
+});
+
+var ns;
+
+function deleteItem(el){
+	$(el).closest('li').remove();
+	$('#pagesort').val(JSON.stringify(ns.nestedSortable('toArray')));
+}
+
+function initSorting(){
+	if($('ol.nav-sortable').length){
+		ns = $('ol.nav-sortable').nestedSortable({
+			forcePlaceholderSize: true,
+			handle: 'div',
+			helper:	'clone',
+			items: 'li',
+			opacity: .6,
+			placeholder: 'placeholder',
+			revert: 250,
+			tabSize: 25,
+			tolerance: 'pointer',
+			toleranceElement: '> div',
+			maxLevels: 4,
+			isTree: true,
+			expandOnHover: 700,
+			startCollapsed: true,
+			relocate: function(){
+				$('#pagesort').val(JSON.stringify(ns.nestedSortable('toArray')));
+			}
+		});
+
+		$('#pagesort').val(JSON.stringify(ns.nestedSortable('toArray')));
+	}
+
+	$('.nav-disclose').css('cursor','pointer').off('click').on('click', function() {
+		var thisLi = $(this).closest('li');
+		thisLi.toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
+		var opened = [];
+		$.each($('.mjs-nestedSortable-expanded'), function(ind, el){
+			opened.push(el.id);
+		});
+	});
+}
+</script>
+
+	{{ form_end(Form) }}
+{% endblock %}

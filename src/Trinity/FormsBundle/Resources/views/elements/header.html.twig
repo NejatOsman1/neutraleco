@@ -1,0 +1,6 @@
+{% trans_default_domain 'forms' %}
+<div class="{% if loop is defined and loop.index0 % 2 %}two-last {% endif %}form-block type-{{Question.getType}}">
+	{% if Question.getType in ['checkbox', 'radio', 'select', 'upload', 'date', 'text', 'email', 'textarea'] %}
+		<div class="label" {% if edit is defined %}contenteditable="true"{% endif %} data-type="title" style="outline:none;">{{Question.getTitle|raw}}</div>
+	{% endif %}
+	<div class="field">

@@ -1,0 +1,138 @@
+{#
+    {
+        "key": "framework_content_youtube",
+        "category": "Framework",
+        "label": "Content + YouTube",
+        "description": "Content met YouTube embed",
+        "allowMove": true,
+        "blocks": [
+            {
+                "key": "block-0",
+                "size": 6,
+                "buttons": true,
+                "required": "none",
+                "fields": [
+                    {
+                        "key": "title",
+                        "type": "text",
+                        "label": "Titel"
+                    },
+                    {
+                        "key": "text",
+                        "type": "textarea",
+                        "label": "Tekst"
+                    }
+                ]
+            },
+            {
+                "key": "block-1",
+                "size": 6,
+                "required": "none",
+                "fields": [
+                    {
+                        "key": "yt_url",
+                        "type": "text",
+                        "label": "YouTube ID"
+                    }
+                ]
+            }
+        ]
+    }
+#}
+
+{#
+    Available objects:
+
+    - page: current page
+    - locale: current locale
+    - wrapper: contains the wrapper around multiple blocks.
+    - firstBlock: contains the first block in the wrapper, useful when only one block is expected.
+    - data: contains the data as mentioned above this file
+#}
+
+<section
+class="text-blocks {{wrapper.classList}}"
+id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+style="{{wrapper.styleList}}"
+data-id="{{wrapper.id}}">
+
+  <div class="container">
+    {% if wrapper.label or wrapper.intro is not empty %}
+      <div class="introblock">
+        {% if wrapper.label is not empty %}
+          <div class="introtitle">
+            {{wrapper.label|raw}}
+          </div>
+        {% endif %}
+        {% if wrapper.intro is not empty %}
+          <div class="introtext">
+            {{wrapper.intro|raw}}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if wrapper.label or wrapper.intro is not empty %}
+      <div class="introblock">
+        {% if wrapper.label is not empty %}
+          <div class="introtitle">
+            {{wrapper.label|raw}}
+          </div>
+        {% endif %}
+        {% if wrapper.intro is not empty %}
+          <div class="introtext">
+            {{wrapper.intro|raw}}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="row">
+      {# WALK THROUGH EVERY BLOCK #}
+      {% for b in wrapper.blocks %}
+        {# FIND TYPE BY REQUIRED INPUT FOR BLOCK #}
+        {% if data.blocks_q[b.templateKey].key == 'block-1' %}
+          {# FOUND MEDIA BLOCK #}
+          <div class="col-12 col-lg-{{b.width}} {{b.class}}" {{b.cssid}}>
+            <div class="card sidebar" style="position: relative;width: 100%;height: 0;padding-bottom: 56.25%;">
+              <iframe data-src="https://www.youtube-nocookie.com/embed/{{b.config.yt_url}}?rel=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;"></iframe>
+            </div>
+          </div>
+        {% else %}
+          {# NO MEDIA BLOCK, MUST BE TEXT BLOCK #}
+          <div class="col-12 col-lg-{{b.width}} {{b.class}}" {{b.cssid}}>
+            <div class="vtable">
+              <div class="vcell">
+                <div class="padder">
+                  {% if b.config.title is not empty %}
+                    <h3 class="title">{{b.config.title}}</h3>
+                  {% endif %}
+                  <div class="text">
+                    {{b.config.text|raw}}
+                  </div>
+
+                  {% if b.config.buttons is defined %}
+                    {% for button in b.config.buttons %}
+                      <a href="{{button.url}}" {% if button.target is defined and button.target != 'null' and button.target is not empty %} target="{{button.target}}" {% endif %} class="btn {{button.class}}">
+                        {{button.label}}
+                        <i class="fa fa-arrow-right"></i>
+                      </a>
+                    {% endfor %}
+                  {% endif %}
+
+                  {# {% if b.config.btn_title is not empty %}
+                    <a href="/{{b.config.btn_url}}" class="btn btn-primary btn-lg">
+                      {{b.config.btn_title}}
+                      <i class="fa fa-arrow-right"></i>
+                    </a>
+                  {% endif %} #}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+    </div>
+  </div>
+</section>

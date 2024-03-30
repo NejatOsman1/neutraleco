@@ -1,0 +1,775 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Nieuws'|trans}}{% endblock %}
+
+{% block body %}
+
+<ul class="nav nav-tabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="blog-tab" data-bs-toggle="tab" data-bs-target="#blog-content" type="button" role="tab" aria-controls="blog-content" aria-selected="true">
+      {{ 'Bericht' | trans }}
+    </button>
+  </li>
+  {% if 'WebshopBundle' in installed %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="products-tab" data-bs-toggle="tab" data-bs-target="#products-content" type="button" role="tab" aria-controls="products-content" aria-selected="false">
+        {{ 'Gerelateerde producten' | trans }}
+      </button>
+    </li>
+  {% endif %}
+
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="seo-tab" data-bs-toggle="tab" data-bs-target="#seo-content" type="button" role="tab" aria-controls="seo-content" aria-selected="false">
+      {{ 'SEO' | trans }}
+    </button>
+  </li>
+
+  {% if Settings.openaikey is not empty and is_granted('ROLE_SUPER_ADMIN') %}
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="gpt-tab" data-bs-toggle="tab" data-bs-target="#gpt-content" type="button" role="tab" aria-controls="gpt-content" aria-selected="false">
+      {{ 'EasifyGPT' | trans }}
+    </button>
+  </li>
+  {% endif %}
+
+  {% if new %}
+  {% else %}
+  <li class="btns">
+    <a id="view-live" class="tab right" title="{{ 'Pagina tonen in nieuw tabblad' | trans }}" href="{{detailUrl}}" target="_blank"><i class="fa fa-external-link-alt"></i></a>
+  </li>
+  {% endif %}
+</ul>
+
+{{ form_start(form, {'multipart': true, 'attr': {'id': 'page-blog-edit-form' }}) }}
+
+
+<div class="btn-bar">
+    <div class="left">
+    </div>
+    <div class="right">
+      <a href="#" class="btn btn-flat" onClick="history.back()"><i class="fa fa-arrow-left"></i> {{ 'Terug' | trans }}</a>
+      {# <a href="{{path('admin_mod_blog_entry', {'id': Entry.blog.id})}}" class="btn-flat"><i class="fa fa-times"></i>{{ 'Annuleren' | trans }}</a> #}
+      <button type="submit" class="btn"><i class="fa fa-save"></i>{{ 'Opslaan' | trans }}</button>
+    </div>
+</div>
+
+<div class="tab-content">
+  <div class="tab-pane  show active" id="blog-content" role="tabpanel" aria-labelledby="blog-tab">
+    <div id="blog" class="t-content">
+
+      {{ form_errors(form) }}
+
+      <div class="row">
+
+        <div class="col-12 col-md-8">
+          <div class="card">
+            <div class="card-content">
+              <div class="card-title">
+                <div class="card-titles">
+                  {% if new %}
+                    <h6>{{ 'Bericht toevoegen' | trans }}</h6>
+                  {% else %}
+                    <h6>{{ 'Bericht wijzigen' | trans }}</h6>
+                  {% endif %}
+                </div>
+              </div>
+              {{ form_row(form.label) }}
+              {{ form_row(form.subtitle) }}
+
+              <div id="external_content" {% if Entry.isexternal == false %}class="d-none"{% endif %}>
+                {{ form_row(form.external_url) }}
+              </div>
+
+              <div id="normal_content" {% if Entry.isexternal %}class="d-none"{% endif %}>
+                {{ form_row(form.intro) }}
+
+                {{ form_row(form.body) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="card">
+            <div class="card-content">
+              <div class="card-title">
+                <div class="card-titles">
+                  <h6>{{ 'Publicatie' | trans }}</h6>
+                </div>
+              </div>
+              {{ form_row(form.is_external) }}
+              {{ form_row(form.concept) }}
+              {{ form_row(form.datePublish) }}
+              {{ form_row(form.datePublishEnd) }}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-content cat-block">
+              <div class="card-titles">
+                <h6 class="card-title">{{ 'Categorieën' | trans }}</h6>
+              </div>
+              {{ form_label(form.Category) }}
+              {{ form_row(form.Category, {'label':false}) }}
+            </div>
+          </div>
+
+          {% if new and multisite_all is not empty and (multisite_all|length > 1) and app.User.checkPermissions('ALLOW_SITE_SWITCHING') and (app.user.sites.count == 0 or app.user.sites.count > 1) %}
+            <div class="card">
+              <div class="card-content">
+                <div class="card-titles">
+                  <h6 class="card-title">{{ 'Multi-site' | trans }}</h6>
+                </div>
+                <p>{{ 'Wilt u deze post dupliceren naar andere website(s)?' | trans }}</p>
+                {% for C in multisite_all %}
+                  {% if C in app.user.sites or app.user.sites.count == 0 %}
+                    <div class="form-check">
+                      <input {{C == Settings ? 'disabled' : ''}} type="checkbox" name="clone[]" value="{{C.id}}" id="clone-{{C.id}}"  class="form-check-input" />
+                      <label for="clone-{{C.id}}"><strong style="color:#34adea;" class="form-check-label">{{C.label}}</strong> | {{C.language.label}}</label>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% elseif new and languages is not empty and (languages|length > 1)  %}
+            <div class="card">
+              <div class="card-content">
+                <div class="card-titles">
+                  <h6 class="card-title">{{ 'Andere talen' | trans }}</h6>
+                </div>
+                <p>
+                  {{ 'Wilt u dit bericht dupliceren naar andere talen?' | trans }}
+                </p>
+                {% for C in languages %}
+                  <div class="form-check-wrapper">
+                    <input class="form-check-input" {{C == Settings.language ? 'disabled' : ''}} type="checkbox" name="clonelang[]" value="{{C.id}}" id="clonelang-{{C.id}}" />
+                    <label class="form-check-label" for="clonelang-{{C.id}}">{{C.label}}</label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <input type="hidden" id="new_media" name="new_media" value="" />
+
+          <div class="card">
+              <div class="card-content">
+                  <div class="card-titles">
+                    <h6 class="card-title">{{ 'Media' | trans }}</h6>
+                  </div>
+                  <p>{{ 'De eerste afbeelding wordt gebruikt als thumbnail en/of headerafbeelding' | trans }}</p>
+                  <div class="sortable" id="preview">
+                    {% if Entry.media is not empty %}
+                      {% for Media in Entry.media %}
+                        <div class="image-field">
+                          <img src="/{{Media.getWebpath()}}" alt="">
+                          <div class="btns">
+                            <input type="text" name="media_sort[]" value="{{Media.id}}" style="display:none">
+                            <a href="{{ path('admin_mod_blog_entry_media_delete', {'id': Entry.id, 'mediaid': Media.id}) }}" class="remove confirm btn btn-icon red" data-msg="{{ 'Weet u zeker dat u dit bestand wilt verwijderen?' | trans }}"><i class="far fa-trash-alt"></i></a>
+                          </div>
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+
+                  <div style="display:none;" id="dropzone"><span class="message"></span></div>
+
+                  <a href="#" onclick="$('#dropzone').click();return false;" class="btn-flat hide"><i class="fas fa-file-upload"></i>{{'Bestand uploaden'|trans}}</a>
+
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane " id="seo-content" role="tabpanel" aria-labelledby="seo-tab">
+    <div id="seo" class="t-content">
+        <div class="card">
+            <div class="card-content">
+                <div class="row">
+                    <div class="col s12 m4 l6">
+                        <span class="card-title">
+                          <h6>{{'Metadata / SEO'|trans}}</h6>
+                        </span>
+                        {{ form_row(form.seo_title) }}
+                        {{ form_row(form.slug) }}
+                        <span style="position:absolute;bottom: -10px;left: 0;right: 0;display:block;font-size: 12px;color: red;" id="slug-conflict"></span>
+                        {{ form_row(form.seo_keywords) }}
+                        {{ form_row(form.seo_description) }}
+                    </div>
+                    <div class="col s12 m8 l6">
+                        <span class="card-title">
+                          <h6>{{'SEO voorbeeld'|trans}}</h6>
+                        </span>
+                        <div id="seo-preview">
+                            <span class="seo-preview-title"><span class="title-part">{{Entry.seoTitle}}</span> - {{Settings.label}}</span>
+                            <span class="seo-preview-url">{{host}}<span class="slug-part">/{{Entry.slug}}</span></span>
+                            <span class="seo-preview-body">{{Entry.seoDescription}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      <div class="card">
+        <div class="card-content">
+
+          {% set foundMeta = false %}
+          {% if metatags %}
+            {% set foundMeta = true %}
+            {% for Metatag in metatags %}
+              <div class="mb-1">
+                <label for="form_label" class="form-label required">{{Metatag.metatag.label}}</label>
+                <div class="controls">
+                  {% if Metatag.metatag.key == 'description' %}
+                    {% set seoDescription = Metatag.value %}
+                    <textarea class="form-control fld-seo-{{Metatag.metatag.key}}" placeholder="{{Metatag.metatag.placeholder}}" name="metadata[{{Metatag.metatag.id}}]">{{Metatag.value}}</textarea>
+                  {% elseif ':description' in Metatag.metatag.key %}
+                    {% set meta_value = Metatag.metatag.value %}
+                    {% if Entry.seoDescription and meta_value is empty %}
+                      {% set meta_value = Entry.seoDescription %}
+                    {% endif %}
+                    <textarea class="form-control fld-seo-{{Metatag.metatag.key}}" placeholder="{{Metatag.metatag.placeholder}}" name="metadata[{{Metatag.metatag.id}}]">{{meta_value}}</textarea>
+                  {% elseif Metatag.metatag.valueType == 'image' %}
+
+                    {% set hasMedia = (Metatag.value is not empty) %}
+                    <a id="meta-imageselect-{{Metatag.metatag.id}}" href="#" onclick="mediaField = '{{Metatag.metatag.id}}';addMedia(this);" style="{{hasMedia ? 'display:none;' : ''}}" class="btn btn-bordered">{{ 'Selecteer een afbeelding' | trans }}</a>
+                    <div class="settings-image" id="meta-image-{{Metatag.metatag.id}}">
+                      {% if hasMedia %}
+                        <img src="{{Metatag.value}}" />
+                        <div class="btns">
+                          <button style="" type="button" onclick="deleteMetaImage({{Metatag.metatag.id}});" class="btn btn-icon red"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <input id="meta-field-{{Metatag.metatag.id}}" class="form-control fld-seo-{{Metatag.metatag.key}}" type="hidden" placeholder="{{Metatag.metatag.placeholder}}" name="metadata[{{Metatag.metatag.id}}]" value="{{Metatag.value}}" />
+                  {% elseif Metatag.metatag.valueOptions is not empty %}
+                    <select name="form-select metadata[{{Metatag.metatag.id}}]" class="fld-seo-{{Metatag.metatag.key}}">
+                      <option value="">{{ '- n.v.t. -' | trans({}) | raw }}</option>
+                      {% for option in Metatag.metatag.valueOptions %}
+                        <option {{Metatag.value == option ? 'selected' : ''}} value="{{option}}">{{option}}</option>
+                      {% endfor %}
+                    </select>
+                  {% else %}
+                    {% set meta_value = Metatag.value %}
+                    {% if meta_value is empty and ':title' in Metatag.metatag.key %}
+                      {% set meta_value = Entry.seoTitle %}
+                    {% endif %}
+                    <input class="form-control frfld-seo-{{Metatag.metatag.key}}" type="text" placeholder="{{Metatag.metatag.placeholder}}" name="metadata[{{Metatag.metatag.id}}]" value="{{meta_value}}" />
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          {% if foundMeta == false %}
+            <div class="center-align">
+              {{ 'Er zijn nog geen metadata geconfigureerd.' | trans }}
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if Settings.openaikey is not empty and is_granted('ROLE_SUPER_ADMIN') %}
+  <div class="tab-pane " id="gpt-content" role="tabpanel" aria-labelledby="gpt-tab">
+    <div class="gpt">
+      <div class="card">
+        <div class="card-content">
+          <div id="gpt-container" class="col-12">
+              <span class="card-title">
+                <h6>{{'EasifyGPT Blog'|trans}}</h6>
+              </span>
+              <div class="mb-3">
+                <label for="gpt-type" class="form-label">{{'Content maken voor'|trans}}</label>
+                <select id="gpt-type" class="form-select">
+                  <option value="body">{{'Body tekst'|trans}}</option>
+                  <option value="intro">{{'Intro tekst'|trans}}</option>
+                  <option value="title">{{'Titel'|trans}}</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <a class="btn w-100 text-center" style="padding-top: 10px; display: block;" id="gpt-btn"><i class="fas fa-microchip"></i> {{'Genereer content'|trans}}</a>
+              </div>
+          </div>
+          <div id="gpt-loader" class="col-12 row text-center d-none">
+            <div class="col-12 mx-auto">
+               <h3>EasifyGPT is voor je bezig</h3>
+               <p>Dit kan even duren, pak lekker een bakje koffie!</p>
+            </div>
+            <div class="col-12 mx-auto mt-4">
+              <span><i class="fas fa-spinner fa-spin fa-5x"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <div>
+  </div>
+  {% endif %}
+
+  {% if 'WebshopBundle' in installed %}
+    <div class="tab-pane " id="products-content" role="tabpanel" aria-labelledby="products-tab">
+      <div id="producten" class="t-content">
+          <div class="card">
+              <div class="card-content">
+                  <div class="card-title">
+                    <div class="card-titles">
+                      <h6>{{ 'Gerelateerde producten' | trans }}</h6>
+                      <p>{{ 'Producten kunnen aan een nieuwsbericht gekoppeld worden zodat deze bij het bericht getoond worden. U kunt dit leeglaten om geen producten te tonen.' | trans }}</p>
+                    </div>
+                  </div>
+
+                  <input type="hidden" id="sort-linked-table-products" name="sort[linked-table-products]" value="" />
+                  <table class="linked-table sorted_table table">
+                    <thead>
+                      <tr>
+                        <th>{{ 'Product' | trans({}) | raw }}</th>
+                        <th style="width: 150px;">{{ 'Artikel nr.' | trans({}) | raw }}</th>
+                        <th style="width: 150px;">{{ 'SKU' | trans({}) | raw }}</th>
+                        <th style="width: 140px;" class="right-align">{{ 'Stukprijs' | trans({}) | raw }}</th>
+                        <th style="width: 100px;">&nbsp;</th>
+                      </tr>
+                    </thead>
+                    <tbody id="linked-table-products">
+                      {% if products is not empty %}
+                        {% for Link in products %}
+                          <tr id="conf_link_prod_{{Link.id}}" data-id="{{Link.id}}">
+                            <td >
+                              <div class="form-check">
+                                <input type="checkbox" name="conf_link[]" value="{{Link.id}}" checked="checked" class="form-check-input" />
+                                <div class="form-check-label">{{(Link.brand is not empty ? Link.brand.label : '') ~ Link.label}}</div>
+                              </div>
+                            </td>
+                            <td>{{Link.number}}</td>
+                            <td>{{Link.sku}}</td>
+                            <td class="right-align">{{WebshopSettings.currency.format(Link.priceIncl)|raw}}</td>
+                            <td class="right-align actions">
+                              <a target="_blank" href="{{ path('admin_mod_webshop_products_edit', {id: Link.id}) }}"><i class="fa fa-edit"></i></a>
+                              <a href="#" onclick="$(this).parent().parent().remove();return false;"><i class="far fa-trash-alt"></i></a>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      {% endif %}
+                    </tbody>
+                  </table>
+
+                  <div id="customproducts-count"></div>
+
+                  {# <table id="existing-products-results">
+                      <thead>
+                          <tr>
+                              <th>{{ 'Product' | trans }}</th>
+                              <th style="width: 150px;">{{ 'EAN' | trans }}</th>
+                              <th style="width: 150px;text-align:right;">{{ 'Prijs' | trans }}</th>
+                              <th style="width: 50px;">&nbsp;</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for P in products %}
+                            {% if P.category.count is defined and P.category.first.category is defined and P.category.first.category.label != 'Ongesorteerd' %}
+                              {% set cs_linked = false %}
+                              {% if Entry.products is not empty %}
+                                  {% if P.id in Entry.products %}
+                                      {% set cs_linked = true %}
+                                  {% endif %}
+                              {% endif %}
+                              <tr id="del-related-product_{{P.id}}" data-id="{{P.id}}" style="display:{% if cs_linked == false %}none{% endif %};">
+                                  <td>
+                                      {{P.label}}
+                                      <input type="checkbox" {% if cs_linked %}checked="checked"{% endif %} name="products[{{P.id}}]" value="1" />
+                                  </td>
+                                  <td>{{P.ean}}</td>
+                                  <td style="text-align:right;">{{WebshopSettings.currency.format(P.realPriceIncl)|raw}}</td>
+                                  <td><a href="#" onclick="return deleteProduct(this);"><i class="red-text material-icons">clear</i></a></td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                      </tbody>
+                  </table> #}
+                  <div style="margin-top:20px;">
+                      {# <a class="right waves-effect waves-light btn modal-trigger" href="#modal-products">{{ 'Product toevoegen' | trans }}</a> #}
+                      <button id="add-product-btn" type="button" class="right btn btn-bordered btn-icon" onclick="cpop.reset().loadAjax('{{path('admin_mod_webshop_products_search', {'target': 'linked-table', 'link': 'conf_link'})}}')"><i class="fa fa-plus"></i></button>
+                      <div style="clear:both;"></div>
+                  </div>
+
+              <div id="modal-products" class="modal product-selector modal-fixed-footer">
+                  <div class="modal-content">
+                    {# <table id="modal-products-results">
+                        <thead>
+                            <tr>
+                                <th>{{ 'Product' | trans }}</th>
+                                <th style="width: 150px;text-align: right;">{{ 'Prijs' | trans }}</th>
+                                <th style="width: 150px;">{{ 'EAN' | trans }}</th>
+                                <th style="width: 50px;">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for P in products %}
+                              {% if P.category.count is defined and P.category.first.category is defined and P.category.first.category.label != 'Ongesorteerd' %}
+                                {% set cs_linked = false %}
+                                {% if Entry.products is not empty %}
+                                    {% if P.id in Entry.products %}
+                                        {% set cs_linked = true %}
+                                    {% endif %}
+                                {% endif %}
+                                <tr id="add-product_{{P.id}}" data-id="{{P.id}}" style="display:{% if cs_linked == false %}{% else %}none{% endif %};">
+                                    <td>{{P.label}}</td>
+                                    <td style="text-align: right;">{{WebshopSettings.currency.format(P.realPriceIncl)|raw}}</td>
+                                    <td>{{P.ean}}</td>
+                                    <td><a href="#" onclick="return addProduct(this);"><i class="green-text material-icons">add</i></a></td>
+                                </tr>
+                              {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table> #}
+                  </div>
+                  <div class="modal-footer">
+                      <input type="text" class="left" onkeyup="filter(this.value, '#modal-products-results')" style="width:50%;" placeholder="{{ 'Producten filteren' | trans }}" />
+                      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat ">{{ 'Sluiten' | trans }}</a>
+                  </div>
+              </div>
+
+              {#
+                  <div class="btn-bar">
+                      <div class="left">
+                      </div>
+                      <div class="right">
+                        <a href="#" class="btn btn-flat" onClick="history.back()"><i class="fa fa-arrow-left"></i> {{ 'Terug' | trans }}</a>
+                          <a href="{{path('admin_mod_blog_entry', {'id': Entry.blog.id})}}" class="btn-flat"><i class="fa fa-times"></i>{{ 'Annuleren' | trans }}</a>
+                          <button type="submit" class="btn"><i class="fa fa-save"></i>{{ 'Opslaan' | trans }}</button>
+                      </div>
+                  </div>
+                  #}
+              </div>
+          </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{{ form_end(form) }}
+
+<form method="post" enctype="multipart/form-data">
+	<input type="hidden" id="mediadirid" name="mediadirid" value="{{Mediadir.id}}" />
+	<input type="hidden" name="manual_upload" value="1" />
+	<input type="file" name="media[]" id="upload_button" />
+	<button type="submit">{{'Uploaden'|trans}}</button>
+</form>
+
+    </div>
+
+	<script src="{{asset('bundles/cms/ckeditor/ckeditor.js')}}"></script>
+	<script>
+
+
+  $(function(){
+    //Onclick on the gpt-btn
+    $('#gpt-btn').click(function(e){
+      e.preventDefault();
+
+      $('#gpt-container').addClass('d-none');
+      $('#gpt-loader').removeClass('d-none');
+      //Do the ajax call
+      $.ajax({
+        url: "/admin/blog/ajax/openai/{{Entry.id}}/" + $('#gpt-type').val(),
+        type: 'GET',
+        success: function(data) {
+          if($('#gpt-type').val() == 'body'){
+            CKEDITOR.instances['form_body'].setData(data.text);
+          } else if($('#gpt-type').val() == 'title') {
+            $('#form_label').val(data.text);
+          } else if($('#gpt-type').val() == 'intro') {
+            CKEDITOR.instances['form_intro'].setData(data.text);
+          }
+
+          $('#gpt-container').removeClass('d-none');
+          $('#gpt-loader').addClass('d-none');
+        }
+      });
+    });
+  });
+
+
+
+	var editor = [];
+        $(function(){
+
+
+
+
+      $.each($('.ckeditor'), function(ind, area){
+            if (area.id == "form_body") {
+                var ckeditor_height = "550px";
+            } else {
+                var ckeditor_height = "250px";
+            }
+    		editor[ind] = CKEDITOR.replace( area, {
+  				width: "100%",
+          height: ckeditor_height
+			} );
+
+			// Bundle selection popup
+			editor[ind].addCommand("bundleSelect", { // create named command
+				exec: function(edt) {
+					cpop.reset().loadAjax('{{path('admin_page_link')}}');
+				}
+			});
+			editor[ind].ui.addButton('bundleSelect', { // add new button and bind our command
+				label: "Bundle selection",
+				command: 'bundleSelect',
+				toolbar: 'document',
+				icon: '{{asset('bundles/cms/ck_ext.png')}}'
+			});
+			editor[ind].on('instanceReady',function(){
+				$('.cke_button__inlinesave').remove();
+			});
+});
+{% if Entry.id is null %}
+  $('#form_label').on('keyup', function() {
+  $('#form_seo_title').val($('#form_label').val()).trigger("keyup");
+  //$('#form_slug').val($('#form_label').val().toLowerCase().replace(/ /g, "-").replace(/[^a-z0-9-_~]/g, "").replace(/-+/g, "-"));
+  $('.slug-part').html('/' + $('#form_label').val().toLowerCase().replace(/ /g, "-").replace(/[^a-z0-9-_~]/g, "").replace(/-+/g, "-"));
+	    });
+{% endif %}
+
+            var maxWords = 80;
+            var maxChars = 300;
+
+            var formEl = $('#form_intro').parent().parent();
+            formEl.css('position', 'relative');
+            var ckCounter = $('<div class="counter" style="position: absolute; top: 0; right: 0; color: green; font-size: 12px; border: solid 1px #ccc; padding: 2px 5px; border-radius: 4px;">{{ 'Woorden:' | trans }} <span class="words">0</span>, {{ 'tekens:' | trans }} <span class="chars">0</span></div>');
+            formEl.append(ckCounter);
+
+            // console.log(CKEDITOR.instances.form_intro);
+            CKEDITOR.on("instanceReady", function(event){
+                var editor = event.editor;
+                if(editor.name == 'form_intro'){
+
+                    editor.on( 'key', function( evt ){
+                        doCount(editor);
+                    }, editor.element.$ );
+
+                    editor.on( 'paste', function( evt ){
+                        doCount(editor);
+                    }, editor.element.$ );
+
+                    doCount(editor);
+                }
+            });
+
+            function doCount(editor){
+                var plainEditorContent = editor.getData();
+                plainEditorContent = plainEditorContent.replace(/<[^>]*>/g," ");
+                plainEditorContent = plainEditorContent.replace(/\s+/g, ' ');
+                plainEditorContent = plainEditorContent.trim();
+                var chars = plainEditorContent.length
+                var words = plainEditorContent.split(" ").length
+
+                if(chars > maxChars){
+                    formEl.find('.counter').css('color', 'red');
+                }else{
+                    formEl.find('.counter').css('color', 'green');
+                }
+
+                formEl.find('.words').html(words);
+                formEl.find('.chars').html(chars);
+            }
+
+        });
+	</script>
+
+  <script>
+    $(document).ready(function() {
+
+      $('#form_is_external').change(function() {
+          if(this.checked) {
+            $('#external_content').removeClass('d-none');
+            $('#normal_content').addClass('d-none');
+          } else {
+            $('#external_content').addClass('d-none');
+            $('#normal_content').removeClass('d-none');
+          }
+      });
+  });
+  </script>
+
+	<script type="text/javascript" src="{{asset('bundles/cms/js/jquery.filedrop.js')}}"></script>
+	<script type="text/javascript">
+
+        var totalUploadSize = 0;
+        var fileDrop;
+        var dropped = 0;
+
+        var allowedDocTypes = ['text/plain', 'text/richtext', 'application/msword', 'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel', 'application/pdf', 'application/mspowerpoint', 'application/powerpoint', 'application/vnd.ms-powerpoint', 'application/x-mspowerpoint', 'application/x-iwork-keynote-sffkey', 'application/x-iwork-numbers-sffnumbers', 'application/vnd.apple.keynote', 'application/vnd.apple.pages', 'application/vnd.apple.numbers', 'text/html', 'text/css', 'text/php', 'text/asp', 'text/x-c', 'text/x-script.csh', 'text/x-script.elisp', 'text/x-setext', 'text/webviewhtml', 'text/x-java-source', 'text/x-pascal', 'text/pascal', 'text/x-script.perl', 'text/x-script.perl-module', 'text/x-script.phyton', 'text/x-asm', 'text/sgml', 'text/x-sgml', 'text/x-script.sh', 'text/x-server-parsed-html', 'text/uri-list', 'text/x-uuencode', 'video/msvideo', 'video/avi', 'video/x-msvideo', 'video/mpeg', 'video/mp4', 'video/quicktime', 'audio/basic', 'audio/x-midi', 'audio/mpeg', 'audio/vorbis', 'audio/ogg', 'audio/x-pn-realaudio', 'audio/vnd.rn-realaudio', 'audio/wav', 'audio/x-wav', 'application/x-rar-compressed', 'application/octet-stream', 'application/zip', 'application/csv', 'text/csv'];
+        var allowedMediaTypes = ['image/bmp', 'image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/tiff'];
+
+        var allowedTypes = $.merge( $.merge([], allowedMediaTypes), allowedDocTypes)
+
+        $().ready(function(){
+            var msg_idle = '{{"Sleep hier bestanden naar toe om deze te uploaden."|trans}}';
+            var msg_hover = '{{"Laat los om toe te voegen."|trans}}';
+            var msg_uploading = '{{"Bezig met uploaden..."|trans}}';
+            var msg_done_idle = '{{"Uploaden voltooid!"|trans}}';
+
+            fileDrop = $('#dropzone').filedrop({
+                fallback_id: 'upload_button',   // an identifier of a standard file input element, becomes the target of "click" events on the dropzone
+                url: '{{path('admin_mod_blog_entry_media_handler')}}',			  // upload handler, handles each file separately, can also be a function taking the file and returning a url
+                paramname: 'media[]',		  // POST parameter name used on serverside to reference file, can also be a function taking the filename and returning the paramname
+                withCredentials: true,		  // make a cross-origin request with cookies
+                data: { entryid: '{{id}}' },
+                error: function(err, file) {
+                    switch(err) {
+                        case 'BrowserNotSupported':
+                            $('#upload-overlay').hide();
+                            alert('{{ 'browser does not support HTML5 drag and drop' | trans }}')
+                            break;
+                        case 'TooManyFiles':
+                            $('#upload-overlay').hide();
+                            break;
+                        case 'FileTooLarge':
+                            $('#upload-overlay').hide();
+                            cpop.loadHtml("{{ 'Bestand is te groot. Maximaal toegestaan:<br />Media bestanden: %maxMediaFileSize% KB<br />Alle overige bestanden: %maxFileSize% MB' | trans({'%maxMediaFileSize%': maxMediaFileSize, '%maxFileSize%': maxFileSize}) | raw }}");
+                            break;
+                        case 'FileTypeNotAllowed':
+                            $('#upload-overlay').hide();
+                            cpop.loadHtml(" {{'Bestandstype' | trans }}" + '\'' + file.type + '\'' + "{{ 'is niet toegestaan.<br/><br/><strong>Toegestane bestanden:' | trans}}" + '</strong><ul><li>' + allowedTypes.join('</li><li>') + '</li></ul>');
+                            break;
+                        case 'FileExtensionNotAllowed':
+                            $('#upload-overlay').hide();
+                            break;
+                        default:
+                            break;
+                    }
+                },
+                allowedfiletypes: allowedTypes,   // filetypes allowed by Content-Type.  Empty array means no restrictions
+                allowedmediafiletypes: allowedMediaTypes,
+                allowedfileextensions: [], // file extensions allowed. Empty array means no restrictions
+                maxfiles: 10,
+                maxfilesize: {{maxFileSize}},	// max file size in MBs
+                maxmediafilesize: {{maxMediaFileSize}}, // max images file size in KB's
+                dragOver: function() {
+                    $('#dropzone').addClass('hover').find('.message').html(msg_hover);
+                },
+                dragLeave: function() {
+                    $('#dropzone').removeClass('hover').find('.message').html(msg_idle)
+                },
+                docOver: function() { },
+                docLeave: function() { },
+                drop: function() {
+                    $('#upload-overlay').show();
+                },
+                uploadStarted: function(i, file, len){
+                    $('#upload-overlay').show();
+                },
+                uploadFinished: function(i, file, response, time) {
+                    $('#new_media').val($('#new_media').val() + ',' + response[0].id);
+                    var imgUrl = '/uploads/images/' + response[0].path;
+                    $('#preview').append($('<div class="item">\
+                          <img src="' + imgUrl + '" alt="">\
+                          <input type="text" name="media_sort[]" value="' + response[0].id + '" style="display:none">\
+                        </div>'));
+                },
+                progressUpdated: function(i, file, progress) { },
+                globalProgressUpdated: function(progress) {
+                    $('#upload-overlay .progress-bar').css('width', progress + '%');
+                },
+                speedUpdated: function(i, file, speed) { },
+                rename: function(name) { },
+                beforeEach: function(file) { },
+                beforeSend: function(file, i, done) {
+                    if(dropped <= 0){ $('.totals').hide(); }
+                    done(); // Start upload
+                    $('#dropzone').removeClass('hover').find('.message').html(msg_uploading)
+                },
+                afterAll: function() {
+                    $('#upload-overlay').hide();
+                    $('#upload-overlay .progress-bar').css('width', '0%');
+                    $('#dropzone').removeClass('hover').find('.message').html(msg_done_idle)
+                }
+            }).find('.message').html(msg_idle);
+        });
+
+        function closeModal(){
+            $('#shade,#modal').removeClass('show');
+        }
+
+        function humanFileSize(size, dec = 2) {
+            var i = Math.floor( Math.log(size) / Math.log(1024) );
+            return ( size / Math.pow(1024, i) ).toFixed(dec) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+        };
+
+        $( function() {
+            $( ".sortable" ).sortable();
+        } );
+
+        function addProduct(el){
+            var tr = $(el).parent().parent();
+            var id = tr.data('id');
+            tr.hide();
+
+            $('#del-related-product_' + id).show();
+            $('#del-related-product_' + id).find('input[type="checkbox"]').prop('checked', true);
+
+            return false;
+        }
+
+        function deleteProduct(el){
+            var tr = $(el).parent().parent();
+            var id = tr.data('id');
+            tr.hide();
+
+            $('#add-product_' + id).show();
+            tr.find('input[type="checkbox"]').prop('checked', false);
+
+            return false;
+        }
+
+var callerEl = null;
+function addMedia(el){
+	callerEl = $(el);
+	cpop.reset().loadAjax('{{path('admin_media_popup', {'parentid': null})}}');
+	return false;
+}
+function clickedPopupMedia(mediaid, filepath, label, width){
+	$('#meta-field-' + mediaField).val(filepath);
+	$('#meta-image-' + mediaField).html('<img src="' + filepath + '" style="max-width: 100%;max-height: 100%;" /><button style="" type="button" onclick="deleteMetaImage(' + mediaField + ');" class="btn btn-icon"><i class="far fa-trash-alt"></i></button>');
+	$('#meta-imageselect-' + mediaField).hide();
+	cpop.close();
+}
+function deleteMetaImage(id){
+	$('#meta-field-' + id).val('');
+	$('#meta-image-' + id).html('');
+	$('#meta-imageselect-' + id).show();
+}
+	</script>
+
+  <style type="text/css" media="screen">
+    #form_Category{
+      margin: 0;
+    }
+
+    .cat-block label.required {
+        display: none;
+    }
+  </style>
+
+  <script>
+  $(function(){
+    if($('.linked-table').length > 0){
+      $('.linked-table').sortable({
+        items: 'tbody > tr',
+        placeholder: 'placeholder',
+        stop: function( event, ui ) {
+          $('#sort-linked-table-products').val($('.linked-table').sortable('serialize'));
+        },
+        create: function( event, ui ) {
+          $('#sort-linked-table-products').val($('.linked-table').sortable('serialize'));
+        }
+      });
+    }
+  });
+  </script>
+{% endblock %}

@@ -1,0 +1,3 @@
+<?php //App%255CCmsBundle%255CEntity%255CSettings%2523setMediaDimensions
+
+return [PHP_INT_MAX, []];

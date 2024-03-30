@@ -1,0 +1,8 @@
+{# system #}
+{% if Page.CricitalCss is defined and Page.CricitalCss is not empty %}
+	<link rel="preload" media="screen" type="text/css" href="{{ asset('/default-v3/css/style.css') }}?v={{ "now"|date("mdYhs") }}" as="style" onload="this.onload=null;this.rel='stylesheet';">
+	<link rel="preload" media="print" type="text/css" href="{{ asset('/default-v3/css/print.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet';">
+{% else %}
+	<link rel="stylesheet" media="screen" href="{{ asset('/default-v3/css/style.css') }}?v={{ "now"|date("mdYhs") }}">
+	<link rel="stylesheet" media="print" href="{{ asset('/default-v3/css/print.css') }}">
+{% endif %}

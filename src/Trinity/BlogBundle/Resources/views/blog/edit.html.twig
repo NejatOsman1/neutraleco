@@ -1,0 +1,29 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Nieuws'|trans}}{% endblock %}
+
+{% block body %}
+	{{ form_start(form) }}
+	<div class="card">
+		<div class="card-content">
+			<span class="card-title">
+				<h6>{{ 'Nieuws configuratie toevoegen' | trans }}</h6>
+			</span>
+	    	{{ form_errors(form) }}
+			{{ form_widget(form) }}
+		</div>
+	</div>
+
+	<div class="btn-bar">
+    <div class="left"></div>
+		<div class="right">
+      <a href="#" class="btn btn-flat" onClick="history.back()"><i class="fa fa-arrow-left"></i> {{ 'Terug' | trans }}</a>
+      <button type="submit" class="btn"><i class="fa fa-save"></i> {{ 'Opslaan' | trans }}</button>
+		</div>
+  </div>
+
+	{{ form_end(form) }}
+
+	<script src="{{asset('bundles/cms/ckeditor/ckeditor.js')}}"></script>
+{% endblock %}

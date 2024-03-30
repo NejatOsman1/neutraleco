@@ -1,0 +1,58 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+	{% if Settings.customNavigation == true %}
+		<div class="btn-bar">
+			<div class="left">
+			</div>
+			<div class="right">
+				<a href="{{path('admin_navigation_edit')}}" class="btn right waves-effect waves-light"><i class="fa fa-plus"></i> {{'Toevoegen'|trans}}</a>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-body">
+				<div class="table-wrapper">
+					{% if items %}
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th style="width:200px;">{{ 'Sleutel' | trans }}</th>
+									<th>{{ 'Omschrijving' | trans }}</th>
+									<th class="center-align" style="width:120px;">{{ 'Aantal items' | trans }}</th>
+									<th style="width:100px;">&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for n in items %}
+									<tr>
+										<td onclick="window.location = '{{path('admin_navigation_edit', {id: n.id})}}';" style="cursor:pointer;">{{n.short}}</td>
+										<td onclick="window.location = '{{path('admin_navigation_edit', {id: n.id})}}';" style="cursor:pointer;">{{n.label}}</td>
+										<td class="center-align" onclick="window.location = '{{path('admin_navigation_edit', {id: n.id})}}';" style="cursor:pointer;">{{n.items.count}}</td>
+										<td class="right-align actions">
+											<a href="{{path('admin_navigation_edit', {id: n.id})}}" class="tooltipped" data-tooltip="{{ 'Wijzigen' | trans({}) | raw }}"><i class="fa fa-edit"></i></a>
+											<a href="#" onclick="cpop.confirm('{{ 'Wilt u het navigatie menu <b>%label%</b> verwijderen?' | trans({'%label%': n.label}) }}', function(){
+												window.location = '{{ path('admin_navigation_delete',{'id': n.id}) }}';
+											} ); return false;" class="tooltipped" data-tooltip="{{'Verwijderen'|trans}}"><i class="far fa-trash-alt"></i></a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					{% else %}
+						<center>{{ 'Er zijn geen navigaties toegevoegd' | trans }}</center>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% else %}
+		<div class="card">
+			<div class="card-body center-align">
+				{{ 'Custom navigatie is niet ingeschakeld' | trans }}
+
+				<p style="margin-top: 20px;"><a href="{{path('admin_navigation', {'enable': 1})}}" class="btn">{{ 'Custom navigatie inschakelen' | trans }}</a></p>
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

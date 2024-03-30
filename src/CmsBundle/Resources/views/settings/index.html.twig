@@ -1,0 +1,1737 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{'Settings'|trans}}{% endblock %}
+
+{% block body %}
+	{# CURRENT VERSIONS #}
+
+	{% set cdn_js = {
+		'jQuery (v3.5.1)': '//code.jquery.com/jquery-3.5.1.min.js',
+		'Popper (v1.14.7)': '//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
+		'Bootstrap (v4.5.2)': '//stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js',
+		'Bootstrap (v5.1.3)': '//cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js',
+		'Toastr (v2.1.4)': '//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js',
+		'Slick slider (v1.8.1)': '//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js',
+		'Swiper slider bundle (v6.2.0)': '//cdn.jsdelivr.net/npm/swiper@6.2.0/swiper-bundle.min.js',
+		'Featherlight (v1.7.14)': '//cdn.jsdelivr.net/npm/featherlight@1.7.14/release/featherlight.min.js',
+		'Chart.js (v2.7.1)': '//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js',
+		'Moments': '//momentjs.com/downloads/moment.js',
+		'Moments (with locales)': '//momentjs.com/downloads/moment-with-locales.js',
+		'MatchHeight (v0.7.2)': '//cdn.jsdelivr.net/npm/jquery-match-height@0.7.2/dist/jquery.matchHeight.min.js',
+		'Lightgallery (v2.6.1)': '//cdnjs.cloudflare.com/ajax/libs/lightgallery/2.6.1/lightgallery.min.js',
+		'Lightgallery Thumbnail (v2.6.1)': '//cdnjs.cloudflare.com/ajax/libs/lightgallery/2.6.1/plugins/thumbnail/lg-thumbnail.min.js',
+		'Lightgallery Zoom (v2.6.1)': '//cdnjs.cloudflare.com/ajax/libs/lightgallery/2.6.1/plugins/zoom/lg-zoom.min.js',
+		'ScrollMagic (v2.0.7)': '//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js',
+		'ScrollMagic (GSAP)': '//cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js',
+		'ScrollMagic (PLUGIN: GSAP ANIMATION)': '//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/plugins/animation.gsap.min.js',
+		'ScrollMagic (PLUGIN: DEBUG) (v2.0.7)': '//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/plugins/debug.addIndicators.min.js',
+		'SimpleParallax (v5.5.1)': '//cdn.jsdelivr.net/npm/simple-parallax-js@5.5.1/dist/simpleParallax.min.js',
+	} %}
+
+	{% set cdn_css = {
+		'Bootstrap (v4.5.2)': '//stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
+		'Bootstrap (v5.1.3)': '//cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css',
+		'Toastr (v2.1.4)': '//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css',
+		'Slick slider (v1.8.1)': '//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.css',
+		'Slick theme (v1.8.1)': '//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick-theme.css',
+		'Swiper slider bundle (v6.2.0)': '//cdn.jsdelivr.net/npm/swiper@6.2.0/swiper-bundle.min.css',
+		'Featherlight (v1.7.14)': '//cdn.jsdelivr.net/npm/featherlight@1.7.14/release/featherlight.min.css',
+		'Lightgallery (v2.6.1)': '//cdnjs.cloudflare.com/ajax/libs/lightgallery/2.6.1/css/lightgallery.min.css',
+		'Lightgallery Zoom (v2.6.1)': '//cdnjs.cloudflare.com/ajax/libs/lightgallery/2.6.1/css/lg-video.min.css',
+		'Lightgallery Thumbnail (v2.6.1)': '//cdnjs.cloudflare.com/ajax/libs/lightgallery/2.6.1/css/lg-thumbnail.min.css',
+	} %}
+
+	{% set cdn_font = {
+		'Font Awesome (v5.15.4)': '//use.fontawesome.com/releases/v5.15.4/css/all.css',
+	} %}
+
+	{# OLD/LEGACY VERSIONS #}
+
+	{% set cdn_js_old = {
+		'jQuery (v3.3.1)': '//code.jquery.com/jquery-3.3.1.min.js',
+		'jQuery Migrate (v3.1.0)': '//code.jquery.com/jquery-migrate-3.1.0.min.js',
+		'jQuery (v3.1.1)': '//code.jquery.com/jquery-3.1.1.min.js',
+		'Popper (v1.12.3)': '//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js',
+		'Bootstrap (v4.3.1)': '//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
+		'Bootstrap (v3.3.7)': '//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js',
+		'Bootstrap (v4.0.0-beta.2)': '//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js',
+		'Swiper slider (v4.5.1)': '//cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.1/js/swiper.js',
+		'Lightgallery (v1.7.2)': '//cdn.jsdelivr.net/npm/lightgallery@1.7.2/dist/js/lightgallery.min.js',
+		'Lightgallery Bundle (v1.7.2)': '//cdn.jsdelivr.net/npm/lightgallery@1.7.2/dist/js/lightgallery-all.min.js',
+		'Lightgallery Thumbnail (v1.7.2)': '//cdn.jsdelivr.net/npm/lightgallery@1.7.2/modules/lg-thumbnail.min.js',
+		'Lightgallery Zoom (v1.7.2)': '//cdn.jsdelivr.net/npm/lightgallery@1.7.2/modules/lg-zoom.min.js',
+	} %}
+
+	{% set cdn_css_old = {
+		'Bootstrap (v4.3.1)': '//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
+		'Bootstrap (v3.3.7)': '//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
+		'Bootstrap (v4.0.0-beta.2)': '//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css',
+		'Swiper slider (v4.5.1)': '//cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.1/css/swiper.min.css',
+		'Lightgallery (v1.7.2)': '//cdn.jsdelivr.net/npm/lightgallery@1.7.2/dist/css/lightgallery.min.css',
+	} %}
+
+	{% set cdn_font_old = {
+		'Font Awesome (v4.7.0)': '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+		'Font Awesome (v5.0.6)': '//use.fontawesome.com/releases/v5.0.6/css/all.css',
+		'Font Awesome (v5.7.2)': '//use.fontawesome.com/releases/v5.7.2/css/all.css',
+		'Font Awesome (v5.11.2)': '//use.fontawesome.com/releases/v5.11.2/css/all.css',
+		'Font Awesome (v5.13.1)': '//use.fontawesome.com/releases/v5.13.1/css/all.css',
+	} %}
+
+	<form method="post" enctype="multipart/form-data">
+		{# <input type="hidden" id="mediadirid" name="mediadirid" value="{{mediaDirId}}" /> #}
+		<input type="hidden" name="manual_upload" value="1" />
+		<input type="file" name="media[]" id="upload_button" />
+		<button type="submit">{{'Uploaden'|trans}}</button>
+	</form>
+
+	{{ form_start(form) }}
+	{{ form_errors(form) }}
+
+	<script>
+	var activeZone = null;
+	</script>
+
+	{% set active = 'basic' %}
+	{% if app.request.get('active') %}
+		{% set active = app.request.get('active') %}
+	{% endif %}
+
+		<div class="system-row">
+			<div class="system-sidebar d-none d-lg-flex" data-simplebar>
+				<div class="system-sidebar-inner">
+					<div class="card">
+						<div class="card-body">
+							<div class="card-title">
+	    					<div class="card-titles">{{'Menu'|trans}}</div>
+							</div>
+						</div>
+
+						<ul class="nav nav-tabs content-tabs" role="tablist">
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link {{active == 'basic' ? 'active' : '' }}" id="tab1" aria-controls="content1" data-bs-target="#content1" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-cog fa-fw"></i> {{'Algemeen'|trans}}
+								</button>
+						  </li>
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link {{active == 'company' ? 'active' : '' }}" id="tab2" aria-controls="content2" data-bs-target="#content2" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="far fa-building fa-fw"></i> {{'Bedrijf'|trans}}
+								</button>
+						  </li>
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link" id="tab3" aria-controls="content3" data-bs-target="#content3" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-cog fa-fw"></i> {{'Systeem'|trans}}
+								</button>
+						  </li>
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link" id="tab4" aria-controls="content4" data-bs-target="#content4" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-shopping-cart fa-fw"></i> {{'Betaalmethodes'|trans}}
+								</button>
+						  </li>
+							{% endif %}
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link" id="tab5" aria-controls="content5" data-bs-target="#content5" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-chart-pie fa-fw"></i> {{'Analytics'|trans}}
+								</button>
+						  </li>
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link" id="tab6" aria-controls="content6" data-bs-target="#content6" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-code fa-fw"></i> {{'Header'|trans}}
+								</button>
+						  </li>
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link" id="tab7" aria-controls="content7" data-bs-target="#content7" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-code fa-fw"></i> {{'Footer'|trans}}
+								</button>
+						  </li>
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link" id="tab8" aria-controls="content8" data-bs-target="#content8" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="far fa-image fa-fw"></i> {{'Media'|trans}}
+								</button>
+						  </li>
+						  <li class="nav-item" role="presentation">
+						    <button onclick="topFunction()" class="nav-link" id="tab9" aria-controls="content9" data-bs-target="#content9" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-user-check fa-fw"></i> {{'reCAPTCHA'|trans}}
+								</button>
+						  </li>
+						  {% if is_granted('ROLE_SUPER_ADMIN') %}
+							<li class="nav-item" role="presentation">
+								<button onclick="topFunction()" class="nav-link" id="tabgpt" aria-controls="contentgpt" data-bs-target="#contentgpt" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fas fa-microchip fa-fw"></i> {{"EasifyGPT instellingen"|trans}}
+								</button>
+							</li>
+							{% endif %}
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+								<li class="nav-item" role="presentation">
+									<button onclick="topFunction()" class="nav-link" id="tab10" aria-controls="content10" data-bs-target="#content10" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+										<i class="fa fa-mobile-alt fa-fw"></i> {{'Mobiele applicaties'|trans}}
+									</button>
+								</li>
+							{% endif %}
+							<li class="nav-item" role="presentation">
+								<button onclick="topFunction()" class="nav-link" id="tab11" aria-controls="content11" data-bs-target="#content11" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-exclamation-triangle fa-fw"></i> {{"Foutpagina's"|trans}}
+								</button>
+							</li>
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+							<li class="nav-item" role="presentation">
+								<button onclick="topFunction()" class="nav-link" id="tab12" aria-controls="content12" data-bs-target="#content12" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-fill-drip fa-fw"></i> {{"Systeem kleuren"|trans}}
+								</button>
+							</li>
+							{% endif %}
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+							<li class="nav-item" role="presentation">
+								<button onclick="topFunction()" class="nav-link" id="tab13" aria-controls="content13" data-bs-target="#content13" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-location-arrow fa-fw"></i> {{"Postcode API"|trans}}
+								</button>
+							</li>
+							{% endif %}
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+							<li class="nav-item" role="presentation" >
+								<button onclick="topFunction()" class="nav-link" id="tab14" aria-controls="content14" data-bs-target="#content14" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-location-arrow fa-fw"></i> {{"Lef API"|trans}}
+								</button>
+							</li>
+							<li class="nav-item" role="presentation" >
+								<button onclick="topFunction()" class="nav-link" id="tab16" aria-controls="content16" data-bs-target="#content16" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-location-arrow fa-fw"></i> {{"Santander API"|trans}}
+								</button>
+							</li>
+							{% endif %}
+							<li class="nav-item" role="presentation">
+								<button onclick="topFunction()" class="nav-link" id="tab-ooo-config" aria-controls="ooo-config" data-bs-target="#ooo-config" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+									<i class="fa fa-plane-departure fa-fw"></i> {{"'Out of office'-melding"|trans}}
+								</button>
+							</li>
+							{% if is_granted('ROLE_SUPER_ADMIN') == true %}
+								<li class="nav-item" role="presentation">
+									<button onclick="topFunction()" class="nav-link" id="tab15" aria-controls="content15" data-bs-target="#content15" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+										<i class="fa fa-arrow-circle-up fa-fw"></i> {{"UptimeRobot API"|trans}}
+									</button>
+								</li>
+								<li class="nav-item" role="presentation">
+									<button onclick="topFunction()" class="nav-link" id="tab-hummessenger" aria-controls="hummessenger" data-bs-target="#hummessenger" data-bs-toggle="tab"  type="button" role="tab" aria-selected="false">
+										<i class="fa fa-plane-departure fa-fw"></i> {{"Hummessenger API"|trans}}
+									</button>
+								</li>
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<select class="form-select d-lg-none mb-3" id="tab_selector">
+				<option value="0" selected>{{'Algemeen'|trans}}</option>
+				<option value="1">{{'Bedrijf'|trans}}</option>
+
+				{% if is_granted('ROLE_SUPER_ADMIN') %}
+				<option value="2">{{'Systeem'|trans}}</option>
+				<option value="3">{{'Betaalmethodes'|trans}}</option>
+				{% endif %}
+
+				<option value="4">{{'Analytics'|trans}}</option>
+				<option value="5">{{'Header'|trans}}</option>
+				<option value="6">{{'Footer'|trans}}</option>
+				<option value="7">{{'Media'|trans}}</option>
+				<option value="8">{{'reCAPTCHA'|trans}}</option>
+
+				{% if is_granted('ROLE_SUPER_ADMIN') %}
+				<option value="9">{{'Mobile App ID\'s'|trans}}</option>
+				{% endif %}
+
+				<option value="10">{{'Foutpagina\'s'|trans}}</option>
+				<option value="11">{{'Systeem kleuren'|trans}}</option>
+				<option value="12">{{'Postcode API'|trans}}</option>
+				{% if is_granted('ROLE_SUPER_ADMIN') %}
+				<option value="13">{{'Hummessenger API'|trans}}</option>
+				{% endif %}
+			</select>
+
+			<script>
+				$(document).ready(function() {
+					$('#tab_selector').on('change', function (e) {
+						$('.content-tabs li button').eq($(this).val()).tab('show');
+					});
+				});
+			</script>
+
+			<div class="system-content">
+				<div class="tab-content">
+
+				  <div class="tab-pane {{active == 'basic' ? 'show active' : '' }}" id="content1" role="tabpanel" aria-labelledby="tab1">
+						<div id="basic" class="t-content">
+							<div class="card">
+								<div class="card-body">
+									<div class="card-title">
+										<div class="card-titles">
+											<h6>{{'Algemeen'|trans}}</h6>
+											<p>{{'Algemene website gegevens en instellingen'|trans}}</p>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-12 col-md-6">
+											{{form_row(form.label)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.tagline)}}
+										</div>
+										<div class="col-12">
+											{{form_row(form.default_template)}}
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-12">
+											<h6>{{'Domein en indexeren'|trans}}</h6>
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.host)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.robots)}}
+										</div>
+										<div class="col-12 col-md-6">
+											<button type="button" class="btn btn-gray" onclick="$('#form_host').val('{{app.request.getHttpHost()|replace({'www.': ''})}}');">{{ 'Huidig domein' | trans }}</button>
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.force_https)}}
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="card">
+								<div class="card-body">
+									<div class="card-title">
+										<div class="card-titles">
+											<h6>{{'Contactgegevens'|trans}}</h6>
+											<p>{{'Contactinformatie voor onder andere e-mails'|trans}}</p>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-12 col-md-6">
+											{{form_row(form.systemEmail)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.systemEmailFrom)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.adminEmail)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.adminEmailFrom)}}
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="card">
+								<div class="card-body">
+									<div class="card-title">
+										<div class="card-titles">
+											<h6>{{'afbeeldingen'|trans|capitalize}}</h6>
+											<p>{{'Sleep afbeeldingen naar de aangegeven velden om deze in te stellen of klik op het veld om te uploaden'|trans}}</p>
+										</div>
+									</div>
+
+									<div class="row g-2">
+										<div class="col-12 col-md-6 settings-image">
+											<b>{{'Logo'|trans}}</b>
+											<div style="position: relative;">
+												<input type="hidden" id="delete_logo" name="delete[logo]" value="" />
+												<input type="hidden" id="link_logo" name="link[logo]" value="" />
+												<div class="dropzones" onclick="activeZone = $(this);" data-name="logo" style="{% if Settings.hasLogo %}background-image:url('{{Settings.getLogo}}');{% endif %}">
+													<div class="dropzone-loader"><span>{{ 'Uploaden...' | trans }}</span></div>
+												</div>
+												<button style="{% if Settings.hasLogo %}{% else %}display:none;{% endif %}" type="button" id="logo_del_btn" onclick="deleteAsset('logo', this);" class="btn btn-small red darken-1 del_btn"><i class="far fa-trash-alt"></i></button>
+											</div>
+											<br>
+										</div>
+
+										<div class="col-12 col-md-6 settings-image">
+											<b>{{'Logo (alternatief)'|trans}}</b>
+											<div style="position: relative;">
+												<input type="hidden" id="delete_logo_alt" name="delete[logo_alt]" value="" />
+												<input type="hidden" id="link_logo_alt" name="link[logo_alt]" value="" />
+												<div class="dropzones" onclick="activeZone = $(this);" data-name="logo_alt" style="{% if Settings.hasLogoAlt %}background-image:url('{{Settings.getLogoAlt}}');{% endif %}">
+													<div class="dropzone-loader"><span>{{ 'Uploaden...' | trans }}</span></div>
+												</div>
+												<button style="{% if Settings.hasLogoAlt %}{% else %}display:none;{% endif %}" type="button" id="logo_alt_del_btn" onclick="deleteAsset('logo_alt', this);" class="btn btn-small red darken-1 del_btn"><i class="far fa-trash-alt"></i></button>
+											</div>
+											<br>
+										</div>
+
+										<div class="col-12 col-md-6 settings-image">
+											<b>{{'Achtergrond'|trans}}</b>
+											<div style="position: relative;">
+												<input type="hidden" id="delete_background" name="delete[background]" value="" />
+												<input type="hidden" id="link_background" name="link[background]" value="" />
+												<div class="dropzones" onclick="activeZone = $(this);" data-name="background" style="{% if Settings.hasBackground %}background-image:url('{{Settings.getBackground}}');{% endif %}">
+													<div class="dropzone-loader"><span>{{ 'Uploaden...' | trans }}</span></div>
+												</div>
+												<button style="{% if Settings.hasBackground %}{% else %}display:none;{% endif %}" type="button" id="background_del_btn" onclick="deleteAsset('background', this);" class="btn btn-small red darken-1 del_btn"><i class="far fa-trash-alt"></i></button>
+											</div>
+											<br>
+										</div>
+
+										<div class="col-12 col-md-6 settings-image">
+											<b>{{'E-mail header'|trans}}</b>
+											<div style="position: relative;">
+												<input type="hidden" id="delete_mail_header" name="delete[mail_header]" value="" />
+												<input type="hidden" id="link_mail_header" name="link[mail_header]" value="" />
+												<div class="dropzones" onclick="activeZone = $(this);" data-name="mail_header" style="{% if Settings.hasMailHeader %}background-image:url('{{Settings.getMailHeader}}');{% endif %}">
+													<div class="dropzone-loader"><span>{{ 'Uploaden...' | trans }}</span></div>
+												</div>
+												<button style="{% if Settings.hasMailHeader %}{% else %}display:none;{% endif %}" type="button" id="mail_header_del_btn" onclick="deleteAsset('mail_header', this);" class="btn btn-small red darken-1 del_btn"><i class="far fa-trash-alt"></i></button>
+											</div>
+											<br>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				<div class="tab-pane" id="content12" role="tabpanel" aria-labelledby="tab12" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+					<div id="color_swap" class="t-content">
+						<div class="card">
+							<div class="card-content">
+								<span class="card-title"><h6>{{'Kleuren wisselen'|trans}}</h6></span>
+								<div class="row">
+									<div class="col s12">
+										<table style="margin-bottom: 20px;">
+											<thead>
+												<tr>
+													<th>Van</th>
+													<th>Naar</th>
+												</tr>
+											</thead>
+											<tbody id="color_swap_data">
+												{% for k,v in Settings.colorSwap %}
+													<tr>
+														<td><input type="text" class="form-control" name="color_swap_from[]" placeholder="#000000" value="{{k}}" /></td>
+														<td><input type="text" class="form-control" name="color_swap_to[]" placeholder="#000000" value="{{v}}" /></td>
+													</tr>
+												{% endfor %}
+												<tr>
+													<td><input type="text" class="form-control" name="color_swap_from[]" placeholder="#000000" /></td>
+													<td><input type="text" class="form-control" name="color_swap_to[]" placeholder="#000000" /></td>
+												</tr>
+											</tbody>
+										</table>
+										<button type="button" class="btn btn-gray" onclick="addColorSwap()">Rij toevoegen</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<script>
+				function addColorSwap(){
+					let r = $('<tr>\
+					<td><input type="text" class="form-control" name="color_swap_from[]" placeholder="#000000" /></td>\
+					<td><input type="text" class="form-control" name="color_swap_to[]" placeholder="#000000" /></td>\
+					</tr>');
+					$('#color_swap_data').append(r);
+				}
+
+				function deleteAsset(asset, el){
+					cpop.confirm('{{ 'Weet u zeker dat u deze afbeelding wilt verwijderen?' | trans }}', function(){
+						$('#delete_' + asset).val(1);
+						$(el).parent().find('.dropzones').css('background-image', '');
+						$(el).remove();
+						cpop.close();
+					});
+				}
+				</script>
+				  <div class="tab-pane {{active == 'company' ? 'show active' : '' }}" id="content2" role="tabpanel" aria-labelledby="tab2">
+						<div id="company" class="t-content">
+							<div class="card">
+								<div class="card-content">
+									<div class="card-title">
+										<div class="card-titles">
+											<h6>{{'Bedrijfsgegevens'|trans}}</h6>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-12">
+											{{form_row(form.company)|raw}}
+										</div>
+										<div class="col-12">
+											{{form_row(form.phone)|raw}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.address)|raw}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.postalcode)|raw}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.place)|raw}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.state)|raw}}
+										</div>
+										<div class="col-12">
+											{{form_row(form.country)|raw}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.kvk)|raw}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.kvk_location|raw)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.iban|raw)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.bic|raw)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.taxNo)|raw}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{form_row(form.invoice_period|raw)}}
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-content">
+									<div class="card-title">
+										<div class="card-titles">
+											<h6>{{'Social Media'|trans}}</h6>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-6">{{form_row(form.twitter)|raw}}</div>
+										<div class="col-6">{{form_row(form.facebook)|raw}}</div>
+										<div class="col-6">{{form_row(form.youtube)|raw}}</div>
+										<div class="col-6">{{form_row(form.instagram)|raw}}</div>
+										<div class="col-12">{{form_row(form.linkedin)|raw}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<script>
+							$(function(){
+								$('#form_cookiebar').click(function(){
+									if(this.checked){
+										$('.cookiebar-data').show();
+									}else{
+										$('.cookiebar-data').hide();
+									}
+								});
+
+								$('#form_cookiebar_button').click(function(){
+									if(this.checked){
+										$('#cookiebar-button-data').show();
+									}else{
+										$('#cookiebar-button-data').hide();
+									}
+								});
+
+								$('button.page-select').click(function(e){
+									e.preventDefault();
+									cpop.reset().loadAjax('{{path('admin_page_selector', {type: 'page'})}}' + '?key=' + $(this).data('key') );
+								});
+							});
+
+							function pageSelectHandler(pageid, label, url, slugKey, simpleslug, key){
+								$('#' + key).val(url);
+								cpop.close();
+							}
+						</script>
+					</div>
+				  <div class="tab-pane" id="content9" role="tabpanel" aria-labelledby="tab9">
+						<div id="recaptcha" class="t-content">
+							<div class="card">
+								<div class="card-content">
+									<div class="card-title">
+										<div class="card-titles">
+											<h6>{{'Google reCAPTCHA'|trans}}</h6>
+										</div>
+										<div class="card-actions">
+											<span>{{(Settings.hasGoogleRecaptcha ? '<span class="green-text">' ~ ('Ingeschakeld'|trans) ~ '</span>' : '<span class="red-text">'~('Uitgeschakeld'|trans)~'</span>') | raw }}</span>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-4">{{form_row(form.google_recaptcha_mode)|raw}}</div>
+										<div class="col-6">{{form_row(form.google_recaptcha_sitekey)|raw}}</div>
+										<div class="col-6">{{form_row(form.google_recaptcha_secret)|raw}}</div>
+									</div>
+									<div class="row">
+										<div class="col-12">{{form_row(form.google_recaptcha_text)|raw}}</div>
+									</div>
+							<div class="row" id="recaptcha_treshold" style="margin-bottom: 30px;">
+								<div class="col s12">
+								{{form_row(form.captcha_treshold|raw)}}
+								<label for="captcha_treshold">{{'Treshold voor de score van reCAPTCHA, score moet gelijk/hoger zijn dan de ingestelde treshold.'|trans}}</label>
+								</div>
+							</div>
+									<div class="center-align">
+										<a class="btn btn-gray" target="_blank" href="https://www.google.com/recaptcha/admin">{{ 'Klik hier om reCAPTCHA sleutels te beheren' | trans }}</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				  <div class="tab-pane" id="content10" role="tabpanel" aria-labelledby="tab10">
+						<div id="mobile" class="t-content" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{'Mobiele applicaties'|trans}}</h6>
+									</span>
+									<div class="row">
+										<div class="col-12">{{form_row(form.app_label)|raw}}</div>
+										<div class="col-6">{{form_row(form.ios_app_id)|raw}}</div>
+										<div class="col-6">{{form_row(form.android_app_id)|raw}}</div>
+									</div>
+
+									<span class="card-title">
+										<h6>{{'App icon'|trans}}</h6>
+									</span>
+									<div class="row">
+										<div class="col-12 m12 settings-image">
+											<input type="hidden" id="delete_app_icon" name="delete[app_icon]" value="" />
+											<input type="hidden" id="link_app_icon" name="link[app_icon]" value="" />
+											<div class="dropzones" onclick="activeZone = $(this);" data-name="app_icon" style="{% if Settings.hasAppIcon %}background-image:url('{{Settings.getAppIcon}}');{% endif %}">
+												<div class="dropzone-loader"><span>{{ 'Uploaden...' | trans }}</span></div>
+											</div>
+										<button style="{% if Settings.hasAppIcon %}{% else %}display:none;{% endif %}" type="button" id="app_icon_del_btn" onclick="deleteAsset('app_icon', this);" class="btn btn-icon red darken-1 del_btn"><i class="far fa-trash-alt"></i></button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				  <div class="tab-pane" id="content3" role="tabpanel" aria-labelledby="tab3">
+						<div id="system" class="t-content" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{'Registratie opties'|trans}}</h6>
+									</span>
+									<div class="row">
+										<div class="col-12 col-md-4">{{form_row(form.allow_registration)}}</div>
+										<div class="col-12 col-md-4">{{form_row(form.moderate_registration)}}</div>
+										<div class="col-12 col-md-4">{{form_row(form.birthday_fields)}}</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{'Systeemopties'|trans}}</h6>
+									</span>
+
+									<div class="row mb-3">
+										<div class="col-12 col-md-4" style="{% if 'WebshopBundle' not in installed or is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+											{{form_row(form.is_catalog)}}
+										</div>
+										
+										<div class="col-12 col-md-4">
+											{{form_row(form.maintenance)}}
+										</div>
+
+										<div class="col-12 col-md-4">
+											<div style="display:none;">
+												{{form_row(form.inlineEdit)}}
+											</div>
+
+											{{form_row(form.custom_navigation)}}
+										</div>
+										<div class="col-12 col-md-4">
+											{{form_row(form.cache_cdn)}}
+										</div>
+										<div class="col-12 col-md-4">
+											{{form_row(form.snow)}}
+										</div>
+										<div class="col-12 col-md-4">
+											{{form_row(form.calendar)}}
+										</div>
+										<div class="col-12 col-md-4">
+											{{ form_row(form.ignore_cms_blocks) }}
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-6">
+											{{form_row(form.base_uri)}}
+										</div>
+										<div class="col-6">
+											{{form_row(form.override_key)}}
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-12">
+											{{form_row(form.maintenance_message, {attr: {class: 'page-header inline-ckeditor'}})}}
+										</div>
+
+
+										<div class="col-12 settings-image">
+											{{'Achtergrond'|trans}}
+											<input type="hidden" id="delete_service_background" name="delete[service_background]" value="" />
+											<input type="hidden" id="link_service_background" name="link[service_background]" value="" />
+											<div class="dropzones" onclick="activeZone = $(this);" data-name="service_background" style="{% if Settings.hasServiceBackground %}background-image:url('{{Settings.getServiceBackground}}');{% endif %}">
+												<div class="dropzone-loader"><span>{{ 'Uploaden...' | trans }}</span></div>
+											</div>
+											<button style="{% if Settings.hasServiceBackground %}{% else %}display:none;{% endif %}" type="button" id="service_background_del_btn" onclick="deleteAsset('service_background', this);" class="btn btn-icon red darken-1 del_btn"><i class="far fa-trash-alt"></i></button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="card">
+								<div class="card-content">
+									<div class="card-title">
+										<div class="card-titles">
+											<h6>{{'Plug-ins'|trans}}</h6>
+										</div>
+										<div class="card-actions">
+											<a href="#" class="btn btn-gray" onclick="$('.legacy-assets').toggle();return false;">{{ 'Legacy tonen/verbergen' | trans }}</a>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-12 col-md-4">
+											<h6>{{ 'Scripts' | trans }}</h6>
+											<div class="field-collection" id="form_layout_include_js">
+												{% set n = 0 %}
+												{% for k,v in cdn_js %}
+												<div class="checkbox">
+													<input type="checkbox" {{v in Settings.layoutIncludeJs ? 'checked' : ''}} value="{{v}}" name="extension[layout_include_js][]" id="form_layout_include_js_{{n}}">
+													<label for="form_layout_include_js_{{n}}">JS: {{k}}</label>
+												</div>
+												{% set n = (n + 1) %}
+												{% endfor %}
+											</div>
+										</div>
+										<div class="col-12 col-md-4">
+											<h6>{{ 'Styles' | trans }}</h6>
+											<div class="field-collection" id="form_layout_include_css">
+												{% set n = 0 %}
+												{% for k,v in cdn_css %}
+												<div class="checkbox">
+													<input type="checkbox" {{v in Settings.layoutIncludeCss ? 'checked' : ''}} value="{{v}}" name="extension[layout_include_css][]" id="form_layout_include_css_{{n}}">
+													<label for="form_layout_include_css_{{n}}">CSS: {{k}}</label>
+												</div>
+												{% set n = (n + 1) %}
+												{% endfor %}
+											</div>
+										</div>
+										<div class="col-12 col-md-4">
+											<h6>{{ 'Fonts' | trans }}</h6>
+											<div class="field-collection" id="form_layout_include_font">
+												{% set n = 0 %}
+												{% for k,v in cdn_font %}
+												<div class="checkbox">
+													<input type="checkbox" {{v in Settings.layoutIncludeFont ? 'checked' : ''}} value="{{v}}" name="extension[layout_include_font][]" id="form_layout_include_font_{{n}}">
+													<label for="form_layout_include_font_{{n}}">FONT: {{k}}</label>
+												</div>
+												{% set n = (n + 1) %}
+												{% endfor %}
+											</div>
+										</div>
+									</div>
+									<div class="row legacy-assets" style="margin: 15px 0 0 0;display:none;">
+										<div class="col-12 col-md-4">
+											<h4 style="margin-top: 0;">{{ 'Legacy' | trans }}</h4>
+											<div class="field-collection" style="margin:0;">
+												<div style="background:#f5f5f5;padding:10px 15px;border-radius:5px;margin-top:10px;margin-left:-15px;">
+													{% set n = 0 %}
+													{% for k,v in cdn_js_old %}
+													<div class="checkbox">
+														<input type="checkbox" {{v in Settings.layoutIncludeJs ? 'checked' : ''}} value="{{v}}" name="extension[layout_include_js][]" id="form_layout_include_js_old_{{n}}">
+														<label for="form_layout_include_js_old_{{n}}">JS: {{k}}</label>
+													</div>
+													{% set n = (n + 1) %}
+													{% endfor %}
+												</div>
+											</div>
+										</div>
+										<div class="col-12 col-md-4">
+											<h4 style="margin-top: 0;">&nbsp;</h4>
+											<div class="field-collection" style="margin:0;">
+												<div style="background:#f5f5f5;padding:10px 15px;border-radius:5px;margin-top:10px;margin-left:-15px;">
+													{% set n = 0 %}
+													{% for k,v in cdn_css_old %}
+													<div class="checkbox">
+														<input type="checkbox" {{v in Settings.layoutIncludeCss ? 'checked' : ''}} value="{{v}}" name="extension[layout_include_css][]" id="form_layout_include_css_old_{{n}}">
+														<label for="form_layout_include_css_old_{{n}}">CSS: {{k}}</label>
+													</div>
+													{% set n = (n + 1) %}
+													{% endfor %}
+												</div>
+											</div>
+										</div>
+										<div class="col-12 col-md-4">
+											<h4 style="margin-top: 0;">&nbsp;</h4>
+											<div class="field-collection" style="margin:0;">
+												<div style="background:#f5f5f5;padding:10px 15px;border-radius:5px;margin-top:10px;margin-left:-15px;">
+													{% set n = 0 %}
+													{% for k,v in cdn_font_old %}
+													<div class="checkbox">
+														<input type="checkbox" {{v in Settings.layoutIncludeFont ? 'checked' : ''}} value="{{v}}" name="extension[layout_include_font][]" id="form_layout_include_font_old_{{n}}">
+														<label for="form_layout_include_font_old_{{n}}">FONT: {{k}}</label>
+													</div>
+													{% set n = (n + 1) %}
+													{% endfor %}
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row" style="margin: 15px 0 0 0;">
+										<div class="col-12 col-md-6" >
+											{{ form_row(form.author) }}
+										</div>
+										<div class="col-12 col-md-6" >
+											{{ form_row(form.og_site_name) }}
+										</div>
+										<div class="col-12 col-md-6" >
+											{{ form_row(form.favicon_location) }}
+										</div>
+										<div class="col-12 col-md-6" >
+											{{ form_row(form.apple_touch_icon) }}
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">{{'Toegang beperken'|trans}}</span>
+									<div class="row">
+										<div class="col-6">{{form_row(form.restrict_access, {attr: {class: ''}})}}</div>
+										<div class="col-6">{{form_row(form.restrict_access_deny, {attr: {class: ''}})}}</div>
+									</div>
+									<div class="row">
+										<div class="col-12">{{form_row(form.restrict_access_type)}}</div>
+									</div>
+								</div>
+							</div>
+				</div>
+					</div>
+				  <div class="tab-pane" id="content4" role="tabpanel" aria-labelledby="tab4">
+						<div id="ideal" class="t-content" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+							<div class="card {{Settings.payEnabled ? '' : 'inactive'}}">
+								<div class="card-content">
+									<span class="card-title">
+										<span class="card-titles">
+											<h6>{{'Pay.nl (sponsored)'|trans}}</h6>
+										</span>
+										<span class="card-actions">
+											<div class="switch">
+												<div class="form-check">
+													<input class="form-check-input" {{Settings.payEnabled ? 'checked="checked"' : ''}} class="spo" onclick="switchPaymentOption(this)" name="pay_enabled" id="pay_enabled" type="checkbox">
+													<label class="form-check-label" for="pay_enabled">{{ 'Ingeschakeld' | trans }}</label>
+												</div>
+											</div>
+										</span>
+									</span>
+									<div class="row {{Settings.payEnabled ? '' : 'hidden'}}">
+										<div class="col-12">{{form_row(form.pay_live)}}</div>
+										<div class="col-12">{{form_row(form.pay_service_id)}}</div>
+										<div class="col-12">{{form_row(form.pay_api_test)}}</div>
+										<div class="col-12">{{form_row(form.pay_api_live)}}</div>
+									</div>
+									<div class="row">
+										<div class="col-12">
+											<a target="_blank" href="{{path('admin_settings_pay', {method: 'pay'})}}" class="btn btn-gray">{{ 'Test betaling' | trans }}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card {{Settings.mollieEnabled ? '' : 'inactive'}}">
+								<div class="card-content">
+									<div class="card-title">
+										<div class="card-titles">
+											<h6>{{'Mollie'|trans}}</h6>
+										</div>
+										<div class="card-actions">
+											<div class="switch form-check">
+												<input class="form-check-input" {{Settings.mollieEnabled ? 'checked="checked"' : ''}} class="spo" onclick="switchPaymentOption(this)" name="mollie_enabled" id="mollie_enabled" type="checkbox">
+												<label class="form-check-label" for="mollie_enabled">{{ 'Ingeschakeld' | trans }}</label>
+											</div>
+										</div>
+									</div>
+									<div class="row {{Settings.mollieEnabled ? '' : 'hidden'}}">
+										<div class="col-12">{{form_row(form.mollie_live)}}</div>
+										<div class="col-12">{{form_row(form.mollie_api_test)}}</div>
+										<div class="col-12">{{form_row(form.mollie_api_live)}}</div>
+										<div class="col-12">{{form_row(form.mollie_subscription)}}</div>
+									</div>
+									<div class="row" style="padding-top: 10px;">
+										<div class="col-12">
+											<a target="_blank" href="{{path('admin_settings_pay', {method: 'mollie'})}}" class="btn btn-gray">{{ 'Test betaling' | trans }}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card {{Settings.buckarooEnabled ? '' : 'inactive'}}">
+								<div class="card-content">
+									<span class="card-title">
+										<span class="card-titles">
+											<h6>{{'Buckaroo'|trans}}</h6>
+										</span>
+										<span class="card-actions">
+											<div class="switch form-check">
+												<input class="form-check-input" {{Settings.buckarooEnabled ? 'checked="checked"' : ''}} class="spo" onclick="switchPaymentOption(this)" name="buckaroo_enabled" id="buckaroo_enabled" type="checkbox">
+												<label class="form-check-label" for="buckaroo_enabled">{{ 'Ingeschakeld' | trans }}</label>
+											</div>
+										</span>
+									</span>
+									<div class="row {{Settings.buckarooEnabled ? '' : 'hidden'}}">
+										<div class="col-12">{{form_row(form.buckaroo_live)}}</div>
+										<div class="col-12">{{form_row(form.buckaroo_website_key)}}</div>
+										<div class="col-12">{{form_row(form.buckaroo_secret)}}</div>
+									</div>
+									<div class="row">
+										<div class="col-12">
+											<a target="_blank" href="{{path('admin_settings_pay', {method: 'buckaroo'})}}" class="btn btn-gray">{{ 'Test betaling' | trans }}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card {{Settings.omnikassaEnabled ? '' : 'inactive'}}">
+								<div class="card-content">
+									<span class="card-title">
+										<span class="card-titles">
+											<h6>{{'OmniKassa'|trans}}</h6>
+										</span>
+										<div class="switch form-check">
+											<input class="form-check-input" {{Settings.omnikassaEnabled ? 'checked="checked"' : ''}} class="spo" onclick="switchPaymentOption(this)" name="omnikassa_enabled" id="omnikassa_enabled" type="checkbox">
+											<label class="form-check-label" for="omnikassa_enabled">{{ 'Ingeschakeld' | trans }}</label>
+										</div>
+									</span>
+									<div class="row {{Settings.omnikassaEnabled ? '' : 'hidden'}}">
+										<div class="col-12">{{form_row(form.omnikassa_live)}}</div>
+										<div class="col-12">{{form_row(form.omnikassa_sign)}}</div>
+										<div class="col-12">{{form_row(form.omnikassa_refresh)}}</div>
+										<div class="col-12">{{form_row(form.omnikassa_sign_test)}}</div>
+										<div class="col-12">{{form_row(form.omnikassa_refresh_test)}}</div>
+									</div>
+									<div class="row">
+										<div class="col-12">
+											<a target="_blank" href="{{path('admin_settings_pay', {method: 'omnikassa'})}}" class="btn btn-gray">{{ 'Test betaling' | trans }}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card {{Settings.multisafepayEnabled ? '' : 'inactive'}}">
+								<div class="card-content">
+									<span class="card-title">
+										<span class="card-titles">
+											<h6>{{'MultiSafePay'|trans}}</h6>
+										</span>
+										<span class="card-actions">
+											<div class="switch form-check">
+												<input class="form-check-input" {{Settings.multisafepayEnabled ? 'checked="checked"' : ''}} class="spo" onclick="switchPaymentOption(this)" name="multisafepay_enabled" id="multisafepay_enabled" type="checkbox">
+												<label class="form-check-label" for="multisafepay_enabled">{{ 'Ingeschakeld' | trans }}</label>
+											</div>
+										</span>
+									</span>
+									<div class="row {{Settings.multisafepayEnabled ? '' : 'hidden'}}">
+										<div class="col-12">{{form_row(form.multisafepay_live)}}</div>
+										<div class="col-12">{{form_row(form.multisafepay_api)}}</div>
+										<div class="col-12">{{form_row(form.multisafepay_api_test)}}</div>
+									</div>
+									<div class="row">
+										<div class="col-12">
+											<a target="_blank" href="{{path('admin_settings_pay', {method: 'multisafepay'})}}" class="btn btn-gray">{{ 'Test betaling' | trans }}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card {{Settings.sisowEnabled ? '' : 'inactive'}}">
+								<div class="card-content">
+									<span class="card-title">
+										<span class="card-titles">
+											<h6>{{'Sisow'|trans}}</h6>
+										</span>
+										<span class="card-actions">
+											<div class="switch form-check">
+												<input class="form-check-input" {{Settings.sisowEnabled ? 'checked="checked"' : ''}} class="spo" onclick="switchPaymentOption(this)" name="sisow_enabled" id="sisow_enabled" type="checkbox">
+												<label class="form-check-label" for="sisow_enabled">{{ 'Ingeschakeld' | trans }}</label>
+											</div>
+										</span>
+									</span>
+									<div class="row {{Settings.sisowEnabled ? '' : 'hidden'}}">
+										<div class="col-12">{{form_row(form.sisow_live)}}</div>
+										<div class="col-12">{{form_row(form.sisow_merchant_id)}}</div>
+										<div class="col-12">{{form_row(form.sisow_merchant_key)}}</div>
+										<div class="col-12">{{form_row(form.sisow_shop_id)}}</div>
+										<div class="col-12">
+											<strong>{{'Beschikbare methodes'|trans({})}}</strong>
+
+											<div class="row">
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'ideal' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[ideal]" id="options_xx" type="checkbox"> <span class="lever"></span>iDEAL</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'idealqr' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[idealqr]" id="options_xx" type="checkbox"> <span class="lever"></span>iDEAL QR</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'overboeking' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[overboeking]" id="options_xx" type="checkbox"> <span class="lever"></span>Overboeking vooraf</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'ebill' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[ebill]" id="options_xx" type="checkbox"> <span class="lever"></span>Ebill</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'bunq' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[bunq]" id="options_xx" type="checkbox"> <span class="lever"></span>bunq</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'creditcard' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[creditcard]" id="options_xx" type="checkbox"> <span class="lever"></span>Creditcard</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'maestro' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[maestro]" id="options_xx" type="checkbox"> <span class="lever"></span>Maestro</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'vpay' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[vpay]" id="options_xx" type="checkbox"> <span class="lever"></span>V PAY</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'sofort' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[sofort]" id="options_xx" type="checkbox"> <span class="lever"></span>SOFORT Banking</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'giropay' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[giropay]" id="options_xx" type="checkbox"> <span class="lever"></span>Giropay</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'eps' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[eps]" id="options_xx" type="checkbox"> <span class="lever"></span>EPS</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'mistercash' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[mistercash]" id="options_xx" type="checkbox"> <span class="lever"></span>Bancontact</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'belfius' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[belfius]" id="options_xx" type="checkbox"> <span class="lever"></span>Belfius Pay Button</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'homepay' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[homepay]" id="options_xx" type="checkbox"> <span class="lever"></span>ING Home’Pay</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'kbc' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[kbc]" id="options_xx" type="checkbox"> <span class="lever"></span>KBC</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'cbc' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[cbc]" id="options_xx" type="checkbox"> <span class="lever"></span>CBC</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'paypalec' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[paypalec]" id="options_xx" type="checkbox"> <span class="lever"></span>PayPal</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'afterpay' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[afterpay]" id="options_xx" type="checkbox"> <span class="lever"></span>Afterpay</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'billink' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[billink]" id="options_xx" type="checkbox"> <span class="lever"></span>Billink achteraf betalen</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'capayable' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[capayable]" id="options_xx" type="checkbox"> <span class="lever"></span>Capayable gespreid betalen</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'focum' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[focum]" id="options_xx" type="checkbox"> <span class="lever"></span>Focum AchterafBetalen</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'klarna' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[klarna]" id="options_xx" type="checkbox"> <span class="lever"></span>Klarna Factuur</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'vvv' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[vvv]" id="options_xx" type="checkbox"> <span class="lever"></span>VVV Giftcard</label></div></div>
+												<div class="col-12 col-md-6 l4"><div class="switch"><label><input class="spo" {% if 'webshop' in Settings.sisowOptions %}checked="checked"{% endif %} name="sisow_options[webshop]" id="options_xx" type="checkbox"> <span class="lever"></span>Webshop Giftcard</label></div></div>
+											</div>
+										</div>
+									</div>
+									<div class="row" style="padding-top: 10px;">
+										<div class="col-12">
+											<a target="_blank" href="{{path('admin_settings_pay', {method: 'sisow'})}}" class="btn btn-gray">{{ 'Test betaling' | trans }}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card {{Settings.payproEnabled ? '' : 'inactive'}}">
+								<div class="card-content">
+									<span class="card-title">
+										<span class="card-titles">
+											<h6>{{'PayPro'|trans}}</h6>
+										</span>
+										<span class="card-actions">
+											<div class="switch form-check">
+												<input class="form-check-input" {{Settings.payproEnabled ? 'checked="checked"' : ''}} class="spo" onclick="switchPaymentOption(this)" name="paypro_enabled" id="paypro_enabled" type="checkbox">
+												<label class="form-check-check" for="paypro_enabled">{{ 'Ingeschakeld' | trans }}</label>
+											</div>
+										</span>
+									</span>
+									<div class="row {{Settings.payproEnabled ? '' : 'hidden'}}">
+										<div class="col-12">{{form_row(form.paypro_live)}}</div>
+										<div class="col-12">{{form_row(form.paypro_key)}}</div>
+										<div class="col-12">{{form_row(form.paypro_subscription)}}</div>
+									</div>
+									<div class="row" style="padding-top: 10px;">
+										<div class="col-12">
+											<a target="_blank" href="{{path('admin_settings_pay', {method: 'paypro'})}}" class="btn btn-gray">{{ 'Test betaling' | trans }}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				  <div class="tab-pane" id="content5" role="tabpanel" aria-labelledby="tab5">
+						<div id="analytics" class="t-content" style="">
+							<div style="display:none;" class="card" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{'Piwik/Matomo Analytics'|trans}}</h6>
+									</span>
+									<div class="row">
+										<div class="col-12 col-md-6">{{form_row(form.piwik_url)}}</div>
+										<div class="col-12 col-md-4">{{form_row(form.piwik_api_hash)}}</div>
+										<div class="col-12 m2">{{form_row(form.piwik_site_id)}}</div>
+										<div class="col-12">{{form_row(form.piwik_container_hashs)}}</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{'Google Analytics'|trans}}</h6>
+									</span>
+									<div class="row">
+										<div class="col-12 col-md-6 l3">{{form_row(form.google_g)}}</div>
+										<div class="col-12 col-md-6 l3">{{form_row(form.google_ua)}}</div>
+										<div class="col-12 col-md-6 l3">{{form_row(form.google_cc)}}</div>
+										<div class="col-12 col-md-6 l3">{{form_row(form.google_gtm)}}</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{ 'Meta Analytics'|trans }}</h6>
+									</span>
+									<div class="row">
+										<div class="col-12 col-md-6">{{ form_row(form.face_domain_key) }}</div>
+										<div class="col-12 col-md-6">{{ form_row(form.facebook_pixel) }}</div>
+										<div class="col-12 col-md-12">{{ form_row(form.meta_api_token) }}</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-content">
+									<div class="card-title">
+										<h6>{{ 'Cookiebar configuratie' | trans }}</h6>
+									</div>
+									<div class="row">
+										<div class="col-12">{{form_row(form.cookiebar)}}</div>
+									</div>
+
+									<div class="row cookiebar-data" style="display: {{Settings.cookiebar ? 'block' : 'none'}};">
+										<div class="col-12">{{form_row(form.cookiebar_button)}}</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="cookiebar-data" style="display: {{Settings.cookiebar ? 'block' : 'none'}};">
+								<div class="card">
+									<div class="card-content">
+										<div class="card-title">
+											<h6>{{ "Pagina's toewijzen" | trans }}</h6>
+										</div>
+
+										<div class="row cookiepages">
+											<div class="col-12">
+												<div class="d-flex align-items-end">
+													<div class="field">
+														{{form_row(form.avg_cookie)}}
+													</div>
+													<button type="button" class="btn btn-gray page-select" data-key="form_avg_cookie"><i class="fa fa-search"></i>{{ 'Selecteer pagina' | trans }}</button>
+												</div>
+											</div>
+											<div class="col-12">
+												<div class="d-flex align-items-end">
+													<div class="field">
+														{{form_row(form.avg_disclaimer)}}
+													</div>
+													<button type="button" class="btn btn-gray page-select" data-key="form_avg_disclaimer"><i class="fa fa-search"></i>{{ 'Selecteer pagina' | trans }}</button>
+												</div>
+											</div>
+											<div class="col-12">
+												<div class="d-flex align-items-end">
+														<div class="field">
+														{{form_row(form.avg_privacy)}}
+													</div>
+													<button type="button" class="btn btn-gray page-select" data-key="form_avg_privacy"><i class="fa fa-search"></i>{{ 'Selecteer pagina' | trans }}</button>
+												</div>
+											</div>
+
+											{# <div class="input-field col-4 page-select">
+												<button type="button" class="page-select" data-key="avg_cookie"><i class="material-icons left">find_in_page</i>Selecteer pagina</button>
+												<input id="avg_cookie" name="avg[avg_cookie]" type="text" />
+												<label for="avg_cookie">Cookie pagina</label>
+											</div>
+											<div class="input-field col-4 page-select">
+												<button type="button" class="page-select" data-key="avg_disclaimer"><i class="material-icons left">find_in_page</i>Selecteer pagina</button>
+												<input id="avg_disclaimer" name="avg[avg_disclaimer]" type="text" />
+												<label for="avg_disclaimer">Disclaimer pagina</label>
+											</div>
+											<div class="input-field col-4 page-select">
+												<button type="button" class="page-select" data-key="avg_privacy"><i class="material-icons left">find_in_page</i>Selecteer pagina</button>
+												<input id="avg_privacy" name="avg[avg_privacy]" type="text" />
+												<label for="avg_privacy">Privacy pagina</label>
+											</div> #}
+										</div>
+									</div>
+								</div>
+
+								<div class="card" id="cookiebar-button-data" style="display: {{Settings.cookiebarButton ? 'block' : 'none'}};">
+									<div class="card-content">
+										<div class="card-title">{{ 'Reset-knop configuratie' | trans }}</div>
+										<div class="row">
+											<div class="col-6">{{form_row(form.cookiebar_button_position)}}</div>
+											<div class="col-6">{{form_row(form.cookiebar_button_offset)}}</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<script type="text/javascript">
+						function switchPaymentOption(chk){
+
+							$('.spo:not(#' + chk.id + ')').prop('checked', false).closest('.card').addClass('inactive').find('.row').addClass('hidden');
+
+							if(chk.checked){
+								$(chk).closest('.card').removeClass('inactive').find('.row').removeClass('hidden');
+							}else{
+								$(chk).closest('.card').addClass('inactive').find('.row').addClass('hidden');
+							}
+						}
+						</script>
+					</div>
+				  <div class="tab-pane" id="content6" role="tabpanel" aria-labelledby="tab6">
+						<div id="header" class="t-content">
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">
+										<span class="card-titles">
+											<h6>{{'Header'|trans}}</h6>
+										</span>
+										<div class="card-actions">
+											{{form_row(form.header_bar)}}
+										</div>
+									</span>
+
+									<div class="row">
+										<div class="col-12">{{form_row(form.header_bar_left, {attr: {class: 'page-header materialize-textarea inline-ckeditor'}})}}</div>
+										<div class="col-12">{{form_row(form.header_bar_right, {attr: {class: 'page-header materialize-textarea inline-ckeditor'}})}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				  <div class="tab-pane" id="content7" role="tabpanel" aria-labelledby="tab7">
+						<div id="footer" class="t-content">
+							<div class="card">
+								<div class="card-content">
+									<div class="card-title">
+										<h6>{{'Footer'|trans}}</h6>
+									</div>
+									{{form_row(form.footer_block_1, {attr: {class: 'page-footer materialize-textarea inline-ckeditor'}})}}
+									{{form_row(form.footer_block_2, {attr: {class: 'page-footer materialize-textarea inline-ckeditor'}})}}
+									{{form_row(form.footer_block_3, {attr: {class: 'page-footer materialize-textarea inline-ckeditor'}})}}
+									{{form_row(form.footer_block_4, {attr: {class: 'page-footer materialize-textarea inline-ckeditor'}})}}
+									{{form_row(form.footer_block_5, {attr: {class: 'page-footer materialize-textarea inline-ckeditor'}})}}
+								</div>
+							</div>
+						</div>
+					</div>
+				  <div class="tab-pane" id="content11" role="tabpanel" aria-labelledby="tab11">
+						<div id="errors" class="t-content">
+							<div class="card">
+								<div class="card-content">
+									<div class="card-title">
+										<h6>{{'Foutpagina\'s'|trans}}</h6>
+									</div>
+									<div class="row">
+										<div class="col-12">{{form_row(form.errorNotFound, {attr: {class: 'materialize-textarea inline-ckeditor'}})}}</div>
+										<div class="col-12">{{form_row(form.errorNoAccess, {attr: {class: 'materialize-textarea inline-ckeditor'}})}}</div>
+										<div class="col-12">{{form_row(form.errorSystem, {attr: {class: 'materialize-textarea inline-ckeditor'}})}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="tab-pane" id="ooo-config" role="tabpanel" aria-labelledby="tab-ooo-config">
+						<div class="card">
+							<div class="card-content">
+								<div class="card-title">
+									<h6>{{'\'Out of office\'-melding'|trans}}</h6>
+									<div class="card-actions">
+										<div style="float:right;">{{ form_row(form.outOfOfficeEnabled) }}</div>
+									</div>
+								</div>
+								<div id="ooo-details" style="display:{{Settings.outOfOfficeEnabled ? 'block' : 'none'}};">
+									<div class="row">
+										<div class="col-6">
+											{{form_row(form.outOfOfficeStart)}}
+										</div>
+										<div class="col-6">
+											{{form_row(form.outOfOfficeEnd)}}
+										</div>
+									</div>
+									<div class="col-12">
+										{{form_row(form.outOfOfficeMessage, {attr: {class: 'ooo-msg inline-ckeditor'}})}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+
+					<div class="tab-pane" id="content13" role="tabpanel" aria-labelledby="tab13" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+						<div id="zipcodechecker" class="t-content">
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title"><h6>{{ 'API Postcode'|trans }} {{'(Gratis, 1000 verzoeken per dag)'|trans}}</h6></span>
+									<div class="row">
+										<div class="col s12">
+											<div>Maak een gratis token aan op: <a href="https://www.api-postcode.nl" target="_blank">api-postcode.nl</a></div>
+											{{form_row(form.api_postcode_token)}}
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title"><h6>{{'Post-NL API'|trans}} {{'(Abonnement)'|trans}}</h6></span>
+									<div class="row">
+										<div class="col s12">
+											{{form_row(form.postnl_checker)}}
+										</div>
+									</div>
+									<div class="row">
+										<div class="col s12">
+											{{form_row(form.postnl_key)|raw}}
+										</div>
+									</div>
+									<div class="row">
+										<div class="col s12">
+											{{form_row(form.postnl_secret_key)|raw}}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				<div class="tab-pane" id="contentgpt" role="tabpanel" aria-labelledby="tabgpt" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+						<div id="zipcodechecker" class="t-content">
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title"><h6>{{ 'OpenAI API key'|trans }}</h6></span>
+									<div class="row">
+										<div class="col-12">
+											{{form_row(form.openai_key)}}
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title"><h6>{{'Instellingen'|trans}}</h6></span>
+									<div class="row">
+										<div class="col-12">
+											{{form_row(form.openai_model)}}
+										</div>
+										<div class="col-12">
+											{{form_row(form.openai_temp)}}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>	
+
+				  <div class="tab-pane" id="content14" role="tabpanel" aria-labelledby="tab14">
+						<div class="card" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+							<div class="card-content">
+								<span class="card-title">
+									<h6>{{'Lef API'|trans}}</h6>
+								</span>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_api_active)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_api_live)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_api_test_url)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_api_live_url)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_user_name)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_password)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_occasion_request)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_finance_occasion_request)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_forms_request)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_privatelease_request)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_offer_request)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col s12">
+										{{form_row(form.lef_testdrive_request)}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					 <div class="tab-pane" id="content16" role="tabpanel" aria-labelledby="tab16">
+						<div class="card" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+							<div class="card-content">
+								<span class="card-title">{{'Santander leen API'|trans}}</span>
+								<div class="row">
+									<div class="col s12">{{form_row(form.santander_loan_active)|raw}}</div>
+								</div>
+								<div class="row">
+									<div class="col s12">{{form_row(form.santander_is_live)|raw}}</div>
+								</div>
+								<div class="row">
+									<div class="col s12">{{form_row(form.santander_loan_api_test)|raw}}</div>
+								</div>
+								<div class="row">
+									<div class="col s12">{{form_row(form.santander_loan_api_live)|raw}}</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				  <div class="tab-pane" id="content15" role="tabpanel" aria-labelledby="tab15" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+						<div id="uptimerobot">
+							<div class="card">
+								<div class="card-content">
+									<div class="card-title">
+										<h6>{{'UptimeRobot API'|trans}}</h6>
+									</div>
+										<div class="row">
+										<div class="col s12">
+											{{form_row(form.uptime_robot_key, {label: 'API key'})}}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="tab-pane" id="hummessenger" role="tabpanel" aria-labelledby="tab-hummessenger">
+						<div class="card">
+							<div class="card-content">
+								<div class="card-title">
+									<h6>{{'Hummessenger API'|trans}}</h6>
+								</div>
+								<div id="ooo-details">
+									<div class="row">
+										<div class="col-12">
+										{{ form_row(form.Hummessenger_api_enabled) }}
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-6">
+											{{form_row(form.Hummessenger_api_url)}}
+										</div>
+										<div class="col-6">
+											{{form_row(form.Hummessenger_api_key)}}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+				  <div class="tab-pane" id="content8" role="tabpanel" aria-labelledby="tab8">
+						<div id="media" class="t-content">
+							<div class="card" style="{% if is_granted('ROLE_SUPER_ADMIN') == false %}display:none;{% endif %}">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{'TinyPNG'|trans}}</h6>
+									</span>
+									<div class="row">
+										<div class="col-12">
+											{{form_row(form.tinypng_api)|raw}}
+										</div>
+										{% if Tinify and Tinify.status == 'OK' %}
+										<div class="col-12">
+											Acties uitgevoerd deze maand: <strong>{{Tinify.count ?? 'Onbekend'}}</strong>
+										</div>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{'Afbeelding formaten'|trans}}</h6>
+									</span>
+									{% for key,dimension in Settings.mediaDimensions %}
+									<div class="row">
+										<div class="col-12 col-lg-4">
+											{{Settings.getDimensionLabel(key)|trans}}<br/>
+											<span class="grey-text" style="font-size: 12px;">{{ 'Maximum grootte (px)' | trans }}</span>
+										</div>
+										<div class="col-12 col-lg-4">
+											{{'Sleutel:'|trans}}<br/>
+											<span class="grey-text" style="font-size: 12px;">{{key}}</span>
+										</div>
+										<div class="col-12 col-lg-4">
+											<input class="form-control" style="margin:0;" name="dimensions[{{key}}]" id="{{key}}" type="text" value="{{dimension}}" />
+											{# <label for="{{key}}"></label> #}
+											<hr class="d-lg-none">
+										</div>
+									</div>
+									{% endfor %}
+								</div>
+							</div>
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+							<div class="card">
+								<div class="card-content">
+									<span class="card-title">
+										<h6>{{ 'Max Media upload size' | trans }}</h6>
+									</span>
+								<input style="margin:0;" class="form-control" id="maxuploadsize" name="maxmediauploadsize" type="text" value="{% if Settings.getMaxMediaSize() is not null %}{{ Settings.getMaxMediaSize }}{% else %}2M{% endif %}" />
+									<label for="maxuploadsize">{{ "Maximale grote van geuploaded afbeeldingen (in Kilo 'K' of Mega 'M') notatie (aan elkaar). Bij incorrecte waardes wordt gedefault naar 2M." | trans }}</label>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+		</div>
+		</div>
+
+		<div class="btn-bar">
+			<div class="left">
+			</div>
+			<div class="right">
+
+					{% if Settings.test %}
+						<a href="{{path('admin_settings', {'testmode': 0})}}" class="btn red">
+							<i class="fa fa-fw fa-check-circle"></i>
+							{{ 'Test modus' | trans }}
+						</a>
+					{% else %}
+						<a href="{{path('admin_settings', {'testmode': 1})}}" class="btn green">
+							<i class="far fa-fw fa-circle"></i>
+							{{ 'Test modus' | trans }}
+						</a>
+					{% endif %}
+				<button type="submit" class="btn right waves-effect waves-light"><i class="fa fa-save"></i> {{'Opslaan'|trans}}</button>
+			</div>
+		</div>
+	</div>
+	{{ form_end(form) }}
+
+	<script type="text/javascript" src="{{asset('bundles/cms/js/jquery.filedrop.js')}}"></script>
+	<script type="text/javascript">
+	function topFunction() {
+	  document.body.scrollTop = 0; // For Safari
+	  document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+	}
+
+	var totalUploadSize = 0;
+	var fileDrop = [];
+
+	$.each($('.inline-ckeditor'), function(ind, area){
+		editor[ind] = CKEDITOR.replace( area, {
+			width: "100%",
+			height: "250px"
+		} );
+
+		// Bundle selection popup
+		editor[ind].addCommand("bundleSelect", { // create named command
+			exec: function(edt) {
+				selectedEditorIndex = ind;
+				cpop.reset().loadAjax('{{path('admin_page_link')}}');
+			}
+		});
+		editor[ind].ui.addButton('bundleSelect', { // add new button and bind our command
+			label: "Bundle selection",
+			command: 'bundleSelect',
+			toolbar: 'document',
+			icon: '{{asset('bundles/cms/ck_ext.png')}}'
+		});
+		editor[ind].on('instanceReady',function(){
+			$('.cke_button__inlinesave').remove();
+		});
+	});
+
+    var allowedDocTypes = ['application/csv', 'application/doc', 'application/excel', 'application/ms-doc', 'application/mspowerpoint', 'application/msword', 'application/octet-stream', 'application/pdf', 'application/powerpoint', 'application/rtf', 'application/vnd.apple.keynote', 'application/vnd.apple.numbers', 'application/vnd.apple.pages', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/x-excel', 'application/x-iwork-keynote-sffkey', 'application/x-iwork-numbers-sffnumbers', 'application/x-msexcel', 'application/x-mspowerpoint', 'application/x-rar-compressed', 'application/zip', 'audio/basic', 'audio/mpeg', 'audio/ogg', 'audio/vnd.rn-realaudio', 'audio/vorbis', 'audio/wav', 'audio/x-midi', 'audio/x-pn-realaudio', 'audio/x-wav', 'text/asp', 'text/css', 'text/csv', 'text/html', 'text/pascal', 'text/php', 'text/plain', 'text/richtext', 'text/sgml', 'text/uri-list', 'text/webviewhtml', 'text/x-asm', 'text/x-c', 'text/x-java-source', 'text/x-pascal', 'text/x-script.csh', 'text/x-script.elisp', 'text/x-script.perl', 'text/x-script.perl-module', 'text/x-script.phyton', 'text/x-script.sh', 'text/x-server-parsed-html', 'text/x-setext', 'text/x-sgml', 'text/x-uuencode', 'video/avi', 'video/mp4', 'video/mpeg', 'video/msvideo', 'video/quicktime', 'video/x-msvideo'];
+        var allowedMediaTypes = ['image/bmp', 'image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/tiff'];
+
+        var allowedTypes = $.merge( $.merge([], allowedMediaTypes), allowedDocTypes)
+
+	$().ready(function(){
+		$('.dropzones').each(function(ind, dropzone){
+			var fd = $(dropzone).filedrop({
+			    fallback_id: 'upload_button',   // an identifier of a standard file input element, becomes the target of "click" events on the dropzone
+			    url: '{{path('admin_settings')}}',              // upload handler, handles each file separately, can also be a function taking the file and returning a url
+			    paramname: $(dropzone).data('name'),          // POST parameter name used on serverside to reference file, can also be a function taking the filename and returning the paramname
+			    withCredentials: true,          // make a cross-origin request with cookies
+			    data: {
+			    },
+			    error: function(err, file) {
+			        switch(err) {
+			            case 'BrowserNotSupported':
+			            	$('#upload-overlay').hide();
+			                alert('{{ 'browser does not support HTML5 drag and drop' | trans }}')
+			                break;
+			            case 'TooManyFiles':
+			            	$('#upload-overlay').hide();
+			                // user uploaded more than 'maxfiles'
+			                break;
+			            case 'FileTooLarge':
+			            	$('#upload-overlay').hide();
+			                // program encountered a file whose size is greater than 'maxfilesize'
+			                // FileTooLarge also has access to the file which was too large
+			                // use file.name to reference the filename of the culprit file
+			                break;
+			            case 'FileTypeNotAllowed':
+			            	$('#upload-overlay').hide();
+			                // The file type is not in the specified list 'allowedfiletypes'
+			                break;
+			            case 'FileExtensionNotAllowed':
+			            	$('#upload-overlay').hide();
+			                // The file extension is not in the specified list 'allowedfileextensions'
+			                break;
+			            default:
+			                break;
+			        }
+			    },
+			    allowedfiletypes: allowedTypes,
+                            allowedmediafiletypes: allowedMediaTypes,
+			    allowedfileextensions: [], // file extensions allowed. Empty array means no restrictions
+			    maxfiles: 2,
+			    maxfilesize: {{maxFileSize}},    // max file size in MBs
+                            maxmediafilesize: {{maxMediaFileSize}}, // max images file size in KB's
+			    dragOver: function() {
+			    	activeZone = $(this);
+			        $(this).addClass('hover');
+			    },
+			    dragLeave: function() {
+			    	activeZone = null;
+			        $(this).removeClass('hover');
+			    },
+			    docOver: function() {
+			    },
+			    docLeave: function() {
+			    },
+			    drop: function(x,y,z) {
+			        $('#upload-overlay').show();
+			        $('#upload-overlay .progress-bar').css('width', '0%');
+			    },
+			    uploadStarted: function(i, file, len){
+			    	$('#upload-overlay').show();
+			        // console.info('Start upload.');
+			        // $($('.file-upload-preview').get(i)).find('i.fa').attr('class', 'fa fa-fw fa-upload');
+			        // activeZone.find('.dropzone-loader').show();
+
+			    },
+			    uploadFinished: function(i, file, response, time) {
+			    	// $('div[data-name="' + response.type + '"]').html('').append($('<img src="' + response.image + '" />'));
+			    	console.log( response.type, $('div[data-name="' + response.type + '"]') );
+			    	$('div[data-name="' + response.type + '"]').html('').css('background-image', 'url(' + response.image + ')');
+			    	$('#link_' + response.type).val(response.id);
+			    	activeZone.removeClass('hover');
+			    	$('#' + response.type + '_del_btn').show();
+			        // console.info('Start finished.', file);
+			        // $($('.file-upload-preview').get(i)).find('i.fa').attr('class', 'fa fa-fw fa-check');
+			        // $($('.file-upload-preview').get(i)).find('div.progress-bar').addClass('finished');
+			        // response is the data you got back from server in JSON format.
+			        // activeZone.find('.dropzone-loader').hide();
+			    },
+			    progressUpdated: function(i, file, progress) {
+			        // console.info('File progress:', progress, file);
+			        // $($('.file-upload-preview').get(i)).find('div.progress').css('width', progress + '%');
+			        // this function is used for large files and updates intermittently
+			        // progress is the integer value of file being uploaded percentage to completion
+			    },
+			    globalProgressUpdated: function(progress) {
+			        $('#upload-overlay .progress-bar').css('width', progress + '%');
+			    },
+			    speedUpdated: function(i, file, speed) {
+			        // console.info('Speed changed:', speed, file);
+			        // $('.file-upload-totals').find('span.size').html(humanFileSize(totalUploadSize, 1));
+			        // speed in kb/s
+			    },
+			    rename: function(name) {
+			        // console.info('Rename:', name);
+			        // name in string format
+			        // must return alternate name as string
+			    },
+			    beforeEach: function(file) {
+			        // console.info('Before file', file);
+			        /*var fileInfo = $('<div class="file-upload-preview"> \
+						<span class="label"><i class="fa fa-fw fa-clock-o"></i>' + file.name + '</span> \
+						<div class="right"> \
+							<span class="modified">' + day + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec + '</span> \
+							<span class="size">' + humanFileSize(file.size, 1) + '</span> \
+							<span class="progress">0 %</span> \
+							<a href="#" class="delete"></a> \
+						</div> \
+						<div class="progress-bar"><div class="progress" style="width:0%;"></div></div> \
+					</div>');
+			        $('#modal .modal-content .files').append(fileInfo);
+			        totalUploadSize += file.size;
+			        $('.file-upload-totals').find('span.size').html(humanFileSize(totalUploadSize, 1));*/
+			        // file is a file object
+			        // return false to cancel upload
+			    },
+			    beforeSend: function(file, i, done) {
+			        done(); // Start upload
+			        activeZone.removeClass('hover');
+			        activeZone.addClass('running');
+			    },
+			    afterAll: function() {
+			        $('#upload-overlay').hide();
+			        $('#upload-overlay .progress-bar').css('width', '0%');
+			        activeZone.removeClass('hover');
+			        activeZone.removeClass('running');
+			        activeZone.find('.del_btn').show();
+			        // activeZone.find('.dropzone-loader').hide();
+			    }
+			});
+			fileDrop.push(fd);
+		});
+
+		console.log( fileDrop );
+
+		//Run once on start
+		toggleRecaptchaTreshold($('#form_google_recaptcha_mode').val());
+
+		$('#recaptcha_treshold').find(".input-field").addClass("range-field").removeClass("input-field");
+
+		$( "#form_google_recaptcha_mode" ).change(function() {
+			toggleRecaptchaTreshold($(this).val());
+		});
+	});
+
+	function closeModal(){
+        $('#shade,#modal').removeClass('show');
+	}
+
+	function toggleRecaptchaTreshold(value){
+		if(value == "3_invisible"){
+			$('#recaptcha_treshold').css("display", "block");
+		} else {
+			$('#recaptcha_treshold').css("display", "none");
+		}
+	}
+
+	function humanFileSize(size, dec = 2) {
+	    var i = Math.floor( Math.log(size) / Math.log(1024) );
+	    return ( size / Math.pow(1024, i) ).toFixed(dec) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+	};
+
+	$( "body" ).addClass( "page-overview" );
+
+	$(function(){
+		$('#form_outOfOfficeEnabled').click(function(){
+			if(this.checked){
+				$('#ooo-details').show();
+			}else{
+				$('#ooo-details').hide();
+			}
+		});
+	});
+    </script>
+
+{% endblock %}

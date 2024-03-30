@@ -1,0 +1,125 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block body %}
+
+	{% if post is not empty %}
+		<div class="row">
+			<div class="col s12">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">POST output</div>
+						<table>
+							{% for k,v in post %}
+								<tr>
+									<td>{{k}}</td>
+									<td>{{v}}</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+	<form method="post">
+		<div class="row">
+			<div class="col s12 m6">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">Volledige datum + tijd picker</div>
+
+						<input class="trinity_datetime" id="demo1" name="datetimepicker_demo1" type="text" value="{{xmas|date('Y-m-d H:i')}}">
+
+						<code class="js">
+							.trinity_datetime
+						</code>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="col s12 m6">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">Volledige datum picker (zonder tijd)</div>
+
+						<input class="trinity_date" id="demo2" name="datepicker_demo2" type="text" value="{{xmas|date('Y-m-d')}}">
+
+						<code class="js">
+							.trinity_date
+						</code>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="col s12 m6">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">Tijd picker (zonder datum)</div>
+
+						<input class="trinity_time" id="demo3" name="timepicker_demo3" type="text" value="{{xmas|date('H:i')}}">
+
+						<code class="js">
+							.trinity_time
+						</code>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="col s12 m6">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">Inline tonen (zonder popup)</div>
+
+						<input class="trinity_datetime_inline" id="demo4" name="inline_datetimepicker_demo4" type="text" value="{{xmas|date('H:i')}}">
+
+						<code class="js">
+							.trinity_date_inline
+							.trinity_time_inline
+							.trinity_datetime_inline
+						</code>
+					</div>
+				</div>
+			</div>
+
+			<div class="col s12 m6">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title">Range picker tonen</div>
+
+						<input class="trinity_range_start" data-select="xx" id="demo5" name="inline_datetimepicker_demo5_start" type="text" value="{{xmas|date('Y-m-d')}}">
+						<input class="trinity_range_end" id="demo6" name="inline_datetimepicker_demo5_end" type="text" value="{{xmas|date('Y-m-d')}}">
+
+						<code class="js">
+							.trinity_range_start
+							.trinity_range_end
+						</code>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="btn-bar">
+			<div class="right">
+				<button type="submit" class="btn right waves-effect waves-light"><i class="material-icons left">save</i>{{'POST test'|trans}}</button>
+			</div>
+		</div>
+	</form>
+
+
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/default.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
+
+	<style>
+	code {
+		padding: 10px;
+		border: solid 1px #ddd;
+		border-radius: 5px;
+		display: block;
+		margin: 0;
+	}
+	</style>
+{% endblock %}

@@ -1,0 +1,94 @@
+<?php //App%255CCmsBundle%255CController%255CApiController%2523getApiInfoAction
+
+return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\Internal\Hydrator::hydrate(
+    $o = [
+        clone (($p = &\Symfony\Component\VarExporter\Internal\Registry::$prototypes)['Symfony\\Component\\Routing\\Annotation\\Route'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('Symfony\\Component\\Routing\\Annotation\\Route')),
+        clone ($p['OpenApi\\Annotations\\Response'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('OpenApi\\Annotations\\Response')),
+        clone ($p['OpenApi\\Context'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('OpenApi\\Context')),
+        clone ($p['OpenApi\\Loggers\\DefaultLogger'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('OpenApi\\Loggers\\DefaultLogger')),
+        clone ($p['OpenApi\\Annotations\\Tag'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('OpenApi\\Annotations\\Tag')),
+        clone $p['OpenApi\\Context'],
+        clone $p['OpenApi\\Loggers\\DefaultLogger'],
+        clone ($p['Nelmio\\ApiDocBundle\\Annotation\\Security'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('Nelmio\\ApiDocBundle\\Annotation\\Security')),
+        clone $p['OpenApi\\Context'],
+        clone $p['OpenApi\\Loggers\\DefaultLogger'],
+    ],
+    null,
+    [
+        'Symfony\\Component\\Routing\\Annotation\\Route' => [
+            'path' => [
+                '/api/info',
+            ],
+            'methods' => [
+                [
+                    'GET',
+                ],
+            ],
+        ],
+        'stdClass' => [
+            'response' => [
+                1 => 200,
+            ],
+            'description' => [
+                1 => 'Returned when successful',
+            ],
+            '_context' => [
+                1 => $o[2],
+                4 => $o[5],
+                7 => $o[8],
+            ],
+            'logger' => [
+                2 => $o[3],
+                5 => $o[6],
+                8 => $o[9],
+            ],
+            'filename' => [
+                2 => '/var/www/html/vendor/doctrine/annotations/lib/Doctrine/Common/Annotations/DocParser.php',
+                5 => '/var/www/html/vendor/doctrine/annotations/lib/Doctrine/Common/Annotations/DocParser.php',
+                8 => '/var/www/html/vendor/nelmio/api-doc-bundle/Annotation/Security.php',
+            ],
+            'line' => [
+                2 => 977,
+                5 => 977,
+                8 => 47,
+            ],
+            'method' => [
+                2 => 'Annotation',
+                5 => 'Annotation',
+                8 => '__construct',
+            ],
+            'class' => [
+                2 => 'DocParser',
+                5 => 'DocParser',
+                8 => 'Security',
+            ],
+            'namespace' => [
+                2 => 'Doctrine\\Common\\Annotations',
+                5 => 'Doctrine\\Common\\Annotations',
+                8 => 'Nelmio\\ApiDocBundle\\Annotation',
+            ],
+            'annotations' => [
+                2 => [
+                    $o[1],
+                ],
+                5 => [
+                    $o[4],
+                ],
+                8 => [
+                    $o[7],
+                ],
+            ],
+            'name' => [
+                4 => 'Command & Control',
+                7 => 'Bearer',
+            ],
+        ],
+    ],
+    [
+        $o[0],
+        $o[1],
+        $o[4],
+        $o[7],
+    ],
+    []
+); }];

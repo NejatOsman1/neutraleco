@@ -1,0 +1,27 @@
+<ul class="cal-upcoming">
+	{% if course_dates %}
+		{% for event in course_dates %}
+			{% if event.date|date('H:i') != '00:00' %}
+				{% set endTime = event.dateEnd|date('H:i') %}
+				<li class="cal-event">
+			
+					{% set courseUrl = null %}
+					{% if current_host[event.course.id] is defined %}
+						{% set courseUrl = current_host[event.course.id] %}
+					{% else %}
+						{% set courseUrl = course_pages[event.course.id] %}
+					{% endif %}
+
+					{% if courseUrl %}
+						<a class="cal-event-label" href="https://{{courseUrl.host}}{{path(courseUrl.page.slugKey)}}"><strong>{{event.course.label}}</strong><br/></a>
+					{% else %}
+						<strong class="cal-event-label">{{event.course.label}}</strong><br/>
+					{% endif %}
+					<span class="cal-event-date"><i class="fa fa-calendar" style="margin-right: 6px;"></i> {{event.date|date('d-m-Y H:i') ~ (endTime != '00:00' ? ' - ' ~ endTime : '')}}</span>
+				</li>
+			{% endif %}
+		{% endfor %}
+	{% else %}
+		Geen data beschikbaar.
+	{% endif %}
+</ul>

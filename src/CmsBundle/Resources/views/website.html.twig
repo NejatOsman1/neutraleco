@@ -1,0 +1,7 @@
+{% if is_granted('ROLE_ADMIN') %}
+    <script type="text/javascript">
+    var ckAdminJsonUrl = '{{path('_adminjson')}}';
+    var ckAdminPageUrl = '{{path('admin_page_selector')}}';
+    var ckAdminMediaUrl = '{{path('admin_media', {type: 'image'})}}';
+    </script>
+{% endif %}

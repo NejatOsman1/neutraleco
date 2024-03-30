@@ -1,0 +1,76 @@
+{% trans_default_domain 'blog' %}
+
+{% if file_exists('../templates/override/blog/categories.html.twig') %}
+	{% include 'override/blog/categories.html.twig' %}
+{% else %}
+	{% trans_default_domain 'blog' %}
+	{% if config.uri is defined and config.uri is not empty %}
+		{% set baseUrl_detail = path('homepage') ~ config.uri %}
+	{% else %}
+		{% set baseUrl_detail = path(app.request.attributes.get('_route')) %}
+	{% endif %}
+	{% if config.uri_overview is defined and config.uri_overview is not empty %}
+		{% set baseUrl = path('homepage') ~ config.uri_overview %}
+	{% else %}
+		{% set baseUrl = path(app.request.attributes.get('_route')) %}
+	{% endif %}
+
+	<div class="blog">
+		<div class="row category-overview">
+			{% for category in Blogs %}
+				{% if category.entry is not empty %}
+					{% set first_entry = category.entry.first %}
+
+					{% if first_entry.isexternal and first_entry.externalurl is not empty %}
+						{% set detailUrl = first_entry.externalurl %}
+					{% else %}
+						{% set detailUrl = baseUrl_detail ~ '/' ~ first_entry.id ~ '/' ~ first_entry.getDefaultSlug %}
+					{% endif %}
+					{% set shareUrl = url(app.request.attributes.get('_route')) ~ '/' ~ first_entry.id ~ '/' ~ first_entry.getDefaultSlug %}
+					{% if first_entry.slug and first_entry.isexternal == false %}
+						{% set detailUrl = baseUrl_detail ~ '/' ~ first_entry.getSlug %}
+						{% set shareUrl = url(app.request.attributes.get('_route')) ~ '/' ~ first_entry.getSlug %}
+					{% endif %}
+				{% else %}
+					{% set detailUrl = '' %}
+				{% endif %}
+
+				<div class="col-12 col-md-6 col-lg-4">
+					<a {% if detailUrl is not empty %} href="{{detailUrl}}" {% endif %}>
+						<div class="card">
+							 <div class="thumb">
+							<div class="lcp image">
+							{% if category.image %}
+								{% if category.image.hasBlurred %}
+									<picture>
+										{% if category.image.hasWebp() %}
+										<source srcset="/{{category.image.getBlurredWebpPath}}" type="image/webp">
+										{% endif %}
+										<source srcset="/{{category.image.getBlurredWebPath}}" type="{{category.image.mime}}">
+										<img class="lq" alt="{{category.image.description_alt}}" src="/{{category.image.getBlurredWebPath}}" type="{{category.image.mime}}" loading="lazy" width="{{category.image.width}}" height="{{category.image.height}}">
+									</picture>
+								{% endif %}
+									<picture>
+										{% if category.image.hasWebp() %}
+											<source srcset="/{{category.image.getWebpPath}}" type="image/webp">
+										{% endif %}
+										<source srcset="/{{category.image.getWebPath}}" type="{{ category.image.mime }}">
+										<img class="hq" alt="{{category.image.description_alt}}" src="/{{category.image.getWebPath}}" type="{{category.image.mime}}" loading="lazy" width="{{category.image.width}}" height="{{category.image.height}}" onload="this.style.opacity=1{% if category.image.hasBlurred %};this.closest('.lcp').getElementsByClassName('lq')[0].style.opacity=0;{% endif %}" style="opacity: 0;">
+									</picture>
+							{% endif %}
+							</div>
+						</div>
+							<div class="card-body">
+								<h5 class="category-title">{{ category.category }}</h5>
+								<div class="category-description">{{ category.intro|raw }}</div>
+								<small class="category-articles">
+									{{ category.entry|length }} {{ 'berichten'|trans }}
+								</small>
+							</div>
+						</div>
+					</a>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endif %}

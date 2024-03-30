@@ -1,0 +1,138 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+{% block body %}
+	<style>
+	.more-hidden {
+	    background: #179bde1f;
+	    width: 100%;
+	    display: block;
+	    padding: 6px 13px;
+	    border-radius: 15px;
+	    text-align: center;
+	}
+	</style>
+	<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<script type="text/javascript" src="//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+	<div class="btn-bar">
+		<div class="right">
+
+
+			{% if filter_active %}
+				<a href="{{path('admin_log')}}" style="margin-right:10px;" class="btn">Huidige filter wissen</a>
+			{% endif %}
+
+			<div class="input-bg">
+				<input type="text" class="center-align" name="daterange" />
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="card-content">
+			{# {% if filter_active %}
+				<div class="card-title">
+					<a href="{{path('admin_log')}}" class="btn right">Filter wissen</a>
+				</div>
+			{% endif %} #}
+
+			<div class="table-responsive">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th style="width:30px;">&nbsp;</th>
+						<th style="width:160px;">Datum</th>
+						<th style="width:100px;">Bundle</th>
+						<th style="width:150px;">Soort</th>
+						<th>Melding</th>
+						<th style="width:200px;">Gebruiker</th>
+						<th style="width:100px;">IP-adres</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for Log in logs %}
+						<tr>
+							<td>
+								{% if (Log.type == 'auth' and Log.status == 'success') %}
+									<i class="fa fa-fw fa-check-circle green-text"></i>
+								{% elseif (Log.type == 'auth' and Log.status == 'failure') %}
+									<i class="fa fa-fw fa-exclamation-triangle orange-text"></i>
+								{% elseif (Log.type == 'blocked') %}
+									<i class="fa fa-fw fa-ban red-text"></i>
+								{% elseif (Log.action == 'add') %}
+									<i class="fa fa-fw fa-plus-circle blue-text"></i>
+								{% elseif (Log.action == 'upload') %}
+									<i class="fa fa-fw fa-cloud-upload-alt blue-text"></i>
+								{% elseif (Log.action == 'delete') %}
+									<i class="fa fa-fw fa-trash-alt red-text"></i>
+								{% elseif (Log.action == 'sort') %}
+									<i class="fa fa-fw fa-sort grey-text"></i>
+								{% elseif (Log.action == 'update') %}
+									<i class="fa fa-fw fa-edit grey-text"></i>
+								{% elseif (Log.action == 'mail') %}
+									<i class="fa fa-fw fa-envelope blue-text"></i>
+								{% elseif (Log.status == 'info') %}
+									<i class="fa fa-fw fa-info-circle grey-text"></i>
+								{% endif %}
+							</td>
+							<td>{{Log.date|date('d-m-Y H:i:s')}}</td>
+							<td><a href="{{path('admin_log', {page: page, filter: 'bundle', val: Log.bundle})}}">{{(Log.bundle ?? 'Trinity')|capitalize}}</a></td>
+							<td><a href="{{path('admin_log', {page: page, filter: 'type', val: Log.type})}}">{{Log.typeLabel|capitalize}}</a></td>
+							<td>{{Log.message|raw}}</td>
+							<td><a href="{{path('admin_log', {page: page, filter: 'username', val: (Log.user ? Log.user.username : Log.username)})}}">{{(Log.user ? Log.user.username : '<em style="color: #aaa;">' ~ Log.username ~ '</em>')|raw}}</a></td>
+							<td><a href="{{path('admin_log', {page: page, filter: 'ip', val: Log.ip})}}">{{Log.ip}}</a></td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			</div>
+
+			{% if countAll > count %}
+				<span class="more-hidden">Er zijn nog {{countAll - count}} log regels, verborgen door de datum filter.</span>
+			{% endif %}
+
+			{% set lastPage = pages %}
+			{% set currentPage = page %}
+			{% set currentFilters = {page: page, filter: filter, val: val} %}
+			{% include '@Cms/pagination.html.twig' %}
+		</div>
+	</div>
+
+	<script>
+	$(function(){
+	    var start = moment('{{start}}');
+	    var end = moment('{{end}}');
+	    var url = '{{path('admin_log', {page: page, filter: filter, val: val})}}';
+
+	    $('input[name="daterange"]').daterangepicker({
+	        opens: 'right',
+	        drops: 'down',
+	        startDate: start,
+	        endDate: end,
+	        autoApply: true,
+	        alwaysShowCalendars: true,
+	        ranges: {
+	           '{{ 'Vandaag' | trans }}': [moment(), moment()],
+	           '{{ 'Gisteren' | trans }}': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+	           '{{ 'Afgelopen 7 dagen' | trans }}': [moment().subtract(6, 'days'), moment()],
+	           '{{ 'Afgelopen 30 dagen' | trans }}': [moment().subtract(29, 'days'), moment()],
+	           '{{ 'Huidige maand' | trans }}': [moment().startOf('month'), moment().endOf('month')],
+	           '{{ 'Vorige maand' | trans }}': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+	        },
+	        locale: {
+	            format: 'DD-M-YYYY',
+	            customRangeLabel: "{{ 'Aangepaste selectie' | trans }}",
+	            separator: " - ",
+	            applyLabel: "{{ 'Toepassen' | trans }}",
+	            cancelLabel: "{{ 'Annuleren' | trans }}",
+	            fromLabel: "{{ 'Van' | trans }}",
+	            toLabel: "{{ 'Tot' | trans }}",
+	        }
+	    }, function(start, end, label) {
+	        window.location = url + '?s=' + start.format('YYYY-MM-DD') + '&e=' + end.format('YYYY-MM-DD');
+	        // console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+	    });
+	});
+	</script>
+{% endblock %}

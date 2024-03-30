@@ -1,0 +1,505 @@
+
+{% extends (app.request.xmlHttpRequest ? '@Cms/ajax.html.twig' : ['layouts/' ~ Page.layout ~ '.html.twig', 'layouts/' ~ Settings.defaultTemplate ~ '.html.twig', 'layouts/default.html.twig']) %}
+
+{% if Page.CricitalCss is defined and Page.CricitalCss is not empty %}
+	{% set deferStylesheets = true %}
+{% else %}
+	{% set deferStylesheets = false %}
+{% endif %}
+
+{% trans_default_domain 'cms' %}
+{% block metadata %}{% include "@Cms/page/metadata.html.twig" with {'metatags': metatags, 'bundle_metatags': bundle_metatags} %}{% endblock %}
+
+{% block sitetitle %}{{Settings.getLabel|raw}}{% endblock %}
+
+{% block title %}
+	{{customTitle is defined and customTitle is not empty ? customTitle : ''}}
+	{{Page.getTitle|raw}}
+{% endblock %}
+
+{% block pagetitle %}
+	{% if is_granted('ROLE_ADMIN') and Settings.getInlineEdit and app.session.get('live_edit') == true %}
+		<h1 id="title-{{Page.getId}}" class="front-editor" contenteditable="true">{{Page.getTitle|raw}}</h1>
+	{% else %}
+		<h1>{{Page.getTitle|raw}}</h1>
+	{% endif %}
+
+{% endblock %}
+
+{% block plain_body %}
+	{% if exception is defined and Page.mode == "dev" %}
+		{# {{dump(exception)}} #}
+	{% endif %}
+	{% if loginform is defined %}
+		{% include ['layouts/login.html.twig', '@Cms/page/login.html.twig'] %}
+	{% elseif pwdform is defined %}
+		{% include ['layouts/password.html.twig', '@Cms/page/password.html.twig'] %}
+	{% endif %}
+{% endblock %}
+
+{% block body %}
+	{% if loginform is defined %}
+		{% include ['layouts/login.html.twig', '@Cms/page/login.html.twig'] %}
+	{% elseif pwdform is defined %}
+		{% include ['layouts/password.html.twig', '@Cms/page/password.html.twig'] %}
+	{% else %}
+		{% if is_granted('ROLE_ADMIN') and Settings.getInlineEdit and app.session.get('live_edit') == true %}
+			<div id="{{content is not empty ? 'contentid-' ~ content['default'].id : 'pageid-' ~ Page.id}}" id="main-front-editor" class="front-editor" contenteditable="true">{{content is not empty ? content['default'].content|raw : ''}}</div>
+		{% else %}
+			{{content is not empty ? content['default'].content|raw : ''}}
+		{% endif %}
+	{% endif %}
+{% endblock %}
+
+{% block pageimage %}{% if Page.hasImage %}{{asset(Page.getImage.getWebPath)}}{% endif %}{% endblock %}
+
+{# {% block head_lang %}{{(Settings is defined and Settings.language is not empty ? 'lang="' ~ Settings.language.localeFull ~ '"' : '')|raw}}{% endblock %} #}
+{% block head_lang %}{{(Settings is defined and Settings.language is not empty ? 'lang="' ~ (Settings.language.locale == 'gb' ? 'en' : Settings.language.locale) ~ '"' : '')|raw}}{% endblock %}
+
+{% block admin_header %}
+	{% if exception is defined %}
+		<meta name="robots" content="noindex,nofollow" />
+	{% else %}
+		<meta name="robots" content="{{(Page is defined and Page.robots is not empty ? Page.robots : (Settings is defined and Settings.robots is not empty ? Settings.robots : 'noindex,nofollow'))}}" />
+	{% endif %}
+
+	{% set customMetadata = pageblocks_meta(Page) %}
+
+	{% include "@Cms/page/metadata.html.twig" %}
+
+	{% for Language in languages %}
+		{% if Language.settings %}
+			{% for LanguageSettings in Language.settings %}
+				{% if LanguageSettings.host and LanguageSettings.host == Settings.host %}
+					{# <link rel="alternate" href="{{ (LanguageSettings.forceHttps ? 'https' : 'http') ~ '://' ~ LanguageSettings.host ~ LanguageSettings.baseUri }}" hreflang="{{Language.localeFull|replace({'_' : '-'})}}" /> #}
+					<link rel="alternate" href="{{ (LanguageSettings.forceHttps ? 'https' : 'http') ~ '://' ~ LanguageSettings.host ~ LanguageSettings.baseUri }}" hreflang="{{Language.locale == 'gb' ? 'en' : Language.locale}}" />
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+
+	{% if is_granted('ROLE_ADMIN') and Settings.getInlineEdit %}
+		{% if deferStylesheets %}
+			<link rel="preload" href="/bundles/cms/css/frontinject.css" as="style" onload="this.onload=null;this.rel='stylesheet';">
+		{% else %}
+			<link rel="stylesheet" href="/bundles/cms/css/frontinject.css">
+		{% endif %}
+	{% endif %}
+	{% if is_granted('ROLE_ADMIN') and Settings.getInlineEdit and app.session.get('live_edit') == true %}
+		{% if deferStylesheets %}
+			<link rel="preload" href="{{asset('bundles/cms/css/font-awesome.min.css')}}" as="style" onload="this.onload=null;this.rel='stylesheet';" />
+			<link rel="preload" href="/bundles/cms/css/jquery.cpop.css" as="style" onload="this.onload=null;this.rel='stylesheet';" />
+		{% else %}
+			<link rel="stylesheet" href="{{asset('bundles/cms/css/font-awesome.min.css')}}">
+			<link rel="stylesheet" href="/bundles/cms/css/jquery.cpop.css">
+		{% endif %}
+		<style type="text/css">
+		.front-editor{
+			outline: none !important;
+			border: dashed 1px #ccc;
+			margin: -1px;
+		}
+
+		.cke_chrome {
+		    box-shadow: none !important;
+		}
+
+		.cke_wordcount {
+		    display: none !important;
+		}
+
+		.cke_float .cke_top {
+		    background: #f3f3f3 !important;
+		    border: solid 1px #ccc !important;
+		    box-shadow: none !important;
+		    border-radius: 2px !important;
+		}
+
+		.save-overlay{
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: 10000;
+			background: #ffffffab;
+		}
+
+		.inline-save-btn{
+			position: fixed;
+			bottom: 40px;
+			right: 50px;
+		}
+
+		.lds-ring {
+			display: inline-block;
+			position: relative;
+			width: 120px;
+			height: 120px;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-left: -60px;
+			margin-top: -60px;
+		}
+		.lds-ring span {
+			position: absolute;
+			top: 45px;
+			left: 30px;
+			right: 30px;
+			text-align: center;
+			font-size: 12px;
+			line-height: 16px;
+			color: #3594e8;
+			font-weight: bold;
+		}
+		.lds-ring div {
+			box-sizing: border-box;
+			display: block;
+			position: absolute;
+			width: 104px;
+			height: 104px;
+			margin: 8px;
+			border: 8px solid #3594e8;
+			border-radius: 50%;
+			animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+			border-color: #3594e8 transparent transparent transparent;
+		}
+		.lds-ring div:nth-child(1) {
+			animation-delay: -0.45s;
+		}
+		.lds-ring div:nth-child(2) {
+			animation-delay: -0.3s;
+		}
+		.lds-ring div:nth-child(3) {
+			animation-delay: -0.15s;
+		}
+		@keyframes lds-ring {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		</style>
+	{% endif %}
+	{% for incl in Settings.getLayoutIncludeCss(true) %}
+		{% if deferStylesheets %}
+			<link rel="preload" href="{{incl}}?v=12" as="style" onload="this.onload=null;this.rel='stylesheet';">
+		{% else %}
+			<link rel="stylesheet" href="{{incl}}?v=12">
+		{% endif %}
+	{% endfor %}
+
+	{% if extraPageCss is defined %}
+	{% for incl in extraPageCss %}
+		{% if deferStylesheets %}
+			<link rel="preload" href="{{incl}}?v=12" as="style" onload="this.onload=null; this.rel='stylesheet'">
+		{% else %}
+			<link rel="stylesheet" href="{{incl}}?v=12">
+		{% endif %}
+	{% endfor %}
+	{% endif %}
+
+	{% for incl in Settings.getLayoutIncludeFont(true) %}
+		{% if deferStylesheets %}
+			<link rel="preload" href="{{incl}}?v=12" as="style" onload="this.onload=null;this.rel='stylesheet';">
+		{% else %}
+			<link rel="stylesheet" href="{{incl}}?v=12">
+		{% endif %}
+	{% endfor %}
+
+	{% for incl in Settings.getLayoutIncludeJs(true) %}
+		{% if incl matches '/jquery-\\d.*\.min\.js/' %}
+		<script defer type="text/javascript" src="{{incl}}?v=12"></script>
+		{% endif %}
+	{% endfor %}
+
+	{% for incl in Settings.getLayoutIncludeJs(true) %}
+		{% if incl matches '{popper}' %}
+			<script defer type="text/javascript" src="{{incl}}?v=12"></script>
+		{% endif %}
+	{% endfor %}
+
+	{% for incl in Settings.getLayoutIncludeJs(true) %}
+		{% if not (incl matches '/jquery-\\d.*\.min\.js/') and not (incl matches '{popper}') %}
+			<script defer type="text/javascript" src="{{incl}}?v=12"></script>
+		{% endif %}
+	{% endfor %}
+
+	{% if Settings.cookiebar %}
+		<script defer src="/bundles/cms/js/avg.min.js"></script>
+	{% endif %}
+
+    {% if Settings.hasGoogleRecaptcha %}
+    	<script>
+    		var googleRecaptchaMode = '{{ Settings.googleRecaptchaMode }}';
+    		var googleRecaptchaSitekey = '{{ Settings.googleRecaptchaSitekey }}';
+    	</script>
+    {% endif %}
+
+	<script defer src="/bundles/cms/js/frontend_common.js"></script>
+
+    {% if extraPageJs is defined %}
+	{% for incl in extraPageJs %}
+		<script defer type="text/javascript" src="{{incl}}"></script>
+	{% endfor %}
+	{% endif %}
+
+	{% if Settings.googleCc is not empty %}
+		<meta name="google-site-verification" content="{{Settings.googleCc}}">
+	{% endif %}
+
+        {% if Settings.faceDomainKey is not empty %}
+            <meta name="facebook-domain-verification" content="{{ Settings.faceDomainKey }}" />
+        {% endif %}
+
+	{% if Settings.iosAppId is not empty %}
+		<meta name="apple-itunes-app" content="app-id={{Settings.iosAppId}}">
+	{% endif %}
+
+	{% if Settings.androidAppId is not empty %}
+		<meta name="google-play-app" content="app-id={{Settings.androidAppId}}">
+		{% if deferStylesheets %}
+			<link rel="preload" href="{{asset('bundles/cms/android-app-banner/banner.css')}}" as="style" onload="this.onload=null;this.rel='stylesheet';" />
+		{% else %}
+			<link rel="stylesheet" href="{{asset('bundles/cms/android-app-banner/banner.css')}}" />
+		{% endif %}
+	{% endif %}
+
+
+    {% if Settings.cookiebar %}
+    {% else %}
+		{% if Settings.googleGtm is not empty %}
+			<!-- Google Tag Manager -->
+			<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+			new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+			j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+			'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+			})(window,document,'script','dataLayer','{{Settings.googleGtm}}');</script>
+			<!-- End Google Tag Manager -->
+		{% endif %}
+	{% endif %}
+
+	{% if Settings.facebookpixel is not empty %}
+		<script>
+		!function(f,b,e,v,n,t,s)
+		{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+		n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+		if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+		n.queue=[];t=b.createElement(e);t.async=!0;
+		t.src=v;s=b.getElementsByTagName(e)[0];
+		s.parentNode.insertBefore(t,s)}(window, document,'script',
+		'https://connect.facebook.net/en_US/fbevents.js');
+		fbq('init', '{{Settings.facebookpixel}}');
+		fbq('track', 'PageView');
+		</script>
+	{% endif %}
+
+		<script type="application/ld+json">
+		{
+			"@context": "http://schema.org/",
+			"@type": "Organization",
+			"name": "{{Settings.company}}",
+			"address": {
+				"@type": "PostalAddress",
+				"streetAddress": "{{Settings.address}}",
+				"addressLocality": "{{Settings.place}}",
+				{% if Settings.state is not empty %}
+				"addressRegion": "{{Settings.state}}",
+				{% endif %}
+				"postalCode": "{{Settings.postalcode}}"
+			},
+			"telephone": "{{Settings.phone}}",
+			"email": "mailto:{{Settings.systemEmail|trim}}"
+		}
+		</script>
+
+		{% if is_granted('ROLE_ADMIN') and Settings.getInlineEdit and app.session.get('live_edit') == true %}
+			<script type="text/javascript">
+				var frontendEdit = true;
+				var ckAdminJsonUrl = '{{path('_adminjson')}}';
+				var ckAdminPageUrl = '{{path('admin_page_selector')}}';
+				var ckAdminMediaUrl = '{{path('admin_media', {type: 'image'})}}';
+				var ckDropUploadUrl = '';
+			</script>
+
+			<script defer src="{{asset('bundles/cms/ckeditor/ckeditor.js')}}"></script>
+			<script defer src="{{asset('bundles/cms/jquery-match-height/dist/jquery.matchHeight-min.js')}}"></script>
+			<script defer src="{{asset('bundles/cms/jquery-ui-1.11.4.custom/jquery-ui.js')}}"></script>
+			<script defer src="{{ asset('bundles/cms/js/jquery.cpop.js') }}"></script>
+
+			<script defer src=" {{ asset('bundles/cms/js/frontend.js') }}"></script>
+		{% endif %}
+
+		{% if Settings.androidAppId is not empty %}
+		<script>
+			var smartBannerMsgTitle = '{{Settings.appLabel}}';
+			var smartBannerMsgAuthor = '{{Settings.company}}';
+			var smartBannerMsgButton = '{{ 'BEKIJKEN' | trans({}, '', app.request.locale) }}';
+			var smartBannerMsgIos = '{{ 'In de App Store' | trans }}';
+			var smartBannerMsgAndroid = '{{ 'In Google Play' | trans }}';
+			var smartBannerMsgWindows = '{{ 'In Windows store' | trans }}';
+			var smartBannerMsgPrice = '{{ 'GRATIS' | trans }}';
+			var smartBannerMsgIcon = '{{Settings.getAppIcon}}';
+		</script>
+		<script defer src="{{asset('bundles/cms/android-app-banner/banner.js')}}"></script>
+	{% endif %}
+{% endblock %}
+
+{% block admin_footer %}
+    {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+    	{% if 'admin' in app.request.attributes.get('_route') %}
+    		<a style="position:fixed;bottom:30px;right: 30px;z-index: 1000;" class="btn" href="{{path('admin_users')}}?_switch_user=_exit"><i class="fa fa-lock"></i> {{ 'Exit impersonation' | trans }}</a>
+    	{% else %}
+    		<a style="position:fixed;bottom:30px;right: 30px;z-index: 1000;" class="btn" href="{{path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params'))}}?_switch_user=_exit"><i class="fa fa-lock"></i> {{ 'Exit impersonation' | trans }}</a>
+    	{% endif %}
+    {% endif %}
+	{% if is_granted('ROLE_ADMIN') and Settings.getInlineEdit %}
+		<div id="admin-sidebar">
+			<div class="admin-logo" style="background-image:url('{{Settings.getLogo}}');"></div>
+			<ul>
+				<li>
+					<a href="{{path('admin')}}">Admin</a>
+				</li>
+				{% if app.session.get('live_edit') == true %}
+					<li><a style="background: #4F805D;" href="?live_edit=0">{{ 'Live bewerken:' | trans }} <span class="value">{{ 'AAN' | trans }}</span></a></li>
+				{% else %}
+					<li><a href="?live_edit=1">{{ 'Live bewerken:' | trans }} <span class="value">{{ 'UIT' | trans }}</span></a></li>
+				{% endif %}
+				<li><a>{{ 'Gebruiker wisselen' | trans }}</a>
+					<ul>
+						{% for User in users %}
+							{% if User.id > 1 %}
+								<li><a href="?_switch_user={{User.username}}">{{User.getName}}<span>{{User.username}} | <span class="orange-text">{{User.roles|join(', ')}}</span></span></a></li>
+							{% endif %}
+						{% endfor %}
+					</ul>
+				</li>
+				{% if Settings.getMaintenance %}
+					<li>
+						<a style="background:#A46A1F;">{{ 'Maintainance mode is actief' | trans }}</a>
+					</li>
+				{% endif %}
+				<li><a>{{(app.request.query.get("rev") and app.request.query.get("rev") matches '/^\\d+$/' ? ('Versie' | trans) ~ ' ' ~ app.request.query.get("rev") : ('Pagina versies' | trans))}}</a>
+					<ul>
+						{% set initial = false %}
+						{% for Content in Page.content[0:10] %}
+							{% if Content.name == 'default' %}
+							{% set url = '?rev=' ~ Content.revision %}
+							{% set label = (Content.revision == 0 ? ('Initiële versie' | trans) : ('Versie' | trans) ~ ' ' ~ Content.revision ) %}
+							{% set style = '' %}
+
+							{% if Content.published and initial == false %}
+								{% set initial = true %}
+								{% set label = ('Actuele versie' | trans) %}
+								{% set style = 'green darken-1' %}
+							{% elseif Content.published == false %}
+								{% set label = ('Versie' | trans) ~ ' ' ~ Content.revision ~ ' ' ~ ('(Niet gepubliceerd)' | trans ) %}
+								{% set style = 'orange darken-2' %}
+							{% endif %}
+
+							{% if app.request.query.get("rev") and app.request.query.get("rev") == Content.revision %}
+								{% set style = 'grey darken-2' %}
+							{% endif %}
+
+							<li class="{{style}}"><a href="{{url}}">{{label}}<span>{{Content.created|date('d-m-Y H:i')}}</span></a></li>
+							{% endif %}
+						{% endfor %}
+					</ul>
+				</li>
+				<li style="float:right;display: none;" id="fe-buttons">
+					<button id="fe-restore" type="button">{{ 'Restore' | trans }}</button>
+					<button id="fe-save" type="button">{{ 'Save' | trans }}</button>
+				</li>
+			</ul>
+			{# <a class="pull">&raquo;</a> #}
+		</div>
+	{% endif %}
+
+	{% if Settings.test %}
+		<div class="test-mode-badge-wrapper">
+			<div class="test-mode-badge" title="{{ 'Test mode staat aan, configureer in website instellingen.' | trans }}"><i class="fa fa-exclamation-triangle"></i> {{ 'TEST MODE' | trans }}</div>
+		</div>
+	{% endif %}
+
+	{% if Settings.cookiebar %}
+		<script>
+			var avg_settings = {
+				'gtmCode': '{{Settings.googleGtm is not empty ? Settings.googleGtm|raw : ''}}',
+				'gaCode': '{{Settings.googleUa is not empty ? Settings.googleUa : ''}}',
+				'gCode': '{{Settings.googleG is not empty ? Settings.googleG : ''}}',
+				'lbl_info' : '{{'Wij gebruiken cookies om uw gebruikservaring te optimaliseren.'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_settings_info' : '{{'Wij gebruiken cookies om uw gebruikservaring te optimaliseren, het webverkeer te analyseren en gerichte advertenties te kunnen tonen via derde partijen.'|trans({},'cookiebar', app.request.locale)}}</p><p class="lbl-info-more">{{'Als u akkoord gaat met ons gebruik van cookies, klikt u op "Alle cookies toestaan". Geef hieronder aan welke opties u wilt toestaan tijdens het gebruik van deze website.'|trans({},'cookiebar', app.request.locale)}}',
+
+				'lbl_essential' : '{{'Essentieel'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_preferences' : '{{'Voorkeuren'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_statistics' : '{{'Statistieken'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_marketing' : '{{'Marketing'|trans({},'cookiebar', app.request.locale)}}',
+
+				'lbl_tooltip_essential' : '{{'Noodzakelijke cookies helpen een website bruikbaarder te maken, door basisfuncties als paginanavigatie en toegang tot beveiligde gedeelten van de website mogelijk te maken. Zonder deze cookies kan de website niet naar behoren werken.'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_tooltip_preferences' : '{{'Voorkeurscookies zorgen ervoor dat een website informatie kan onthouden die van invloed is op het gedrag en de vormgeving van de website, zoals de taal van uw voorkeur of de regio waar u woont.'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_tooltip_statistics' : '{{'Statistische cookies helpen eigenaren van websites begrijpen hoe bezoekers hun website gebruiken, door anoniem gegevens te verzamelen en te rapporteren.'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_tooltip_marketing' : '{{'Marketingcookies worden gebruikt om bezoekers te volgen wanneer ze verschillende websites bezoeken. Hun doel is advertenties weergeven die zijn toegesneden op en relevant zijn voor de individuele gebruiker.'|trans({},'cookiebar', app.request.locale)}}',
+
+				'lbl_back' : '{{'Terug'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_settings' : '{{'Instellingen'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_accept' : '{{'Alle cookies toestaan'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_save' : '{{'Accepteren en sluiten'|trans({},'cookiebar', app.request.locale)}}',
+				'lbl_btn_reset' : '{{'Cookie instellingen'|trans({},'cookiebar', app.request.locale)}}',
+
+				'link_cookie' : {{(Settings.avgCookie is not empty ? '\'' ~ Settings.avgCookie ~ '\'' : 'null')|raw}},
+				'link_privacy' : {{(Settings.avgPrivacy is not empty ? '\'' ~ Settings.avgPrivacy ~ '\'' : 'null')|raw}},
+				'link_disclaimer' : {{(Settings.avgDisclaimer is not empty ? '\'' ~ Settings.avgDisclaimer ~ '\'' : 'null')|raw}},
+
+				'lbl_cookie_btn' : '{{'Cookie informatie'|trans({}, 'cookiebar', app.request.locale)}}',
+				'lbl_privacy_btn' : '{{'Privacy statement'|trans({}, 'cookiebar', app.request.locale)}}',
+				'lbl_disclaimer_btn' : '{{'Disclaimer'|trans({}, 'cookiebar', app.request.locale)}}',
+
+				'reset_btn' : {{Settings.cookiebarButton ? 'true' : 'false'}},
+				'reset_btn_position' : '{{Settings.cookiebarButtonPosition}}',
+				'reset_btn_offset_right' : '{{Settings.cookiebarButtonOffset}}',
+			};
+		</script>
+	{% else %}
+		{% if Settings.googleUa is not empty %}
+			<!-- Google Analytics -->
+			<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+				})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+				ga('create', '{{Settings.googleUa}}', 'auto');
+				ga('send', 'pageview');
+			</script>
+			<!-- End Google Analytics -->
+		{% endif %}
+		{% if Settings.googleGtm is not empty %}
+			<!-- Google Tag Manager (noscript) -->
+			<noscript><iframe data-src="https://www.googletagmanager.com/ns.html?id={{Settings.googleGtm}}"
+			height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+			<!-- End Google Tag Manager (noscript) -->
+		{% endif %}
+	{% endif %}
+
+	{% if Page.tplInject %}
+		{{Page.tplInject|raw}}
+	{% endif %}
+
+	{% if app.request.get('timer') and app.request.get('timer') == 2 and timer_result is defined %}
+		<div class="easify_timer" style="padding: 50px;">
+			<strong>TIMER:</strong>
+
+			{{timer_result|raw}}
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block footer1 %}{{Settings.footerBlock1|raw}}{% endblock %}
+{% block footer2 %}{{Settings.footerBlock2|raw}}{% endblock %}
+{% block footer3 %}{{Settings.footerBlock3|raw}}{% endblock %}
+{% block footer4 %}{{Settings.footerBlock4|raw}}{% endblock %}
+{% block footer5 %}{{Settings.footerBlock5|raw}}{% endblock %}

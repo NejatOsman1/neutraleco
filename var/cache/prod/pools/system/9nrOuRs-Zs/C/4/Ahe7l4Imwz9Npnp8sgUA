@@ -1,0 +1,3 @@
+<?php //App%255CCmsBundle%255CController%255CSettingsController%2523getRefererRoute
+
+return [PHP_INT_MAX, []];

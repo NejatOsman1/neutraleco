@@ -1,0 +1,45 @@
+{#
+    {
+        "key": "framework_slider",
+        "category": "Framework",
+        "label": "Carousel (Slider)",
+        "description": "...",
+        "allowMove": false,
+        "blocks": [
+            {
+                "key": "block-0",
+                "size": 12,
+                "required": "SliderBundle",
+                "fields": []
+            }
+        ]
+    }
+#}
+
+<section
+class="gallery {{wrapper.classList}}"
+id="{{wrapper.cssId is defined ? wrapper.cssId : ''}}"
+style="{{wrapper.styleList}}"
+data-id="{{wrapper.id}}">
+
+  <div class="container {{ firstBlock.class }}">
+    {% if wrapper.label or wrapper.intro is not empty %}
+      <div class="introblock">
+        {% if wrapper.label is not empty %}
+          <div class="introtitle">
+            {{wrapper.label|raw}}
+          </div>
+        {% endif %}
+        {% if wrapper.intro is not empty %}
+          <div class="introtext">
+            {{wrapper.intro|raw}}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="slider-wrapper">
+      {{firstBlock.content|raw}}
+    </div>
+  </div>
+</section>

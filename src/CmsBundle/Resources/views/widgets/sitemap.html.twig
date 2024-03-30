@@ -1,0 +1,72 @@
+{# {% include "App\CmsBundle:widgets:sitemap_page.html.twig" with {'pages': pages} %} #}
+
+<div class="sitemap">
+	
+	<div class="sitemap-pages">
+		<h2>{{ "Pagina's" | trans }}</h2>
+	
+		{% macro recursivePages(p) %}
+		    <li>
+		        <a href="{{path(p.slugKey)}}">{{p.title}}</a>
+
+		        {% if p.pages.count %}
+		            <ul>
+		                {% for c in p.pages %}
+		                    {{ _self.recursivePages(c) }}
+		                {% endfor %}
+		            </ul>
+		        {% endif %}
+		    </li>
+		{% endmacro %}
+
+        <div class="sitemap-page-list" id="pages">
+            <ul>
+                {% for p in pages %}
+                    {{ _self.recursivePages(p) }}
+                {% endfor %}
+            </ul>
+        </div>
+	</div>
+	
+	{% if webshop_categories is defined %}
+		<div class="sitemap-webshop-categories">
+			<h2>{{ 'Categorieën' | trans }}</h2>
+
+			{% for c in webshop_categories %}
+                            {% if c.label != 'Ongesorteerd' %}
+                                <div>
+                                       <a href="{{ (WebshopSettings is defined and WebshopSettings.uri ? WebshopSettings.uri : path('homepage')) ~ c.uri}}">{{c.label}}</a>
+                                       {% if c.children.count %}
+                                               {% for cc in c.children %}
+                                                       <div style="margin-left: 40px;"><a href="{{ (WebshopSettings is defined and WebshopSettings.uri ? WebshopSettings.uri : path('homepage')) ~ cc.uri}}">{{cc.label}}</a>
+                                                       {% if cc.children.count %}
+                                                               {% for ccc in cc.children %}
+                                                                       <div style="margin-left: 40px;"><a href="{{ (WebshopSettings is defined and WebshopSettings.uri ? WebshopSettings.uri : path('homepage')) ~ ccc.uri}}">{{ccc.label}}</a>
+                                                                       {% if ccc.children.count %}
+                                                                               {% for cccc in ccc.children %}
+                                                                                       <div style="margin-left: 40px;"><a href="{{ (WebshopSettings is defined and WebshopSettings.uri ? WebshopSettings.uri : path('homepage')) ~ cccc.uri}}">{{cccc.label}}</a></div>
+                                                                               {% endfor %}
+                                                                       {% endif %}
+                                                                       </div>
+                                                               {% endfor %}
+                                                       {% endif %}
+                                                       </div>
+                                               {% endfor %}
+                                       {% endif %}
+                               </div>
+                            {% endif %}
+			{% endfor %}
+		</div>
+	{% endif %}
+	{% if webshop_products is defined %}
+		<div class="sitemap-webshop-products">
+			<h2>{{ 'Producten' | trans }}</h2>
+
+			{% for p in webshop_products %}
+                            {% if p.label != 'Ongesorteerd' %}
+				<a href="{{ (WebshopSettings is defined and WebshopSettings.uri ? WebshopSettings.uri : path('homepage')) ~ p.category.first.category.uri ~ '/' ~ p.slug }}">{{p.label}}</a>
+                            {% endif %}
+			{% endfor %}
+		</div>
+	{% endif %}
+</div>

@@ -1,0 +1,68 @@
+{% extends '@Cms/base.html.twig' %}
+{% trans_default_domain 'cms' %}
+
+{% block pagetitle %}{{ 'Blog'|trans }}{% endblock %}
+
+{% block body %}
+	{{ form_start(form, {'multipart': true, 'attr': {'id': 'page-blog-edit-reply' }}) }}
+	<div class="row">
+		<div class="col-12 col-md-6">
+			<div class="card">
+				<div class="card-content">
+	      	<div class="card-title">
+						<h6 class="card-titles">{{ 'Reactie op bericht' | trans }}</h6>
+						<div class="card-actions">
+							{{ form_row(form.approved) }}
+						</div>
+					</div>
+					<table>
+						<tr>
+							<th valign="top">{{ 'Naam:' | trans }}</th>
+							<td valign="top">{{Reply.firstname ~ ' ' ~ Reply.lastname}}</td>
+						</tr>
+						<tr>
+							<th valign="top">{{ 'E-mail:' | trans }}</th>
+							<td valign="top">{{Reply.email}}</td>
+						</tr>
+						<tr>
+							<th valign="top">{{ 'Datum:' | trans }}</th>
+							<td valign="top">{{Reply.date|date('d-m-Y H:i:s')}}</td>
+						</tr>
+						<tr>
+							<td colspan="2" valign="top">
+								<br>
+								{{ form_row(form.comment) }}
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="btn-bar">
+			<div class="left"></div>
+			<div class="right">
+				<a href="#" class="btn btn-flat" onClick="history.back()"><i class="fa fa-arrow-left"></i> {{ 'Terug' | trans }}</a>
+				<button type="submit" class="btn">{{ 'Wijzigingen opslaan' | trans }}</button>
+			</div>
+		</div>
+
+		<div class="col-12 col-md-6">
+		  <div class="card">
+	      <div class="card-content">
+	      	<div class="card-title">
+						<h6 class="card-titles">{{ 'Reactie toevoegen als beheerder' | trans }}</h6>
+					</div>
+          <div class="row">
+              <div class="col-12">
+                  <textarea name="admin_comment" class="ckeditor"></textarea>
+              </div>
+          </div>
+	        </div>
+		    </div>
+			</div>
+	</div>
+
+
+    {{ form_end(form) }}
+{% endblock %}

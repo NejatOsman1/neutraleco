@@ -1,0 +1,3 @@
+<?php //App%255CCmsBundle%255CController%255CMediaController%2523uploadHandler
+
+return [PHP_INT_MAX, []];

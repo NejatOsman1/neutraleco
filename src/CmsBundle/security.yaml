@@ -1,0 +1,116 @@
+security:
+    encoders:
+        App\CmsBundle\Entity\User:
+            algorithm: bcrypt
+
+    access_denied_url: /
+
+    role_hierarchy:
+        ROLE_USER:        ROLE_USER
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    providers:
+        in_memory: { memory: null }
+        app_user_provider:
+            entity:
+                class: App\CmsBundle\Entity\User
+
+    firewalls:
+        oauth_token:
+            pattern:    ^/oauth/v2/token
+            security:   false
+
+        api:
+            pattern:    ^/api
+            fos_oauth:  true
+            stateless:  true
+            anonymous:  true
+            provider: app_user_provider
+            guard:
+                authenticators:
+                    - App\CmsBundle\Security\AppUserAuthenticator
+
+        admin_secured_area:
+            pattern:   ^/admin
+            anonymous: ~
+            provider: app_user_provider
+            guard:
+                authenticators:
+                    - App\CmsBundle\Security\AppUserAuthenticator
+            form_login:
+                provider: app_user_provider
+                use_referer: true
+                login_path: /admin/login
+                check_path: /admin/login_check
+                default_target_path: /admin
+            logout:
+                path:   /admin/logout
+                target: /admin
+            switch_user: true
+            context: primary_auth
+            remember_me:
+                secret:   '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path:     /
+                domain:   ~
+            two_factor:
+                auth_form_path: admin_2fa_login    # The route name you have used in the routes.yaml
+                check_path: admin_2fa_login_check
+                post_only: false
+                prepare_on_login: true
+                auth_code_parameter_name: _auth_code
+                trusted_parameter_name: _trusted
+                remember_me_sets_trusted: true
+                provider: app_user_provider
+
+        user_secured_area:
+            pattern:   ^/portal
+            anonymous: ~
+            provider: app_user_provider
+            guard:
+                authenticators:
+                    - App\CmsBundle\Security\AppUserAuthenticator
+            form_login:
+                provider: app_user_provider
+                use_referer: true
+                login_path: /portal/login
+                check_path: /portal/login_check
+                default_target_path: /portal
+            logout:
+                path:   /portal/logout
+                target: /portal
+            switch_user: true
+            context: primary_auth
+            remember_me:
+                secret:   '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path:     /
+                domain:   ~
+
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+            context: primary_auth
+
+        main:
+            anonymous: lazy
+            http_basic: false
+            switch_user: true
+            provider: app_user_provider
+            context: primary_auth
+
+    access_control:
+        - { path: ^/admin/2fa, role: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/oauth/v2/auth_login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/lostpassword, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/login_check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/portal/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/portal/lostpassword, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/portal/login_check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/portal/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/portal, roles: [ROLE_STUDENT,ROLE_TEACHER,ROLE_OWNER] }
+        - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
+        - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }

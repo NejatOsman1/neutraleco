@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block admin_header %}{% endblock %}
+
+    <title>
+      {% block title %}Welkom{% endblock %}
+      -
+      {% block sitetitle %}Website{% endblock %}
+    </title>
+
+    {% block stylesheets %}{% endblock %}
+
+    {% include 'default-v2/header_css.html.twig' %}
+    {% include 'default-v2/header_scripts.html.twig' %}
+  </head>
+
+  <body class="{% if Settings.headerBar %}has-topbar{% endif %} {{Page is defined ? Page.classes:''}}">
+
+    <div class="page-overlay"></div>
+
+    {% include 'default-v2/nav.html.twig' %}
+
+    {% if Page.optionTitle or Page.optionSubtitle %}
+      {# titlebar #}
+      <section class="titlebar">
+        <div class="container">
+          {% if Page.optionTitle %}
+            <h1>{{ Page.title }}</h1>
+          {% endif %}
+
+          {% if Page.optionSubtitle %}
+            <h2>{{ Page.subtitle }}</h2>
+          {% endif %}
+        </div>
+      </section>
+      {# end titlebar #}
+    {% endif %}
+
+    {% if Page.optionBreadcrumbs %}
+    {# breadcrumbs #}
+      <section class="breadcrumbs">
+        <div class="container">
+          {{breadcrumbs(Page)}}
+        </div>
+      </section>
+      {# end breadcrumbs #}
+    {% endif %}
+
+    {% if Page.optionSubnavigation %}
+      {# subnavbar #}
+      <section class="subnavbar">
+        <div class="container">
+          {{cms_navigation('','',true, true, 0, 0, 2)}}
+        </div>
+      </section>
+      {# end subnavbar #}
+    {% endif %}
+
+    {{pageblocks(Page, app.request.locale, '')}}
+    {% block plain_body %}{% endblock %}
+
+    {% if Settings.headerBar %}
+      {# custom topbar #}
+      <section class="topbar fixed">
+        <div class="container">
+          <div class="left">
+            {{ Settings.headerBarLeft|raw }}
+          </div>
+          <div class="right">
+            {{ Settings.headerBarRight|raw }}
+          </div>
+        </div>
+      </section>
+      {# end custom topbar #}
+    {% endif %}
+
+    {% include 'default-v2/footer.html.twig' with { Settings : Settings } %}
+
+    {% include 'default-v2/footer_scripts.html.twig' %}
+
+    {% block admin_footer %}{% endblock %}
+    {% block javascripts %}{% endblock %}
+  </body>
+</html>
